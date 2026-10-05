@@ -7,7 +7,7 @@
 src/agent/
   state.js        공유 상태(AgentState)와 상한(LIMITS)
   routes.js       조건 분기(순수 함수) — 설계서 표 3
-  graph.js        그래프 조립 — 설계서 그림 1 (노드 15개, askUser·awaitSelection 직전 일시정지)
+  graph.js        그래프 조립 — 설계서 그림 1 (노드 14개, askUser·awaitSelection 직전 일시정지)
   runner.js       실행 도우미: 일시정지 시 UI 응답을 받아 재개, 저장된 상태에서 이어서 실행
   chromeSaver.js  chrome.storage.local 체크포인트 (최근 10개 실행 보관)
   mockNodes.js    가짜 노드 (LLM·브라우저 없이 흐름만 검증)
