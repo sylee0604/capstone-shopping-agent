@@ -1,5 +1,5 @@
 // 시나리오 테스트용 가짜 노드. script로 각 노드의 결과를 정해 흐름(분기·루프·상한)만 검증한다.
-import { specStatus } from '../src/agent/routes.js';
+import { specStatus } from './routes.js';
 
 export function makeMockNodes(script = {}, clock = { t: 0 }) {
   const trace = [];
@@ -12,7 +12,7 @@ export function makeMockNodes(script = {}, clock = { t: 0 }) {
     search: (s) => {
       hit('search');
       const ids = script.searchResults?.[searchCalls++] ?? [];
-      return { searchAttempts: s.searchAttempts + 1, candidates: ids.map((id) => ({ id })) };
+      return { searchAttempts: s.searchAttempts + 1, candidates: ids.map((id) => ({ id, ...(script.catalog?.[id] ?? {}) })) };
     },
     reformulateQuery: (s) => {
       hit('reformulateQuery');
@@ -56,7 +56,7 @@ export function makeMockNodes(script = {}, clock = { t: 0 }) {
     writeRationale: (s) => {
       hit('writeRationale');
       const r = s.results.at(-1);
-      return { recommendation: { type: 'recommend', productId: r.productId, size: r.size, verdict: r.verdict, rationale: '(가짜 근거)' } };
+      return { recommendation: { type: 'recommend', productId: r.productId, size: r.size, verdict: r.verdict, specStatus: r.specStatus, rationale: `(가짜 근거) 권장 키 범위로 보면 ${r.size ?? '?'} 사이즈가 ${r.verdict === '경계' ? '경계예요' : `${r.verdict}이에요`}.` } };
     },
     finish: (s) => {
       hit('finish');

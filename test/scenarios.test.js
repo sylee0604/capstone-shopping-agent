@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { buildGraph } from '../src/agent/graph.js';
 import { makeRoutes } from '../src/agent/routes.js';
 import { runAgent } from '../src/agent/runner.js';
-import { makeMockNodes } from './mockNodes.js';
+import { makeMockNodes } from '../src/agent/mockNodes.js';
 
 let seq = 0;
 async function run(script, { answers = {}, clockStart = 0 } = {}) {

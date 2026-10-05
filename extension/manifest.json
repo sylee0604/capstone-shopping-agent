@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "쇼핑 에이전트 v2 (개발용)",
+  "version": "0.2.0",
+  "description": "LangGraph 에이전트 흐름 검증용 개발 버전. 기존 데모(중국 쇼핑 어시스턴트)와 별개입니다.",
+  "permissions": ["sidePanel", "storage"],
+  "action": { "default_title": "쇼핑 에이전트 v2 열기", "default_icon": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" } },
+  "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "background": { "service_worker": "background.js" }
+}
