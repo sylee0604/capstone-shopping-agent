@@ -1,0 +1,23 @@
+[추출 POC 실행 방법 - Windows]
+
+1. API 키 준비
+   C:\캡스톤디자인\캡스톤2\gemini_key.txt 파일에 Gemini API 키 한 줄 저장
+
+2. 명령 프롬프트 열기
+   파일 탐색기에서 이 POC 폴더를 열고, 주소창에 cmd 입력 후 Enter
+
+3. 처음 한 번만
+   pip install requests
+
+4. 실행
+   python poc_extract.py
+
+   - 라벨_초안 폴더의 5장을 Gemini로 추출하고 정답과 비교합니다.
+   - 무료 등급 분당 제한 때문에 호출 사이에 8초씩 쉽니다 (전체 2~3분).
+   - 결과는 POC\결과 폴더에 저장됩니다 (날짜_report.json 이 요약).
+
+옵션
+   python poc_extract.py --set test               테스트용 라벨(라벨_테스트)로 측정
+   python poc_extract.py --only top02 dress03     특정 이미지만
+   python poc_extract.py --model gemini-2.5-flash 모델 직접 지정
+   python poc_extract.py --selftest               API 없이 비교 로직만 점검

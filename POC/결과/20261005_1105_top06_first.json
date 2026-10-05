@@ -1,0 +1,148 @@
+{
+  "category": "상의",
+  "weightUnit": "斤",
+  "variants": [
+    {
+      "name": null,
+      "fitHeightCm": null,
+      "sizes": [
+        {
+          "label": "XS",
+          "heightCm": [
+            160,
+            165
+          ],
+          "weightKg": [
+            45,
+            60
+          ],
+          "ageYears": null,
+          "length": 66,
+          "chest": {
+            "value": 120.7,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 86.3,
+            "from": "목"
+          },
+          "extra": {
+            "下摆": "88.9"
+          }
+        },
+        {
+          "label": "S",
+          "heightCm": [
+            165,
+            170
+          ],
+          "weightKg": [
+            60,
+            70
+          ],
+          "ageYears": null,
+          "length": 68.6,
+          "chest": {
+            "value": 125.7,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 88.9,
+            "from": "목"
+          },
+          "extra": {
+            "下摆": "93.98"
+          }
+        },
+        {
+          "label": "M",
+          "heightCm": [
+            170,
+            180
+          ],
+          "weightKg": [
+            70,
+            80
+          ],
+          "ageYears": null,
+          "length": 71.1,
+          "chest": {
+            "value": 130.8,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 91.4,
+            "from": "목"
+          },
+          "extra": {
+            "下摆": "99.06"
+          }
+        },
+        {
+          "label": "L",
+          "heightCm": [
+            180,
+            185
+          ],
+          "weightKg": [
+            80,
+            90
+          ],
+          "ageYears": null,
+          "length": 73.7,
+          "chest": {
+            "value": 135.9,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 94,
+            "from": "목"
+          },
+          "extra": {
+            "下摆": "104.1"
+          }
+        },
+        {
+          "label": "XL",
+          "heightCm": [
+            185,
+            190
+          ],
+          "weightKg": [
+            90,
+            115
+          ],
+          "ageYears": null,
+          "length": 76.2,
+          "chest": {
+            "value": 141,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 96.5,
+            "from": "목"
+          },
+          "extra": {
+            "下摆": "109.2"
+          }
+        }
+      ]
+    }
+  ],
+  "fitMatrix": null
+}
