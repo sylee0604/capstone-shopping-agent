@@ -1,0 +1,153 @@
+{
+  "id": "bottom02",
+  "split": "test",
+  "sourceFiles": [
+    "bottom/O1CN01LwjFON22723uWIIbe_!!1016687072.webp"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "斤",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "M/2尺",
+            "heightCm": null,
+            "weightKg": [
+              45.0,
+              50.0
+            ],
+            "ageYears": null,
+            "length": 81,
+            "chest": null,
+            "waist": {
+              "value": 67,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裤码": "27"
+            }
+          },
+          {
+            "label": "L/2尺1",
+            "heightCm": null,
+            "weightKg": [
+              50.0,
+              55.0
+            ],
+            "ageYears": null,
+            "length": 81,
+            "chest": null,
+            "waist": {
+              "value": 70,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裤码": "28"
+            }
+          },
+          {
+            "label": "XL/2尺2",
+            "heightCm": null,
+            "weightKg": [
+              55.0,
+              60.0
+            ],
+            "ageYears": null,
+            "length": 81,
+            "chest": null,
+            "waist": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裤码": "29"
+            }
+          },
+          {
+            "label": "2XL/2尺3",
+            "heightCm": null,
+            "weightKg": [
+              60.0,
+              65.0
+            ],
+            "ageYears": null,
+            "length": 81,
+            "chest": null,
+            "waist": {
+              "value": 77,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裤码": "30"
+            }
+          },
+          {
+            "label": "3XL/2尺4",
+            "heightCm": null,
+            "weightKg": [
+              65.0,
+              70.0
+            ],
+            "ageYears": null,
+            "length": 81,
+            "chest": null,
+            "waist": {
+              "value": 80,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裤码": "31"
+            }
+          },
+          {
+            "label": "4XL/2尺5",
+            "heightCm": null,
+            "weightKg": [
+              70.0,
+              75.0
+            ],
+            "ageYears": null,
+            "length": 81,
+            "chest": null,
+            "waist": {
+              "value": 83,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裤码": "32"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "플레어 스커트(하의)",
+    "라벨에 市尺(2尺 등) 허리 표기 포함",
+    "备注 칸(松紧腰)은 치수가 아니라 기록 안 함",
+    "소재(聚酯纤维95% 氨纶5%)는 상단 텍스트 — 스키마 대상 아님"
+  ],
+  "reviewed": false
+}

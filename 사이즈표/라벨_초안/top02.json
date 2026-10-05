@@ -1,0 +1,177 @@
+{
+  "id": "top02",
+  "sourceFiles": [
+    "top/O1CN013L1k7R27nh2QjdGH3_!!2215517627842.webp"
+  ],
+  "spec": {
+    "category": "상의",
+    "weightUnit": "추정_斤",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "130cm",
+            "heightCm": [
+              120,
+              132
+            ],
+            "weightKg": [
+              23.0,
+              30.0
+            ],
+            "ageYears": null,
+            "length": 52.5,
+            "chest": {
+              "value": 45.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 55.5,
+              "from": "목"
+            },
+            "extra": {}
+          },
+          {
+            "label": "140cm",
+            "heightCm": [
+              130,
+              142
+            ],
+            "weightKg": [
+              30.0,
+              37.5
+            ],
+            "ageYears": null,
+            "length": 56,
+            "chest": {
+              "value": 47.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 57.5,
+              "from": "목"
+            },
+            "extra": {}
+          },
+          {
+            "label": "150cm",
+            "heightCm": [
+              140,
+              152
+            ],
+            "weightKg": [
+              37.5,
+              45.0
+            ],
+            "ageYears": null,
+            "length": 59.5,
+            "chest": {
+              "value": 49.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 61.5,
+              "from": "목"
+            },
+            "extra": {}
+          },
+          {
+            "label": "160cm",
+            "heightCm": [
+              150,
+              162
+            ],
+            "weightKg": [
+              45.0,
+              52.5
+            ],
+            "ageYears": null,
+            "length": 63,
+            "chest": {
+              "value": 51.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 65.0,
+              "from": "목"
+            },
+            "extra": {}
+          },
+          {
+            "label": "170cm",
+            "heightCm": [
+              160,
+              172
+            ],
+            "weightKg": [
+              52.5,
+              60.0
+            ],
+            "ageYears": null,
+            "length": 66.5,
+            "chest": {
+              "value": 53.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 68.0,
+              "from": "목"
+            },
+            "extra": {}
+          },
+          {
+            "label": "175cm",
+            "heightCm": [
+              165,
+              177
+            ],
+            "weightKg": [
+              60.0,
+              65.0
+            ],
+            "ageYears": null,
+            "length": 70,
+            "chest": {
+              "value": 55.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 71.0,
+              "from": "목"
+            },
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "建议体重 단위 미표기. 키 120-132cm에 46-60 → kg이면 비정상, 斤으로 추정",
+    "胸围 45.5 (130 사이즈) → 단면",
+    "검수 확인(10/5): 斤=0.5kg. 키 대비 BMI로 보면 斤이 타당 → 추정_斤 유지",
+    "连肩袖长 = 화장(목 뒤 중심~소매 끝) → sleeve.from='목'"
+  ],
+  "reviewed": true,
+  "split": "dev"
+}

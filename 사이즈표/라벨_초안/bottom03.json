@@ -1,0 +1,394 @@
+{
+  "id": "bottom03",
+  "sourceFiles": [
+    "bottom/O1CN01NgKz9uwAD2F1WPy6_!!48519842.webp"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": "正常版 103CM",
+        "fitHeightCm": [
+          160,
+          166
+        ],
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 103,
+            "chest": null,
+            "waist": {
+              "value": 65,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 96,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "58"
+            }
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 103,
+            "chest": null,
+            "waist": {
+              "value": 69,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 100,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "59"
+            }
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 103,
+            "chest": null,
+            "waist": {
+              "value": 73,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 104,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "60"
+            }
+          },
+          {
+            "label": "XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 103,
+            "chest": null,
+            "waist": {
+              "value": 77,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 108,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "61"
+            }
+          }
+        ]
+      },
+      {
+        "name": "加长版 108CM",
+        "fitHeightCm": [
+          167,
+          174
+        ],
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 108,
+            "chest": null,
+            "waist": {
+              "value": 66,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 98,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "58"
+            }
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 108,
+            "chest": null,
+            "waist": {
+              "value": 70,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 102,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "59"
+            }
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 108,
+            "chest": null,
+            "waist": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 106,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "60"
+            }
+          },
+          {
+            "label": "XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 108,
+            "chest": null,
+            "waist": {
+              "value": 78,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 110,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "61"
+            }
+          }
+        ]
+      },
+      {
+        "name": "超长版 113CM",
+        "fitHeightCm": [
+          174,
+          185
+        ],
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 113,
+            "chest": null,
+            "waist": {
+              "value": 66,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 98,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "58"
+            }
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 113,
+            "chest": null,
+            "waist": {
+              "value": 70,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 102,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "59"
+            }
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 113,
+            "chest": null,
+            "waist": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 106,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "60"
+            }
+          },
+          {
+            "label": "XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 113,
+            "chest": null,
+            "waist": {
+              "value": 78,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 110,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "61"
+            }
+          }
+        ]
+      },
+      {
+        "name": "超模版 118CM",
+        "fitHeightCm": [
+          180,
+          190
+        ],
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 118,
+            "chest": null,
+            "waist": {
+              "value": 72,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 102,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "59"
+            }
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 118,
+            "chest": null,
+            "waist": {
+              "value": 76,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 106,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "60"
+            }
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 118,
+            "chest": null,
+            "waist": {
+              "value": 80,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 110,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "61"
+            }
+          },
+          {
+            "label": "XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 118,
+            "chest": null,
+            "waist": {
+              "value": 84,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 114,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "脚口": "62"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "표 4개(길이 버전별). 권장 키(建议净身高)는 사이즈가 아니라 버전에 붙어 있음 → variant.fitHeightCm",
+    "大腿围·前浪 칸은 '/'(값 없음) → 기록 안 함",
+    "키로는 버전만 고를 수 있고, 사이즈(S~XL)는 허리둘레로만 고를 수 있음 → 사용자 허리 정보 필요",
+    "脚口 58 → 둘레로 보이나 기본 필드가 아니라 extra",
+    "검수 확인(10/5)"
+  ],
+  "reviewed": true,
+  "split": "dev"
+}

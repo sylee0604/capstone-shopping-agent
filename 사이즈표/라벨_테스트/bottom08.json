@@ -1,0 +1,178 @@
+{
+  "id": "bottom08",
+  "split": "test",
+  "sourceFiles": [
+    "bottom/O1CN01sYQhRX1O10H8szktD_!!2395231644.webp"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "XS(可开裆)",
+            "heightCm": [
+              5,
+              65
+            ],
+            "weightKg": null,
+            "ageYears": [
+              0,
+              0.5
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "S(可开裆)",
+            "heightCm": [
+              65,
+              75
+            ],
+            "weightKg": null,
+            "ageYears": [
+              0.5,
+              1
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "M",
+            "heightCm": [
+              75,
+              85
+            ],
+            "weightKg": null,
+            "ageYears": [
+              1,
+              2
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "L",
+            "heightCm": [
+              85,
+              95
+            ],
+            "weightKg": null,
+            "ageYears": [
+              2,
+              3
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "XL",
+            "heightCm": [
+              95,
+              105
+            ],
+            "weightKg": null,
+            "ageYears": [
+              4,
+              5
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "2XL",
+            "heightCm": [
+              105,
+              115
+            ],
+            "weightKg": null,
+            "ageYears": [
+              5,
+              6
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "3XL",
+            "heightCm": [
+              115,
+              125
+            ],
+            "weightKg": null,
+            "ageYears": [
+              6,
+              7
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "4XL",
+            "heightCm": [
+              125,
+              135
+            ],
+            "weightKg": null,
+            "ageYears": [
+              8,
+              10
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "치수 없이 키·나이만",
+    "원본 오류: XS 키 '5-65cm'(상단에는 55~135cm) → 고치지 않고 [5, 65]",
+    "나이 개월 → 0-6个月 [0, 0.5], 6-12个月 [0.5, 1]"
+  ],
+  "reviewed": false
+}

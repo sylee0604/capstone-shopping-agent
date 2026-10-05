@@ -1,0 +1,94 @@
+{
+  "id": "top07",
+  "split": "test",
+  "sourceFiles": [
+    "top/O1CN01lMSRMk1gdckTpL3zN_!!2578794165.webp"
+  ],
+  "spec": {
+    "category": "상의",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 124,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 55.5,
+            "sleeve": {
+              "value": 52,
+              "from": "어깨"
+            },
+            "extra": {
+              "后中长": "73",
+              "下摆": "126",
+              "袖口": "21"
+            }
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 128,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 57.5,
+            "sleeve": {
+              "value": 53,
+              "from": "어깨"
+            },
+            "extra": {
+              "后中长": "74",
+              "下摆": "130",
+              "袖口": "22"
+            }
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 132,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 59.5,
+            "sleeve": {
+              "value": 54,
+              "from": "어깨"
+            },
+            "extra": {
+              "后中长": "75",
+              "下摆": "134",
+              "袖口": "23"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "키·몸무게 없음, 치수만",
+    "길이가 后中长(뒷중심 길이)이라 규칙대로 extra에 기록 → length 없음"
+  ],
+  "reviewed": false
+}

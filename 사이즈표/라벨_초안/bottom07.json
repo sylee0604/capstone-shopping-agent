@@ -1,0 +1,203 @@
+{
+  "id": "bottom07",
+  "sourceFiles": [
+    "bottom/O1CN01j06TOv1TkPLBuSkKv_!!1795832420.webp"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "W29",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 101,
+            "chest": null,
+            "waist": {
+              "value": 36,
+              "basis": "단면"
+            },
+            "hip": {
+              "value": 50,
+              "basis": "단면"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿": "32*2",
+              "裤脚": "22.5",
+              "前档": "31.5",
+              "后档": "41",
+              "股下": "71"
+            }
+          },
+          {
+            "label": "W30",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 103,
+            "chest": null,
+            "waist": {
+              "value": 37.5,
+              "basis": "단면"
+            },
+            "hip": {
+              "value": 51,
+              "basis": "단면"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿": "33*2",
+              "裤脚": "23",
+              "前档": "32.5",
+              "后档": "42",
+              "股下": "72.5"
+            }
+          },
+          {
+            "label": "W31",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 105,
+            "chest": null,
+            "waist": {
+              "value": 39,
+              "basis": "단면"
+            },
+            "hip": {
+              "value": 52.5,
+              "basis": "단면"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿": "34*2",
+              "裤脚": "23.5",
+              "前档": "33",
+              "后档": "43",
+              "股下": "74"
+            }
+          },
+          {
+            "label": "W32",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 106,
+            "chest": null,
+            "waist": {
+              "value": 41,
+              "basis": "단면"
+            },
+            "hip": {
+              "value": 54,
+              "basis": "단면"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿": "34.5*2",
+              "裤脚": "24.5",
+              "前档": "33.5",
+              "后档": "44",
+              "股下": "75.5"
+            }
+          },
+          {
+            "label": "W34",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 108,
+            "chest": null,
+            "waist": {
+              "value": 44,
+              "basis": "단면"
+            },
+            "hip": {
+              "value": 56,
+              "basis": "단면"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿": "35.5*2",
+              "裤脚": "25.25",
+              "前档": "35",
+              "后档": "44.5",
+              "股下": "77"
+            }
+          },
+          {
+            "label": "W36",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 110,
+            "chest": null,
+            "waist": {
+              "value": 45.5,
+              "basis": "단면"
+            },
+            "hip": {
+              "value": 58,
+              "basis": "단면"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿": "36.5*2",
+              "裤脚": "25.5",
+              "前档": "36",
+              "后档": "45",
+              "股下": "78.5"
+            }
+          },
+          {
+            "label": "W38",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 112,
+            "chest": null,
+            "waist": {
+              "value": 47,
+              "basis": "단면"
+            },
+            "hip": {
+              "value": 60,
+              "basis": "단면"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿": "38*2",
+              "裤脚": "26",
+              "前档": "37",
+              "后档": "46",
+              "股下": "80"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "사이즈가 가로로 나열된 표, 어두운 배경",
+    "'36*2' 표기 → 단면 36으로 기록 (둘레 72)",
+    "라벨 W29~W38은 허리 인치 사이즈 → 사용자가 평소 입는 바지 사이즈를 알면 바로 판정 가능",
+    "키·몸무게 정보 없음",
+    "검수 확인(10/5)"
+  ],
+  "reviewed": true,
+  "split": "dev"
+}

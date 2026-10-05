@@ -1,0 +1,286 @@
+{
+  "id": "bottom05",
+  "split": "test",
+  "sourceFiles": [
+    "bottom/O1CN01Z7UopE281QxCak0eu_!!2217051217872.webp"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "斤",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 97,
+            "chest": null,
+            "waist": {
+              "value": 70,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 98,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "59.6",
+              "脚口": "38"
+            }
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 99,
+            "chest": null,
+            "waist": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 102,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "61.8",
+              "脚口": "39.5"
+            }
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 101,
+            "chest": null,
+            "waist": {
+              "value": 78,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 106,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "64",
+              "脚口": "41"
+            }
+          },
+          {
+            "label": "XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 103,
+            "chest": null,
+            "waist": {
+              "value": 81,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 110,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "66.2",
+              "脚口": "42.5"
+            }
+          },
+          {
+            "label": "2XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 105,
+            "chest": null,
+            "waist": {
+              "value": 85,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 116,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "68.4",
+              "脚口": "44"
+            }
+          },
+          {
+            "label": "3XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 105,
+            "chest": null,
+            "waist": {
+              "value": 89,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 122,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "70.6",
+              "脚口": "45.5"
+            }
+          },
+          {
+            "label": "4XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 106,
+            "chest": null,
+            "waist": {
+              "value": 93,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 128,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "72.8",
+              "脚口": "47"
+            }
+          },
+          {
+            "label": "5XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 106,
+            "chest": null,
+            "waist": {
+              "value": 97,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 136,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "77",
+              "脚口": "47"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": {
+      "heightCm": [
+        160,
+        165,
+        170,
+        173
+      ],
+      "weightKg": [
+        47.5,
+        52.5,
+        57.5,
+        62.5,
+        67.5,
+        72.5,
+        77.5,
+        82.5,
+        87.5,
+        92.5,
+        97.5,
+        102.5,
+        115.0
+      ],
+      "cells": [
+        [
+          "S",
+          "M",
+          "M",
+          "L",
+          "L",
+          "XL",
+          "XL",
+          "2XL",
+          "2XL",
+          "3XL",
+          "3XL",
+          "4XL",
+          "5XL"
+        ],
+        [
+          "S",
+          "M",
+          "M",
+          "L",
+          "L",
+          "XL",
+          "XL",
+          "2XL",
+          "2XL",
+          "3XL",
+          "3XL",
+          "4XL",
+          "5XL"
+        ],
+        [
+          "M",
+          "M",
+          "M",
+          "L",
+          "L",
+          "XL",
+          "XL",
+          "2XL",
+          "2XL",
+          "3XL",
+          "3XL",
+          "4XL",
+          "5XL"
+        ],
+        [
+          "M",
+          "L",
+          "L",
+          "L",
+          "L",
+          "XL",
+          "XL",
+          "2XL",
+          "2XL",
+          "3XL",
+          "3XL",
+          "4XL",
+          "5XL"
+        ]
+      ]
+    }
+  },
+  "notes": [
+    "키×몸무게(斤) 매트릭스, 이미지가 키 175 줄에서 잘림(다음 이미지에 이어짐) → 160~173 줄만 기록",
+    "매트릭스 마지막 두 열은 범위(205-230, 230-260斤) → 하한만 기록",
+    "fitMatrix는 현재 비교 로직에서 평가하지 않음"
+  ],
+  "reviewed": false
+}

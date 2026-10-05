@@ -1,0 +1,169 @@
+{
+  "id": "bottom10",
+  "split": "test",
+  "sourceFiles": [
+    "bottom/스크린샷 2026-10-05 083433.png"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "120",
+            "heightCm": [
+              115,
+              125
+            ],
+            "weightKg": null,
+            "ageYears": null,
+            "length": 69,
+            "chest": null,
+            "waist": {
+              "value": 50,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 94,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裆长": "26"
+            }
+          },
+          {
+            "label": "130",
+            "heightCm": [
+              125,
+              135
+            ],
+            "weightKg": null,
+            "ageYears": null,
+            "length": 75,
+            "chest": null,
+            "waist": {
+              "value": 50,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 99,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裆长": "27"
+            }
+          },
+          {
+            "label": "140",
+            "heightCm": [
+              135,
+              145
+            ],
+            "weightKg": null,
+            "ageYears": null,
+            "length": 81,
+            "chest": null,
+            "waist": {
+              "value": 52,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 107,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裆长": "28"
+            }
+          },
+          {
+            "label": "150",
+            "heightCm": [
+              145,
+              155
+            ],
+            "weightKg": null,
+            "ageYears": null,
+            "length": 87,
+            "chest": null,
+            "waist": {
+              "value": 52,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 109,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裆长": "29"
+            }
+          },
+          {
+            "label": "160",
+            "heightCm": [
+              155,
+              165
+            ],
+            "weightKg": null,
+            "ageYears": null,
+            "length": 93,
+            "chest": null,
+            "waist": {
+              "value": 54,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 114,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裆长": "30"
+            }
+          },
+          {
+            "label": "170",
+            "heightCm": [
+              165,
+              170
+            ],
+            "weightKg": null,
+            "ageYears": null,
+            "length": 99,
+            "chest": null,
+            "waist": {
+              "value": 54,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 119,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "裆长": "31"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "'平铺测量' 문구가 있으나 엉덩이 94(120 사이즈)는 단면으로 불가능 → 둘레",
+    "캡처 이미지(원본 아님)"
+  ],
+  "reviewed": false
+}

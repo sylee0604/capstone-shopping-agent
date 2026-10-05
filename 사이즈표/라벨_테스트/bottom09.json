@@ -1,0 +1,122 @@
+{
+  "id": "bottom09",
+  "split": "test",
+  "sourceFiles": [
+    "bottom/스크린샷 2026-10-04 205204.png"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "90",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 50,
+            "chest": null,
+            "waist": {
+              "value": 21,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "100",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 55,
+            "chest": null,
+            "waist": {
+              "value": 22,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "110",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 60,
+            "chest": null,
+            "waist": {
+              "value": 23,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "120",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 65,
+            "chest": null,
+            "waist": {
+              "value": 24,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "130",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 70,
+            "chest": null,
+            "waist": {
+              "value": 25,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "140",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 75,
+            "chest": null,
+            "waist": {
+              "value": 26,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "머리글 '腰围*2' → 단면",
+    "'是否开裆'(트임 여부) 칸은 치수가 아니라 기록 안 함",
+    "캡처 이미지(원본 아님)"
+  ],
+  "reviewed": false
+}

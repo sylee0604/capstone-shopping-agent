@@ -1,0 +1,157 @@
+{
+  "id": "top01",
+  "split": "test",
+  "sourceFiles": [
+    "top/O1CN010iRX9v1v4YYUoNuCx_!!3461136119.webp"
+  ],
+  "spec": {
+    "category": "상의",
+    "weightUnit": "斤",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "90",
+            "heightCm": [
+              83,
+              90
+            ],
+            "weightKg": [
+              9.0,
+              12.0
+            ],
+            "ageYears": [
+              1,
+              2
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "100",
+            "heightCm": [
+              93,
+              100
+            ],
+            "weightKg": [
+              12.0,
+              15.0
+            ],
+            "ageYears": [
+              2,
+              3
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "110",
+            "heightCm": [
+              100,
+              110
+            ],
+            "weightKg": [
+              15.0,
+              18.5
+            ],
+            "ageYears": [
+              3,
+              5
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "120",
+            "heightCm": [
+              110,
+              120
+            ],
+            "weightKg": [
+              18.5,
+              22.5
+            ],
+            "ageYears": [
+              5,
+              6
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "130",
+            "heightCm": [
+              120,
+              130
+            ],
+            "weightKg": [
+              22.5,
+              28.0
+            ],
+            "ageYears": [
+              6,
+              8
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          },
+          {
+            "label": "140",
+            "heightCm": [
+              130,
+              140
+            ],
+            "weightKg": [
+              28.0,
+              34.0
+            ],
+            "ageYears": [
+              8,
+              11
+            ],
+            "length": null,
+            "chest": null,
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "치수 없이 나이·키·몸무게(斤)만 있는 표",
+    "아래 그림은 측정 방법 설명(胸围 = 겨드랑이 사이 직선 길이 ×2)이며 값 없음"
+  ],
+  "reviewed": false
+}

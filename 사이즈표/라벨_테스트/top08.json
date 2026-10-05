@@ -1,0 +1,177 @@
+{
+  "id": "top08",
+  "split": "test",
+  "sourceFiles": [
+    "top/O1CN01lRU2VTqxXrB21sqe_!!2258845085.webp"
+  ],
+  "spec": {
+    "category": "상의",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "80",
+            "heightCm": [
+              73,
+              80
+            ],
+            "weightKg": null,
+            "ageYears": [
+              1,
+              1.5
+            ],
+            "length": 34,
+            "chest": {
+              "value": 29.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 29,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "90",
+            "heightCm": [
+              80,
+              90
+            ],
+            "weightKg": null,
+            "ageYears": [
+              1,
+              2
+            ],
+            "length": 36,
+            "chest": {
+              "value": 31,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 31,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "100",
+            "heightCm": [
+              90,
+              100
+            ],
+            "weightKg": null,
+            "ageYears": [
+              2,
+              3
+            ],
+            "length": 39,
+            "chest": {
+              "value": 32.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 33,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "110",
+            "heightCm": [
+              100,
+              110
+            ],
+            "weightKg": null,
+            "ageYears": [
+              3,
+              4
+            ],
+            "length": 42,
+            "chest": {
+              "value": 34,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 35,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "120",
+            "heightCm": [
+              110,
+              120
+            ],
+            "weightKg": null,
+            "ageYears": [
+              4,
+              5
+            ],
+            "length": 45,
+            "chest": {
+              "value": 35.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 37,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "130",
+            "heightCm": [
+              120,
+              130
+            ],
+            "weightKg": null,
+            "ageYears": [
+              5,
+              6
+            ],
+            "length": 48,
+            "chest": {
+              "value": 37,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 39,
+              "from": "불명"
+            },
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "사이즈가 가로로 나열된 표",
+    "머리글 '胸围1/2' → 단면",
+    "나이 '12-18个月' → [1, 1.5]",
+    "어깨너비가 없어 소매 기준 판단 불가 → 불명"
+  ],
+  "reviewed": false
+}

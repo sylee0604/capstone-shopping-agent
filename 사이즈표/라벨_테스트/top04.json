@@ -1,0 +1,251 @@
+{
+  "id": "top04",
+  "split": "test",
+  "sourceFiles": [
+    "top/O1CN01Pi35Tj1bTTrGyUL4i~crop,0,0,790,1580~_!!3540583466.webp"
+  ],
+  "spec": {
+    "category": "상의",
+    "weightUnit": "斤",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "100",
+            "heightCm": [
+              90,
+              100
+            ],
+            "weightKg": [
+              12.5,
+              15.0
+            ],
+            "ageYears": [
+              3,
+              4
+            ],
+            "length": 43,
+            "chest": {
+              "value": 70,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 28,
+            "sleeve": {
+              "value": 39,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "110",
+            "heightCm": [
+              100,
+              110
+            ],
+            "weightKg": [
+              15.0,
+              20.0
+            ],
+            "ageYears": [
+              4,
+              6
+            ],
+            "length": 46,
+            "chest": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 30,
+            "sleeve": {
+              "value": 42,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "120",
+            "heightCm": [
+              110,
+              120
+            ],
+            "weightKg": [
+              20.0,
+              22.5
+            ],
+            "ageYears": [
+              6,
+              8
+            ],
+            "length": 49,
+            "chest": {
+              "value": 78,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 32,
+            "sleeve": {
+              "value": 45,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "130",
+            "heightCm": [
+              120,
+              130
+            ],
+            "weightKg": [
+              22.5,
+              27.5
+            ],
+            "ageYears": [
+              8,
+              10
+            ],
+            "length": 52,
+            "chest": {
+              "value": 82,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 34,
+            "sleeve": {
+              "value": 48,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "140",
+            "heightCm": [
+              130,
+              140
+            ],
+            "weightKg": [
+              27.5,
+              34.0
+            ],
+            "ageYears": [
+              10,
+              11
+            ],
+            "length": 55,
+            "chest": {
+              "value": 86,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 36,
+            "sleeve": {
+              "value": 51,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "150",
+            "heightCm": [
+              140,
+              150
+            ],
+            "weightKg": [
+              34.0,
+              39.0
+            ],
+            "ageYears": [
+              11,
+              12
+            ],
+            "length": 58,
+            "chest": {
+              "value": 90,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 38,
+            "sleeve": {
+              "value": 54,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "160",
+            "heightCm": [
+              150,
+              160
+            ],
+            "weightKg": [
+              39.0,
+              50.0
+            ],
+            "ageYears": [
+              12,
+              13
+            ],
+            "length": 61,
+            "chest": {
+              "value": 94,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 40,
+            "sleeve": {
+              "value": 57,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "170",
+            "heightCm": [
+              160,
+              165
+            ],
+            "weightKg": [
+              50.0,
+              60.0
+            ],
+            "ageYears": [
+              14,
+              null
+            ],
+            "length": 64,
+            "chest": {
+              "value": 98,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 42,
+            "sleeve": {
+              "value": 60,
+              "from": "어깨"
+            },
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "치수 표 + 별도 그래픽(사이즈별 키/몸무게 斤/나이)을 라벨로 합침",
+    "'平铺测量' 문구가 있으나 胸围 70(100 사이즈)은 둘레",
+    "170 사이즈 나이 '14岁以上' → [14, null] (상한 없음, 스키마 v1.2 필요)",
+    "키 '90/100' 표기 → [90, 100]"
+  ],
+  "reviewed": false
+}

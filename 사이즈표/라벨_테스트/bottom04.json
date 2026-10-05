@@ -1,0 +1,201 @@
+{
+  "id": "bottom04",
+  "split": "test",
+  "sourceFiles": [
+    "bottom/O1CN01SHX0JE1pdT6hcIlXg_!!1796915383.webp"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "110",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 65,
+            "chest": null,
+            "waist": {
+              "value": 48,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 78,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "档深": "24.5",
+              "脚口": "34.5"
+            }
+          },
+          {
+            "label": "120",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 70,
+            "chest": null,
+            "waist": {
+              "value": 50,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 81,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "档深": "25.5",
+              "脚口": "35.5"
+            }
+          },
+          {
+            "label": "130",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 75,
+            "chest": null,
+            "waist": {
+              "value": 52,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 84,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "档深": "26.5",
+              "脚口": "36.5"
+            }
+          },
+          {
+            "label": "140",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 80,
+            "chest": null,
+            "waist": {
+              "value": 54,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 87,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "档深": "27.5",
+              "脚口": "37.5"
+            }
+          },
+          {
+            "label": "150",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 85,
+            "chest": null,
+            "waist": {
+              "value": 56,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 90,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "档深": "28.5",
+              "脚口": "38.5"
+            }
+          },
+          {
+            "label": "160",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 90,
+            "chest": null,
+            "waist": {
+              "value": 58,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 94,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "档深": "29.5",
+              "脚口": "39.5"
+            }
+          },
+          {
+            "label": "170",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 95,
+            "chest": null,
+            "waist": {
+              "value": 60,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 97,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "档深": "30.5",
+              "脚口": "40.5"
+            }
+          },
+          {
+            "label": "180",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 100,
+            "chest": null,
+            "waist": {
+              "value": 62,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 100,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "档深": "31.5",
+              "脚口": "41.5"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "키·몸무게 없음",
+    "'平铺测量' 문구가 있으나 허리 48·엉덩이 78(110 사이즈)은 단면으로 불가능 → 둘레(밴딩 허리)"
+  ],
+  "reviewed": false
+}

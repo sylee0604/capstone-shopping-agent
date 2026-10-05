@@ -1,0 +1,533 @@
+{
+  "id": "bottom01",
+  "split": "test",
+  "sourceFiles": [
+    "bottom/O1CN018a0ofX1yolQ9rhj7g_!!3120726626.webp"
+  ],
+  "spec": {
+    "category": "하의",
+    "weightUnit": "斤",
+    "variants": [
+      {
+        "name": "小个子",
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "26",
+            "heightCm": null,
+            "weightKg": [
+              40.0,
+              47.5
+            ],
+            "ageYears": null,
+            "length": 95,
+            "chest": null,
+            "waist": {
+              "value": 65,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 94,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "57"
+            }
+          },
+          {
+            "label": "27",
+            "heightCm": null,
+            "weightKg": [
+              48.0,
+              52.5
+            ],
+            "ageYears": null,
+            "length": 96,
+            "chest": null,
+            "waist": {
+              "value": 68,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 97,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "58.5"
+            }
+          },
+          {
+            "label": "28",
+            "heightCm": null,
+            "weightKg": [
+              53.0,
+              57.5
+            ],
+            "ageYears": null,
+            "length": 97,
+            "chest": null,
+            "waist": {
+              "value": 71,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 100,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "60"
+            }
+          },
+          {
+            "label": "29",
+            "heightCm": null,
+            "weightKg": [
+              58.0,
+              62.5
+            ],
+            "ageYears": null,
+            "length": 98,
+            "chest": null,
+            "waist": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 103,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "61.5"
+            }
+          },
+          {
+            "label": "30",
+            "heightCm": null,
+            "weightKg": [
+              63.0,
+              67.5
+            ],
+            "ageYears": null,
+            "length": 99,
+            "chest": null,
+            "waist": {
+              "value": 77,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 106,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "63"
+            }
+          },
+          {
+            "label": "31",
+            "heightCm": null,
+            "weightKg": [
+              68.0,
+              72.5
+            ],
+            "ageYears": null,
+            "length": 100,
+            "chest": null,
+            "waist": {
+              "value": 80,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 109,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "64.5"
+            }
+          },
+          {
+            "label": "32",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 101,
+            "chest": null,
+            "waist": {
+              "value": 83,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 112,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "66"
+            }
+          }
+        ]
+      },
+      {
+        "name": "常规款",
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "26",
+            "heightCm": null,
+            "weightKg": [
+              40.0,
+              47.5
+            ],
+            "ageYears": null,
+            "length": 100,
+            "chest": null,
+            "waist": {
+              "value": 65,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 94,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "57"
+            }
+          },
+          {
+            "label": "27",
+            "heightCm": null,
+            "weightKg": [
+              48.0,
+              52.5
+            ],
+            "ageYears": null,
+            "length": 101,
+            "chest": null,
+            "waist": {
+              "value": 68,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 97,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "58.5"
+            }
+          },
+          {
+            "label": "28",
+            "heightCm": null,
+            "weightKg": [
+              53.0,
+              57.5
+            ],
+            "ageYears": null,
+            "length": 102,
+            "chest": null,
+            "waist": {
+              "value": 71,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 100,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "60"
+            }
+          },
+          {
+            "label": "29",
+            "heightCm": null,
+            "weightKg": [
+              58.0,
+              62.5
+            ],
+            "ageYears": null,
+            "length": 103,
+            "chest": null,
+            "waist": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 103,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "61.5"
+            }
+          },
+          {
+            "label": "30",
+            "heightCm": null,
+            "weightKg": [
+              63.0,
+              67.5
+            ],
+            "ageYears": null,
+            "length": 104,
+            "chest": null,
+            "waist": {
+              "value": 77,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 106,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "63"
+            }
+          },
+          {
+            "label": "31",
+            "heightCm": null,
+            "weightKg": [
+              68.0,
+              72.5
+            ],
+            "ageYears": null,
+            "length": 105,
+            "chest": null,
+            "waist": {
+              "value": 80,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 109,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "64.5"
+            }
+          },
+          {
+            "label": "32",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 106,
+            "chest": null,
+            "waist": {
+              "value": 83,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 112,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "66"
+            }
+          }
+        ]
+      },
+      {
+        "name": "高个子",
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "26",
+            "heightCm": null,
+            "weightKg": [
+              40.0,
+              47.5
+            ],
+            "ageYears": null,
+            "length": 105,
+            "chest": null,
+            "waist": {
+              "value": 65,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 94,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "57"
+            }
+          },
+          {
+            "label": "27",
+            "heightCm": null,
+            "weightKg": [
+              48.0,
+              52.5
+            ],
+            "ageYears": null,
+            "length": 106,
+            "chest": null,
+            "waist": {
+              "value": 68,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 97,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "58.5"
+            }
+          },
+          {
+            "label": "28",
+            "heightCm": null,
+            "weightKg": [
+              53.0,
+              57.5
+            ],
+            "ageYears": null,
+            "length": 107,
+            "chest": null,
+            "waist": {
+              "value": 71,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 100,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "60"
+            }
+          },
+          {
+            "label": "29",
+            "heightCm": null,
+            "weightKg": [
+              58.0,
+              62.5
+            ],
+            "ageYears": null,
+            "length": 108,
+            "chest": null,
+            "waist": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 103,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "61.5"
+            }
+          },
+          {
+            "label": "30",
+            "heightCm": null,
+            "weightKg": [
+              63.0,
+              67.5
+            ],
+            "ageYears": null,
+            "length": 109,
+            "chest": null,
+            "waist": {
+              "value": 77,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 106,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "63"
+            }
+          },
+          {
+            "label": "31",
+            "heightCm": null,
+            "weightKg": [
+              68.0,
+              72.5
+            ],
+            "ageYears": null,
+            "length": 110,
+            "chest": null,
+            "waist": {
+              "value": 80,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 109,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "64.5"
+            }
+          },
+          {
+            "label": "32",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 111,
+            "chest": null,
+            "waist": {
+              "value": 83,
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 112,
+              "basis": "둘레"
+            },
+            "shoulder": null,
+            "sleeve": null,
+            "extra": {
+              "大腿围": "66"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "길이 버전(小个子/常规款/高个子)이 열로 나열 → 버전별 variants로 나누고 length에 각 값",
+    "체중 참고표가 치수표와 따로 있음 → 라벨로 합침",
+    "원본 오류: 체중표 마지막이 '32'가 아니라 '31'로 중복(146-155斤) → 32 사이즈 몸무게는 비워 둠(평가 제외)"
+  ],
+  "reviewed": false
+}

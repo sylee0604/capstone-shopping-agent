@@ -1,0 +1,218 @@
+{
+  "id": "dress02",
+  "split": "test",
+  "sourceFiles": [
+    "dress/O1CN01MVyb5c1gdce7qHmv2_!!2578794165.webp"
+  ],
+  "spec": {
+    "category": "원피스",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": "长款",
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 113,
+            "chest": {
+              "value": [
+                74,
+                84
+              ],
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": [
+                60,
+                70
+              ],
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 110,
+              "basis": "둘레"
+            },
+            "shoulder": 35,
+            "sleeve": {
+              "value": 60,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 115,
+            "chest": {
+              "value": [
+                78,
+                88
+              ],
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": [
+                64,
+                74
+              ],
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 114,
+              "basis": "둘레"
+            },
+            "shoulder": 36,
+            "sleeve": {
+              "value": 61,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 117,
+            "chest": {
+              "value": [
+                82,
+                92
+              ],
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": [
+                68,
+                78
+              ],
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 118,
+              "basis": "둘레"
+            },
+            "shoulder": 37,
+            "sleeve": {
+              "value": 62,
+              "from": "어깨"
+            },
+            "extra": {}
+          }
+        ]
+      },
+      {
+        "name": "短款",
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 80,
+            "chest": {
+              "value": [
+                76,
+                86
+              ],
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": [
+                62,
+                72
+              ],
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 124,
+              "basis": "둘레"
+            },
+            "shoulder": 35,
+            "sleeve": {
+              "value": 64,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 82,
+            "chest": {
+              "value": [
+                80,
+                90
+              ],
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": [
+                66,
+                76
+              ],
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 128,
+              "basis": "둘레"
+            },
+            "shoulder": 36,
+            "sleeve": {
+              "value": 65,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 84,
+            "chest": {
+              "value": [
+                84,
+                94
+              ],
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": [
+                70,
+                80
+              ],
+              "basis": "둘레"
+            },
+            "hip": {
+              "value": 132,
+              "basis": "둘레"
+            },
+            "shoulder": 37,
+            "sleeve": {
+              "value": 66,
+              "from": "어깨"
+            },
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "표 2개(롱/숏 버전)",
+    "가슴·허리가 신축 범위(74-84) → [74, 84]",
+    "키·몸무게 없음"
+  ],
+  "reviewed": false
+}

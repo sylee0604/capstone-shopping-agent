@@ -1,0 +1,101 @@
+{
+  "id": "dress03",
+  "sourceFiles": [
+    "dress/O1CN01NOCbSw1boY4o9Ljta_!!2215458613512.webp"
+  ],
+  "spec": {
+    "category": "원피스",
+    "weightUnit": "斤",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": [
+              40.0,
+              50.0
+            ],
+            "ageYears": null,
+            "length": 120,
+            "chest": {
+              "value": 74,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 30.5,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": 33,
+            "sleeve": {
+              "value": 59,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": [
+              50.0,
+              60.0
+            ],
+            "ageYears": null,
+            "length": 123,
+            "chest": {
+              "value": 78,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 32.5,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": 34,
+            "sleeve": {
+              "value": 61,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": [
+              60.0,
+              70.0
+            ],
+            "ageYears": null,
+            "length": 126,
+            "chest": {
+              "value": 82,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 34.5,
+              "basis": "단면"
+            },
+            "hip": null,
+            "shoulder": 35,
+            "sleeve": {
+              "value": 63,
+              "from": "어깨"
+            },
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "한 표 안에 단면/둘레가 섞임: 腰围 30.5는 단면(둘레 61), 胸围 74는 단면이면 148이라 불가능 → 둘레(몸보다 작음, 신축 소재 추정)",
+    "길이 머리글이 裙长이 아니라 衣长",
+    "검수 확인(10/5): 胸围 74는 둘레로 확정"
+  ],
+  "reviewed": true,
+  "split": "dev"
+}

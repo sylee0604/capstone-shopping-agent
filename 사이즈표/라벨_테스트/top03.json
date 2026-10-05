@@ -1,0 +1,232 @@
+{
+  "id": "top03",
+  "split": "test",
+  "sourceFiles": [
+    "top/O1CN01FG6FCkjUWeD1WPiF_!!908948999.webp"
+  ],
+  "spec": {
+    "category": "상의",
+    "weightUnit": "추정_kg",
+    "variants": [
+      {
+        "name": "白色纽扣款",
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "160/84A/S",
+            "heightCm": [
+              160,
+              165
+            ],
+            "weightKg": [
+              50,
+              55
+            ],
+            "ageYears": null,
+            "length": 58,
+            "chest": {
+              "value": 92,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 37,
+            "sleeve": {
+              "value": 57,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "165/88A/M",
+            "heightCm": [
+              165,
+              170
+            ],
+            "weightKg": [
+              55,
+              62.5
+            ],
+            "ageYears": null,
+            "length": 59,
+            "chest": {
+              "value": 96,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 38,
+            "sleeve": {
+              "value": 58,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "170/92A/L",
+            "heightCm": [
+              170,
+              175
+            ],
+            "weightKg": [
+              62.5,
+              70
+            ],
+            "ageYears": null,
+            "length": 60,
+            "chest": {
+              "value": 100,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 39,
+            "sleeve": {
+              "value": 59,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "175/96A/XL",
+            "heightCm": [
+              175,
+              180
+            ],
+            "weightKg": [
+              70,
+              75
+            ],
+            "ageYears": null,
+            "length": 61,
+            "chest": {
+              "value": 104,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 40,
+            "sleeve": {
+              "value": 60,
+              "from": "어깨"
+            },
+            "extra": {}
+          }
+        ]
+      },
+      {
+        "name": "同色纽扣款",
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "160/84A/S",
+            "heightCm": [
+              155,
+              160
+            ],
+            "weightKg": [
+              42.5,
+              57.5
+            ],
+            "ageYears": null,
+            "length": 60,
+            "chest": {
+              "value": 95,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 37,
+            "sleeve": {
+              "value": 55,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "165/88A/M",
+            "heightCm": [
+              160,
+              165
+            ],
+            "weightKg": [
+              57.5,
+              65
+            ],
+            "ageYears": null,
+            "length": 62,
+            "chest": {
+              "value": 100,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 38,
+            "sleeve": {
+              "value": 56,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "170/92A/L",
+            "heightCm": [
+              165,
+              170
+            ],
+            "weightKg": [
+              65,
+              72.5
+            ],
+            "ageYears": null,
+            "length": 64,
+            "chest": {
+              "value": 105,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 39,
+            "sleeve": {
+              "value": 57,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "175/96A/XL",
+            "heightCm": [
+              170,
+              175
+            ],
+            "weightKg": [
+              72.5,
+              80
+            ],
+            "ageYears": null,
+            "length": 66,
+            "chest": {
+              "value": 110,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 40,
+            "sleeve": {
+              "value": 58,
+              "from": "어깨"
+            },
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "표 2개(단추 색상별), 같은 라벨인데 치수와 권장 키가 다름",
+    "体重 단위 미표기: 키 160-165에 50-55 → kg(BMI 약 20). 斤이면 BMI 10으로 불가능",
+    "라벨이 중국 국가표준 형식(160/84A/S)"
+  ],
+  "reviewed": false
+}

@@ -1,0 +1,177 @@
+{
+  "id": "dress05",
+  "split": "test",
+  "sourceFiles": [
+    "dress/O1CN01WITSXEvC7ZK1WPaj_!!4044878502.webp"
+  ],
+  "spec": {
+    "category": "원피스",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "120",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 35,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": {
+              "value": 38,
+              "basis": "단면"
+            },
+            "shoulder": 30,
+            "sleeve": {
+              "value": 42,
+              "from": "어깨"
+            },
+            "extra": {
+              "衣长": "46",
+              "裙长": "68"
+            }
+          },
+          {
+            "label": "130",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 36.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": {
+              "value": 40,
+              "basis": "단면"
+            },
+            "shoulder": 31,
+            "sleeve": {
+              "value": 44.5,
+              "from": "어깨"
+            },
+            "extra": {
+              "衣长": "48.5",
+              "裙长": "73"
+            }
+          },
+          {
+            "label": "140",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 38,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": {
+              "value": 42,
+              "basis": "단면"
+            },
+            "shoulder": 32,
+            "sleeve": {
+              "value": 47,
+              "from": "어깨"
+            },
+            "extra": {
+              "衣长": "51",
+              "裙长": "78"
+            }
+          },
+          {
+            "label": "150",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 39.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": {
+              "value": 44,
+              "basis": "단면"
+            },
+            "shoulder": 33,
+            "sleeve": {
+              "value": 49.5,
+              "from": "어깨"
+            },
+            "extra": {
+              "衣长": "53.5",
+              "裙长": "83"
+            }
+          },
+          {
+            "label": "160",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 41,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": {
+              "value": 46,
+              "basis": "단면"
+            },
+            "shoulder": 34,
+            "sleeve": {
+              "value": 52,
+              "from": "어깨"
+            },
+            "extra": {
+              "衣长": "56",
+              "裙长": "88"
+            }
+          },
+          {
+            "label": "170",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": null,
+            "chest": {
+              "value": 42.5,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": {
+              "value": 48,
+              "basis": "단면"
+            },
+            "shoulder": 35,
+            "sleeve": {
+              "value": 54.5,
+              "from": "어깨"
+            },
+            "extra": {
+              "衣长": "58.5",
+              "裙长": "93"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "'35×2' → 단면 35, 엉덩이 38(120 사이즈) → 단면",
+    "총장 머리글이 둘(衣长 46, 裙长 68, 상의+치마 세트로 보임) → length 비우고 둘 다 extra",
+    "제목이 'Model information/模特尺码'이지만 실제로는 사이즈표",
+    "키·몸무게 없음"
+  ],
+  "reviewed": false
+}

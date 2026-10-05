@@ -1,0 +1,170 @@
+{
+  "id": "dress04",
+  "split": "test",
+  "sourceFiles": [
+    "dress/O1CN01NuDyqR1QXBGabN0Wk_!!2121001985.webp"
+  ],
+  "spec": {
+    "category": "원피스",
+    "weightUnit": "없음",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 108.3,
+            "chest": {
+              "value": 94,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 80,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 56,
+              "from": "어깨"
+            },
+            "extra": {
+              "下摆宽": "271.5"
+            }
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 109.8,
+            "chest": {
+              "value": 98,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 84,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 57,
+              "from": "어깨"
+            },
+            "extra": {
+              "下摆宽": "224.9"
+            }
+          },
+          {
+            "label": "XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 111.4,
+            "chest": {
+              "value": 102,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 88,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 57,
+              "from": "어깨"
+            },
+            "extra": {
+              "下摆宽": "228.3"
+            }
+          },
+          {
+            "label": "2XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 112.1,
+            "chest": {
+              "value": 107,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 93,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 57,
+              "from": "어깨"
+            },
+            "extra": {
+              "下摆宽": "231.7"
+            }
+          },
+          {
+            "label": "3XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 112.6,
+            "chest": {
+              "value": 112,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 98,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 57,
+              "from": "어깨"
+            },
+            "extra": {
+              "下摆宽": "235.1"
+            }
+          },
+          {
+            "label": "4XL",
+            "heightCm": null,
+            "weightKg": null,
+            "ageYears": null,
+            "length": 113,
+            "chest": {
+              "value": 118,
+              "basis": "둘레"
+            },
+            "waist": {
+              "value": 104,
+              "basis": "둘레"
+            },
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 57,
+              "from": "어깨"
+            },
+            "extra": {
+              "下摆宽": "238.5"
+            }
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "원본 이상치: 下摆宽이 M 271.5 → L 224.9로 감소 (고치지 않음)",
+    "어깨너비 없음, 소매 56은 일반 소매 수준 → 어깨 기준",
+    "키·몸무게 없음"
+  ],
+  "reviewed": false
+}

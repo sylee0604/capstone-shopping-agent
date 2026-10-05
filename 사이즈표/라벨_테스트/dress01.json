@@ -1,0 +1,176 @@
+{
+  "id": "dress01",
+  "split": "test",
+  "sourceFiles": [
+    "dress/O1CN016fbMEf1OJmJBvDuVv_!!848131685.webp"
+  ],
+  "spec": {
+    "category": "원피스",
+    "weightUnit": "추정_斤",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "110",
+            "heightCm": [
+              106,
+              115
+            ],
+            "weightKg": [
+              16.5,
+              20.0
+            ],
+            "ageYears": null,
+            "length": 58,
+            "chest": {
+              "value": 48,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 37,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "120",
+            "heightCm": [
+              116,
+              125
+            ],
+            "weightKg": [
+              18.5,
+              23.0
+            ],
+            "ageYears": null,
+            "length": 63,
+            "chest": {
+              "value": 50,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 40,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "130",
+            "heightCm": [
+              126,
+              135
+            ],
+            "weightKg": [
+              22.0,
+              27.5
+            ],
+            "ageYears": null,
+            "length": 68,
+            "chest": {
+              "value": 56,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 43,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "140",
+            "heightCm": [
+              136,
+              145
+            ],
+            "weightKg": [
+              25.0,
+              32.5
+            ],
+            "ageYears": null,
+            "length": 73,
+            "chest": {
+              "value": 60,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 46,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "150",
+            "heightCm": [
+              146,
+              155
+            ],
+            "weightKg": [
+              27.5,
+              36.0
+            ],
+            "ageYears": null,
+            "length": 78,
+            "chest": {
+              "value": 64,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 49,
+              "from": "불명"
+            },
+            "extra": {}
+          },
+          {
+            "label": "160",
+            "heightCm": [
+              150,
+              160
+            ],
+            "weightKg": [
+              35.0,
+              47.5
+            ],
+            "ageYears": null,
+            "length": 83,
+            "chest": {
+              "value": 68,
+              "basis": "단면"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": null,
+            "sleeve": {
+              "value": 52,
+              "from": "불명"
+            },
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "몸무게 단위 미표기: 키 106-115에 33-40 → kg이면 BMI 30, 斤으로 추정",
+    "가슴 48(110 사이즈): 둘레면 몸(약 56)보다 작아 불가능 → 단면",
+    "어깨너비가 없어 소매 기준 판단 불가 → 불명"
+  ],
+  "reviewed": false
+}

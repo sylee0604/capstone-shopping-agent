@@ -1,0 +1,158 @@
+{
+  "id": "top09",
+  "split": "test",
+  "sourceFiles": [
+    "top/O1CN01wCDbYf1gXfT8t9VjK_!!429254152.webp"
+  ],
+  "spec": {
+    "category": "상의",
+    "weightUnit": "斤",
+    "variants": [
+      {
+        "name": null,
+        "fitHeightCm": null,
+        "sizes": [
+          {
+            "label": "S",
+            "heightCm": null,
+            "weightKg": [
+              55.0,
+              62.5
+            ],
+            "ageYears": null,
+            "length": 65,
+            "chest": {
+              "value": 104,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 45,
+            "sleeve": {
+              "value": 65,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "M",
+            "heightCm": null,
+            "weightKg": [
+              62.5,
+              70.0
+            ],
+            "ageYears": null,
+            "length": 66,
+            "chest": {
+              "value": 108,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 46,
+            "sleeve": {
+              "value": 66,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "L",
+            "heightCm": null,
+            "weightKg": [
+              70.0,
+              77.5
+            ],
+            "ageYears": null,
+            "length": 67,
+            "chest": {
+              "value": 112,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 48,
+            "sleeve": {
+              "value": 66,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "XL",
+            "heightCm": null,
+            "weightKg": [
+              77.5,
+              85.0
+            ],
+            "ageYears": null,
+            "length": 68,
+            "chest": {
+              "value": 116,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 50,
+            "sleeve": {
+              "value": 67,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "2XL",
+            "heightCm": null,
+            "weightKg": [
+              85.0,
+              92.5
+            ],
+            "ageYears": null,
+            "length": 70,
+            "chest": {
+              "value": 120,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 52,
+            "sleeve": {
+              "value": 68,
+              "from": "어깨"
+            },
+            "extra": {}
+          },
+          {
+            "label": "3XL",
+            "heightCm": null,
+            "weightKg": [
+              92.5,
+              100.0
+            ],
+            "ageYears": null,
+            "length": 72,
+            "chest": {
+              "value": 124,
+              "basis": "둘레"
+            },
+            "waist": null,
+            "hip": null,
+            "shoulder": 53,
+            "sleeve": {
+              "value": 69,
+              "from": "어깨"
+            },
+            "extra": {}
+          }
+        ]
+      }
+    ],
+    "fitMatrix": null
+  },
+  "notes": [
+    "몸무게(斤)만 있고 키 없음",
+    "소재(100%棉)가 이미지 상단 텍스트에 있음 — 스키마 대상 아님",
+    "'建议卡码拍大'(한 치수 크게 권장) 문구 — 스키마 대상 아님"
+  ],
+  "reviewed": false
+}
