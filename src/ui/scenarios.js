@@ -8,16 +8,17 @@ export const CATALOG = {
   f: { title: '여아 체크 원피스', priceCny: 59 },
 };
 const out = { verdict: '부적합', unfitReason: 'SIZE_OUT_OF_RANGE' };
+const soldOut = { verdict: '부적합', unfitReason: 'SIZE_SOLD_OUT' };
 const err = ['가슴 단면 3.2cm: 값 범위를 벗어남'];
 
 export const SCENARIOS = {
   normal:    { label: '정상: 첫 상품이 맞음', script: { searchResults: [['a', 'b', 'c']], verdict: { a: { verdict: '적합', size: '110' } } } },
   ask:       { label: '되묻기: 성별 정보 없음', script: { intent: { missing: ['gender'] }, searchResults: [['a', 'b', 'c']], verdict: { a: { verdict: '적합', size: '110' } } } },
-  next:      { label: '다음 후보: 첫 상품 사이즈 품절', script: { searchResults: [['a', 'b', 'c']], verdict: { a: { verdict: '부적합', unfitReason: 'SIZE_SOLD_OUT' }, b: { verdict: '적합', size: '110' } } } },
+  next:      { label: '사이즈 품절 → 남은 후보에서 다시 고르기', script: { searchResults: [['a', 'b', 'c']], verdict: { a: soldOut, b: { verdict: '적합', size: '110' } } } },
   reextract: { label: '재추출: 첫 추출에서 검증 실패', script: { searchResults: [['a', 'b']], validation: { a: [err, []] }, verdict: { a: { verdict: '적합', size: '110' } } } },
   uncertain: { label: '재추출 상한: 계속 검증 실패', script: { searchResults: [['a', 'b']], validation: { a: [err, err, err] }, verdict: { a: { verdict: '경계', size: '110' } } } },
-  research:  { label: '후보 소진 → 재검색', script: { searchResults: [['a', 'b', 'c'], ['d', 'e', 'f']], verdict: { a: out, b: out, c: out, d: { verdict: '적합', size: '120' } } } },
+  research:  { label: '후보 3개 모두 안 맞음 → 새로 검색', script: { searchResults: [['a', 'b', 'c'], ['d', 'e', 'f']], verdict: { a: soldOut, b: out, c: out, d: { verdict: '적합', size: '120' } } } },
   noresult:  { label: '검색 결과 없음', script: { searchResults: [[], [], []] } },
-  timeout:   { label: '시간 초과 (90초)', script: { searchResults: [['a']], advanceClockMs: 100_000 } },
+  timeout:   { label: '시간 초과 (작업 90초)', script: { searchResults: [['a']], advanceClockMs: 100_000 } },
 };
 for (const s of Object.values(SCENARIOS)) s.script.catalog = CATALOG;

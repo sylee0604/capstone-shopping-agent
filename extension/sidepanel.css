@@ -29,3 +29,4 @@ button.secondary { width: 100%; margin-top: 6px; background: #eff6ff; color: var
 .result .sub { margin-top: 10px; font-weight: 600; font-size: 12px; color: var(--muted); }
 .result .hist { margin: 4px 0 0; padding-left: 18px; font-size: 13px; }
 .result .meta { margin-top: 10px; color: var(--muted); font-size: 12px; }
+.pause-box .note { margin: 0 0 6px; font-size: 12px; color: #b91c1c; }

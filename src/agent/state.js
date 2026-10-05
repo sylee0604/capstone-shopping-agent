@@ -4,9 +4,9 @@ import { Annotation } from '@langchain/langgraph/web';
 export const LIMITS = {
   searchRetry: 2,      // 검색 0건일 때 재검색 최대 횟수
   extractRetry: 2,     // 검증 실패 시 재추출 최대 횟수
-  maxCandidates: 3,    // 한 라운드에서 상세 분석할 최대 상품 수
+  maxCandidates: 3,    // 한 라운드에 사용자에게 보여줄 후보 수
   research: 1,         // 후보 소진 후 재검색 최대 횟수
-  deadlineMs: 90_000,  // 전체 실행 시간 상한
+  deadlineMs: 90_000,  // 에이전트 작업 시간 상한 (사용자 응답을 기다린 시간은 제외)
 };
 
 // 그래프 한 번 실행의 최대 단계 수 (LangGraph 기본값 25로는 루프를 다 돌 수 없음)
@@ -32,6 +32,8 @@ export const AgentState = Annotation.Root({
   results: Annotation({ reducer: append, default: () => [] }),       // 상품별 판정 { productId, round, verdict, size, unfitReason, specStatus }
 
   recommendation: Annotation({ reducer: last, default: () => null }),
-  startedAt: Annotation({ reducer: last, default: () => null }),
+  startedAt: Annotation({ reducer: last, default: () => null }),         // 실행 시작 시각 (표시용)
+  activeMs: Annotation({ reducer: last, default: () => 0 }),             // 지금까지 에이전트가 일한 시간 (일시정지 제외)
+  segmentStartedAt: Annotation({ reducer: last, default: () => null }),  // 현재 작업 구간 시작 시각 (일시정지 중이면 null)
   log: Annotation({ reducer: append, default: () => [] }),
 });

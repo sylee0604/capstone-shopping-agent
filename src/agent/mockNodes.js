@@ -19,7 +19,8 @@ export function makeMockNodes(script = {}, clock = { t: 0 }) {
       // 후보가 있는데 왔다면 '후보 소진 후 재검색' → 새 라운드
       return s.candidates.length ? { round: s.round + 1, researchCount: s.researchCount + 1, searchAttempts: 0, candidates: [] } : {};
     },
-    rankCandidates: (s) => { hit('rankCandidates'); return { candidates: s.candidates.filter((c) => !s.analyzed.includes(c.id)) }; },
+    // 이미 분석한 상품을 빼고 상위 3개만 후보로 남김
+    rankCandidates: (s) => { hit('rankCandidates'); return { candidates: s.candidates.filter((c) => !s.analyzed.includes(c.id)).slice(0, 3) }; },
     awaitSelection: () => { hit('awaitSelection'); return {}; },
     fetchDetail: (s) => {
       hit('fetchDetail');
@@ -51,7 +52,6 @@ export function makeMockNodes(script = {}, clock = { t: 0 }) {
       else if (!c.sizeImages?.length) r = { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN' };
       return { results: [{ productId: id, round: s.round, specStatus: c.status, ...r }] };
     },
-    nextCandidate: (s) => { hit('nextCandidate'); return { selectedId: s.candidates.find((c) => !s.analyzed.includes(c.id)).id }; },
     analyzeFailure: () => { hit('analyzeFailure'); return {}; },
     writeRationale: (s) => {
       hit('writeRationale');

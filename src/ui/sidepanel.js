@@ -31,8 +31,7 @@ function describe(node, u) {
     case 'extractSpec': return `사이즈표를 읽었어요 (${u.current.extractAttempts}회차)`;
     case 'validateSpec': return `검증: ${STATUS[u.current.status]}${u.current.errors.length ? ` — ${u.current.errors[0]}` : ''}`;
     case 'judgeFit': { const r = u.results[0]; return `판정: ${r.verdict}${r.unfitReason ? ` (${REASON[r.unfitReason]})` : ` · ${r.size}`}`; }
-    case 'nextCandidate': return `다음 후보로 넘어가요 · ${title(u.selectedId)}`;
-    case 'analyzeFailure': return '실패 사유를 분석했어요';
+    case 'analyzeFailure': return '후보를 모두 확인했지만 맞는 상품이 없어요';
     case 'writeRationale': return '추천 근거를 만들었어요';
     case 'finish': return '완료';
     default: return node;
@@ -65,13 +64,19 @@ function onPause(node, state) {
       box.querySelectorAll('button').forEach((b) => (b.onclick = () => { box.hidden = true; log(`→ ${b.dataset.v} 선택`, 'user'); resolve({ userAnswer: { gender: b.dataset.v } }); }));
     } else {
       const list = state.candidates.filter((c) => !state.analyzed.includes(c.id));
-      box.innerHTML = `<p class="q">분석할 상품을 골라 주세요${state.round > 1 ? ' (새 검색 결과)' : ''}</p>` + list.map((c) =>
+      const last = state.results.at(-1);
+      const again = last && last.round === state.round;                 // 같은 라운드에서 다시 고르는 경우
+      const head = again ? `<p class="note">${title(last.productId)}: ${REASON[last.unfitReason] ?? last.verdict}</p><p class="q">남은 후보 중에서 다시 골라 주세요</p>`
+        : `<p class="q">분석할 상품을 골라 주세요${state.round > 1 ? ' (새로 검색한 후보)' : ''}</p>`;
+      box.innerHTML = head + list.map((c) =>
         `<div class="card"><div><b>${c.title}</b><small>¥${c.priceCny} · 약 ${(c.priceCny * 190).toLocaleString()}원</small></div><button data-id="${c.id}">선택</button></div>`).join('');
       box.querySelectorAll('button').forEach((b) => (b.onclick = () => { box.hidden = true; log(`→ ${title(b.dataset.id)} 선택`, 'user'); resolve({ selectedId: b.dataset.id }); }));
     }
     log(node === 'askUser' ? '질문에 답해 주세요 (일시정지)' : '상품을 골라 주세요 (일시정지)', 'pause');
   });
 }
+
+const activeSec = (v) => (v.activeMs + (v.segmentStartedAt != null ? Date.now() - v.segmentStartedAt : 0)) / 1000;
 
 function showResult(v) {
   const r = v.recommendation, box = $('result');
@@ -80,10 +85,10 @@ function showResult(v) {
   let head;
   if (r?.type === 'recommend') head = `<h3>추천: ${title(r.productId)}</h3><p class="big">${r.size} 사이즈 · ${r.verdict}</p><p>${r.rationale}</p>${r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}`;
   else if (r?.type === 'fallback') head = '<h3>맞는 상품을 찾지 못했어요</h3><p>조건을 바꾸거나 다른 검색어로 시도해 보세요.</p>';
-  else if (v.analyzed.length) head = '<h3>시간 초과</h3><p>90초 안에 분석을 마치지 못했어요. 다시 시도해 주세요.</p>';
+  else if (v.analyzed.length) head = '<h3>시간 초과</h3><p>에이전트 작업 시간이 90초를 넘었어요. 다시 시도해 주세요.</p>';
   else head = '<h3>검색 결과 없음</h3><p>검색어를 두 번 바꿔 다시 찾아봤지만 상품이 없었어요.</p>';
   box.innerHTML = head + (history ? `<p class="sub">판정 기록</p><ul class="hist">${history}</ul>` : '') +
-    `<p class="meta">${steps}단계 · ${((performance.now() - t0) / 1000).toFixed(1)}초 · 분석 ${v.analyzed.length}개 · 검색 라운드 ${v.round}</p>`;
+    `<p class="meta">${steps}단계 · 에이전트 작업 ${(activeSec(v)).toFixed(1)}초 (응답 대기 제외) · 분석 ${v.analyzed.length}개 · 검색 라운드 ${v.round}</p>`;
 }
 
 async function execute(run, resume) {

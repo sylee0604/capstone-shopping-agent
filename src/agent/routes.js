@@ -2,8 +2,10 @@
 import { LIMITS } from './state.js';
 
 export function makeRoutes({ limits = LIMITS, now = () => Date.now() } = {}) {
-  const late = (s) => s.startedAt != null && now() - s.startedAt > limits.deadlineMs;
-  const roundResults = (s) => s.results.filter((r) => r.round === s.round);
+  // 에이전트 작업 시간 = 끝난 구간들의 합 + 현재 구간 경과 (사용자 응답 대기는 구간에 포함되지 않음)
+  const activeTime = (s) => s.activeMs + (s.segmentStartedAt != null ? now() - s.segmentStartedAt : 0);
+  const late = (s) => activeTime(s) > limits.deadlineMs;
+  const remaining = (s) => s.candidates.filter((c) => !s.analyzed.includes(c.id));
 
   return {
     afterIntent: (s) => (s.intent?.missing?.length && !s.askedUser ? 'askUser' : 'search'),
@@ -27,15 +29,12 @@ export function makeRoutes({ limits = LIMITS, now = () => Date.now() } = {}) {
       if (late(s)) return 'finish';
       const r = s.results.at(-1);
       if (r?.verdict === '적합' || r?.verdict === '경계') return 'writeRationale';
-      const left = s.candidates.filter((c) => !s.analyzed.includes(c.id));
-      return roundResults(s).length < limits.maxCandidates && left.length ? 'nextCandidate' : 'analyzeFailure';
+      return remaining(s).length ? 'awaitSelection' : 'analyzeFailure';   // 남은 후보 중에서 사용자가 다시 고름
     },
 
     afterFailure: (s) => {
       if (late(s)) return 'finish';
-      const rr = roundResults(s);
-      const allOutOfRange = rr.length > 0 && rr.every((r) => r.unfitReason === 'SIZE_OUT_OF_RANGE');
-      return allOutOfRange && s.researchCount < limits.research ? 'reformulateQuery' : 'finish';
+      return s.researchCount < limits.research ? 'reformulateQuery' : 'finish';   // 후보 소진 → 새로 검색
     },
   };
 }
@@ -46,3 +45,4 @@ export function specStatus({ errors, extractAttempts, repeated }, limits = LIMIT
   if (extractAttempts <= limits.extractRetry) return 'retry';
   return repeated ? 'source_anomaly' : 'uncertain';   // 같은 값이 반복되면 원본 자체의 이상
 }
+

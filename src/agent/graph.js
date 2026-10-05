@@ -1,4 +1,4 @@
-// 에이전트 실행 그래프 (설계서 v0.2 그림 1)
+// 에이전트 실행 그래프 (설계서 v0.3 그림 1)
 import { StateGraph, START, END, MemorySaver } from '@langchain/langgraph/web';
 import { AgentState } from './state.js';
 import { makeRoutes } from './routes.js';
@@ -6,7 +6,7 @@ import { makeRoutes } from './routes.js';
 export const NODE_NAMES = [
   'parseIntent', 'askUser', 'search', 'reformulateQuery', 'rankCandidates', 'awaitSelection',
   'fetchDetail', 'selectSizeImages', 'extractSpec', 'validateSpec', 'judgeFit',
-  'nextCandidate', 'analyzeFailure', 'writeRationale', 'finish',
+  'analyzeFailure', 'writeRationale', 'finish',
 ];
 
 // 사용자 입력을 기다리는 노드: 이 노드 직전에서 멈춤 (interrupt()는 브라우저용 진입점에서 동작하지 않음)
@@ -35,8 +35,7 @@ export function buildGraph(nodes, { checkpointer = new MemorySaver(), routes = m
     .addConditionalEdges('selectSizeImages', routes.afterImages, ['extractSpec', 'judgeFit', 'finish'])
     .addEdge('extractSpec', 'validateSpec')
     .addConditionalEdges('validateSpec', routes.afterValidate, ['extractSpec', 'judgeFit', 'finish'])
-    .addConditionalEdges('judgeFit', routes.afterJudge, ['writeRationale', 'nextCandidate', 'analyzeFailure', 'finish'])
-    .addEdge('nextCandidate', 'fetchDetail')
+    .addConditionalEdges('judgeFit', routes.afterJudge, ['writeRationale', 'awaitSelection', 'analyzeFailure', 'finish'])
     .addConditionalEdges('analyzeFailure', routes.afterFailure, ['reformulateQuery', 'finish'])
     .addEdge('writeRationale', 'finish')
     .addEdge('finish', END)
