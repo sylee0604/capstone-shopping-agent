@@ -1,0 +1,51 @@
+flowchart TD
+  S([START]):::term --> PI
+  subgraph A["검색 단계"]
+    PI["parseIntent<br/><small>① 의도 파악</small>"]:::llm
+    AU[/"askUser<br/><small>되묻기 · 일시정지</small>"/]:::user
+    SE["search<br/><small>② 검색·스크래핑</small>"]:::browser
+    RQ["reformulateQuery<br/><small>검색어 변경</small>"]:::llm
+    RC["rankCandidates<br/><small>③ 후보 선별</small>"]:::code
+    AS[/"awaitSelection<br/><small>상품 선택 · 일시정지</small>"/]:::user
+  end
+  subgraph B["상세 분석 단계"]
+    FD["fetchDetail<br/><small>④ 상세 페이지 수집</small>"]:::browser
+    SI["selectSizeImages<br/><small>⑤ 사이즈표 이미지 선별</small>"]:::llm
+    EX["extractSpec<br/><small>⑥ 스펙 추출</small>"]:::llm
+    VA{"validateSpec<br/><small>⑦ 검증</small>"}:::code
+    JF{"judgeFit<br/><small>⑧ 적합도 판정</small>"}:::code
+    NC["nextCandidate<br/><small>다음 후보</small>"]:::code
+    AF{"analyzeFailure<br/><small>실패 사유 분석</small>"}:::code
+    WR["writeRationale<br/><small>⑨ 근거 생성</small>"]:::llm
+  end
+  FI["finish<br/><small>결과 정리</small>"]:::code --> E([END]):::term
+
+  PI -- "정보 부족" --> AU
+  PI -- "충분" --> SE
+  AU --> SE
+  SE -- "후보 있음" --> RC
+  SE -. "0건 · 재검색 ≤2" .-> RQ
+  SE -- "재검색 초과" --> FI
+  RQ --> SE
+  RC --> AS --> FD
+  FD -- "이미지 있음" --> SI
+  FD -- "수집 실패" --> JF
+  SI -- "사이즈표 있음" --> EX
+  SI -- "없음" --> JF
+  EX --> VA
+  VA -. "오류 · 재추출 ≤2" .-> EX
+  VA -- "통과/초과(불확실)" --> JF
+  JF -- "적합·경계" --> WR
+  JF -. "부적합 · 후보 ≤3" .-> NC
+  NC --> FD
+  JF -- "후보 소진" --> AF
+  AF -. "사이즈 범위 밖 · 재검색 ≤1" .-> RQ
+  AF -- "그 외" --> FI
+  WR --> FI
+
+  classDef llm fill:#EDE9FE,stroke:#7C3AED,stroke-width:1.5px,color:#111
+  classDef code fill:#DBEAFE,stroke:#2563EB,stroke-width:1.5px,color:#111
+  classDef browser fill:#D1FAE5,stroke:#059669,stroke-width:1.5px,color:#111
+  classDef user fill:#FFEDD5,stroke:#EA580C,stroke-width:1.5px,color:#111
+  classDef term fill:#F1F5F9,stroke:#64748B,color:#111
+  linkStyle 6,8,16,19,20,22 stroke:#DC2626,stroke-width:2px
