@@ -14,3 +14,10 @@ __pycache__/
 
 # POC 자체 점검(--selftest) 출력
 POC/결과/selftest/
+
+# 저장소에 올리지 않는 개인 파일
+github_token.txt
+/이전버전/
+/*.docx
+/*.pdf
+/*.hwp
