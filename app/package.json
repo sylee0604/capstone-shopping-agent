@@ -1,0 +1,19 @@
+{
+  "name": "shopping-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "멀티모달 LLM 기반 글로벌 쇼핑 의사결정 에이전트 (Chrome Extension)",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.0.0",
+    "@langchain/langgraph": "^1.4.19",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
