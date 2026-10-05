@@ -1,0 +1,16 @@
+# 비밀 정보
+gemini_key.txt
+*.key
+.env
+
+# 빌드·의존성
+node_modules/
+dist/
+*.log
+__pycache__/
+
+# 문서 임시 파일
+~$*
+
+# POC 자체 점검(--selftest) 출력
+POC/결과/selftest/
