@@ -24,6 +24,7 @@ export const AgentState = Annotation.Root({
   round: Annotation({ reducer: last, default: () => 1 }),            // 검색 라운드 (실패 후 재검색 시 +1)
   searchAttempts: Annotation({ reducer: last, default: () => 0 }),   // 이번 라운드 검색 시도 수
   researchCount: Annotation({ reducer: last, default: () => 0 }),
+  usedQueries: Annotation({ reducer: append, default: () => [] }),   // 이미 써 본 중국어 검색어
   candidates: Annotation({ reducer: last, default: () => [] }),
   selectedId: Annotation({ reducer: last, default: () => null }),    // 사용자 선택 또는 다음 후보
 
