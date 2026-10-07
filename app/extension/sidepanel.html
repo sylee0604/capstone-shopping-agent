@@ -8,11 +8,30 @@
 <body>
   <header>
     <h1>쇼핑 에이전트 <span class="badge">v2 개발용</span></h1>
-    <p>LangGraph 흐름 확인용 · 노드는 가짜 함수예요</p>
+    <p id="modeNote"></p>
   </header>
   <section class="form">
     <label>요청<textarea id="query" rows="2">여아 봄 원피스 110 사이즈, 3만원 이하</textarea></label>
-    <label>시나리오<select id="scenario"></select></label>
+    <label>실행 방식
+      <select id="mode">
+        <option value="real">실제 검색 (분석 단계는 아직 가짜)</option>
+        <option value="mock">가짜 시나리오 (흐름 확인)</option>
+      </select>
+    </label>
+    <label id="scenarioRow">시나리오<select id="scenario"></select></label>
+    <details id="settings">
+      <summary>설정 · 내 정보</summary>
+      <label>Gemini API 키<input id="apiKey" type="password" autocomplete="off" placeholder="AIza…" /></label>
+      <label>쇼핑몰
+        <select id="platform"><option value="taobao">타오바오</option><option value="1688">1688</option></select>
+      </label>
+      <div class="grid">
+        <label>키(cm)<input id="heightCm" type="number" min="50" max="220" /></label>
+        <label>몸무게(kg)<input id="weightKg" type="number" min="5" max="200" /></label>
+      </div>
+      <p class="hint">요청 문장에 없을 때만 쓰여요. API 키는 이 브라우저(chrome.storage)에만 저장돼요.</p>
+      <button id="saveSettings">저장</button> <span id="saved" class="hint"></span>
+    </details>
     <button id="start" class="primary">시작</button>
     <button id="resume" class="secondary" hidden></button>
   </section>
