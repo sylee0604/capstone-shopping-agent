@@ -1,0 +1,163 @@
+{
+  "category": "원피스",
+  "weightUnit": "추정_斤",
+  "variants": [
+    {
+      "name": null,
+      "fitHeightCm": null,
+      "sizes": [
+        {
+          "label": "110",
+          "heightCm": [
+            106,
+            115
+          ],
+          "weightKg": [
+            16.5,
+            20
+          ],
+          "ageYears": null,
+          "length": 58,
+          "chest": {
+            "value": 48,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 37,
+            "from": "어깨"
+          },
+          "extra": {}
+        },
+        {
+          "label": "120",
+          "heightCm": [
+            116,
+            125
+          ],
+          "weightKg": [
+            18.5,
+            23
+          ],
+          "ageYears": null,
+          "length": 63,
+          "chest": {
+            "value": 50,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 40,
+            "from": "어깨"
+          },
+          "extra": {}
+        },
+        {
+          "label": "130",
+          "heightCm": [
+            126,
+            135
+          ],
+          "weightKg": [
+            22,
+            27.5
+          ],
+          "ageYears": null,
+          "length": 68,
+          "chest": {
+            "value": 56,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 43,
+            "from": "어깨"
+          },
+          "extra": {}
+        },
+        {
+          "label": "140",
+          "heightCm": [
+            136,
+            145
+          ],
+          "weightKg": [
+            25,
+            32.5
+          ],
+          "ageYears": null,
+          "length": 73,
+          "chest": {
+            "value": 60,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 46,
+            "from": "어깨"
+          },
+          "extra": {}
+        },
+        {
+          "label": "150",
+          "heightCm": [
+            146,
+            155
+          ],
+          "weightKg": [
+            27.5,
+            36
+          ],
+          "ageYears": null,
+          "length": 78,
+          "chest": {
+            "value": 64,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 49,
+            "from": "어깨"
+          },
+          "extra": {}
+        },
+        {
+          "label": "160",
+          "heightCm": [
+            150,
+            160
+          ],
+          "weightKg": [
+            35,
+            47.5
+          ],
+          "ageYears": null,
+          "length": 83,
+          "chest": {
+            "value": 68,
+            "basis": "둘레"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": null,
+          "sleeve": {
+            "value": 52,
+            "from": "어깨"
+          },
+          "extra": {}
+        }
+      ]
+    }
+  ],
+  "fitMatrix": null
+}

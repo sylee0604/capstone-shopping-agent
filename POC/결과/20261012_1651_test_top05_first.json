@@ -1,0 +1,229 @@
+{
+  "category": "상의",
+  "weightUnit": "없음",
+  "variants": [
+    {
+      "name": null,
+      "fitHeightCm": null,
+      "sizes": [
+        {
+          "label": "100cm",
+          "heightCm": [
+            100,
+            100
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 41,
+          "chest": {
+            "value": 45,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 40,
+          "sleeve": {
+            "value": 29,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "48.5g"
+          }
+        },
+        {
+          "label": "110cm",
+          "heightCm": [
+            110,
+            110
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 44,
+          "chest": {
+            "value": 47.5,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 42.5,
+          "sleeve": {
+            "value": 33,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "55g"
+          }
+        },
+        {
+          "label": "120cm",
+          "heightCm": [
+            120,
+            120
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 47.5,
+          "chest": {
+            "value": 50,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 45,
+          "sleeve": {
+            "value": 37,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "62.5g"
+          }
+        },
+        {
+          "label": "130cm",
+          "heightCm": [
+            130,
+            130
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 51,
+          "chest": {
+            "value": 52.5,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 47.5,
+          "sleeve": {
+            "value": 41,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "70g"
+          }
+        },
+        {
+          "label": "140cm",
+          "heightCm": [
+            140,
+            140
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 54.5,
+          "chest": {
+            "value": 55,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 50,
+          "sleeve": {
+            "value": 45,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "79g"
+          }
+        },
+        {
+          "label": "150cm",
+          "heightCm": [
+            150,
+            150
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 58.5,
+          "chest": {
+            "value": 57.5,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 52.5,
+          "sleeve": {
+            "value": 49,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "88g"
+          }
+        },
+        {
+          "label": "160cm",
+          "heightCm": [
+            160,
+            160
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 62.5,
+          "chest": {
+            "value": 60,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 55,
+          "sleeve": {
+            "value": 53,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "97g"
+          }
+        },
+        {
+          "label": "165cm",
+          "heightCm": [
+            165,
+            165
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 64.5,
+          "chest": {
+            "value": 62.5,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 57.5,
+          "sleeve": {
+            "value": 55,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "104g"
+          }
+        },
+        {
+          "label": "170cm",
+          "heightCm": [
+            170,
+            170
+          ],
+          "weightKg": null,
+          "ageYears": null,
+          "length": 66.5,
+          "chest": {
+            "value": 65,
+            "basis": "단면"
+          },
+          "waist": null,
+          "hip": null,
+          "shoulder": 60,
+          "sleeve": {
+            "value": 57,
+            "from": "어깨"
+          },
+          "extra": {
+            "充绒量": "111g"
+          }
+        }
+      ]
+    }
+  ],
+  "fitMatrix": null
+}

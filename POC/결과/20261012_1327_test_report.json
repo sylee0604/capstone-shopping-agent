@@ -1,0 +1,40 @@
+{
+  "model": "gemini-2.5-flash",
+  "set": "test",
+  "time": "20261012_1327_test",
+  "items": {
+    "bottom01": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "bottom02": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "bottom04": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "bottom05": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "bottom06": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "bottom08": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "bottom09": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "bottom10": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "dress01": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "dress02": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    },
+    "dress04": {
+      "error": "Gemini 오류 404: {\n  \"error\": {\n    \"code\": 404,\n    \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).\",\n    \"status\": \"NOT_FOUND\"\n  }\n}\n"
+    }
+  }
+}

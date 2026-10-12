@@ -1,0 +1,229 @@
+{
+  "model": "gemini-3.8-flash",
+  "set": "test",
+  "time": "20261012_1328_test",
+  "items": {
+    "bottom01": {
+      "sec_first": 127.1,
+      "first": {
+        "전체": "165/165",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "165/165",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "bottom02": {
+      "sec_first": 26.0,
+      "first": {
+        "전체": "36/36",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "36/36",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "bottom04": {
+      "sec_first": 24.6,
+      "first": {
+        "전체": "64/64",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "64/64",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "bottom05": {
+      "sec_first": 18.4,
+      "first": {
+        "전체": "64/64",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "64/64",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "bottom06": {
+      "sec_first": 15.0,
+      "first": {
+        "전체": "60/60",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "60/60",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "bottom08": {
+      "sec_first": 16.3,
+      "first": {
+        "전체": "24/24",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": null
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "24/24",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": null
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "bottom09": {
+      "sec_first": 12.9,
+      "first": {
+        "전체": "24/24",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "24/24",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "bottom10": {
+      "sec_first": 51.2,
+      "first": {
+        "전체": "48/48",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "48/48",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "dress01": {
+      "sec_first": 12.9,
+      "first": {
+        "전체": "36/48",
+        "전체정확도": 0.75,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 0.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "36/48",
+        "전체정확도": 0.75,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 0.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": [
+        "v0.110.chest.basis",
+        "v0.110.sleeve.from",
+        "v0.120.chest.basis",
+        "v0.120.sleeve.from",
+        "v0.130.chest.basis",
+        "v0.130.sleeve.from",
+        "v0.140.chest.basis",
+        "v0.140.sleeve.from",
+        "v0.150.chest.basis",
+        "v0.150.sleeve.from",
+        "v0.160.chest.basis",
+        "v0.160.sleeve.from"
+      ]
+    },
+    "dress02": {
+      "sec_first": 15.0,
+      "first": {
+        "전체": "66/66",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "66/66",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    },
+    "dress04": {
+      "sec_first": 16.0,
+      "first": {
+        "전체": "54/54",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_first": true,
+      "errors_first": [],
+      "final": {
+        "전체": "54/54",
+        "전체정확도": 1.0,
+        "필수정확도": 1.0,
+        "기준(단면/둘레·화장)정확도": 1.0
+      },
+      "unit_ok_final": true,
+      "wrong_final": []
+    }
+  }
+}
