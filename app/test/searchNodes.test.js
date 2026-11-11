@@ -61,7 +61,7 @@ test('S3 정상: 의도 파악 → 검색 → 후보 3개(번역·원화) → �
   const llm = fakeLlm([{ category: '상의', item: '후드티', ageGroup: '성인', gender: '여성', heightCm: 160 }]);
   const products = [1, 2, 3, 4, 5].map((i) => ({ id: `p${i}`, titleZh: `女装 连帽卫衣 款${i}`, salesNum: i * 100, priceCny: 60 + i }));
   const browser = fakeBrowser({ '女装 连帽卫衣': products });
-  const v = await run(graphWith(llm, browser), '여자 후드티, 키 160', {});
+  const v = await run(graphWith(llm, browser), '요청 A (사전에 없는 표현 → LLM 경로)', {});
   assert.deepEqual(browser.searched, ['女装 连帽卫衣']);
   assert.deepEqual(v.candidates.map((c) => c.id), ['p5', 'p4', 'p3']);      // 판매량 순
   assert.equal(v.candidates[0].title, '[번역]女装 连帽卫衣 款5');
@@ -74,7 +74,7 @@ test('S4 되묻기: 성별이 없으면 멈추고, 답을 받아 검색어를 �
   const llm = fakeLlm([{ category: '하의', item: '청바지', ageGroup: '성인', heightCm: 170 }]);
   const browser = fakeBrowser({ '女装 牛仔裤': [{ id: 'j1' }] });
   const paused = [];
-  const v = await run(graphWith(llm, browser), '청바지 170', {}, async (node, s) => { paused.push(node); return pickFirst(node, s); });
+  const v = await run(graphWith(llm, browser), '요청 B', {}, async (node, s) => { paused.push(node); return pickFirst(node, s); });
   assert.deepEqual(paused, ['askUser', 'awaitSelection']);
   assert.deepEqual(v.intent.missing, []);
   assert.deepEqual(browser.searched, ['女装 牛仔裤']);
@@ -87,7 +87,7 @@ test('S5 검색 0건: 준비된 더 일반적인 검색어로 → 그래도 없�
     { queries: ['女童 裙子'] },
   ]);
   const browser = fakeBrowser({ '女童 裙子': [{ id: 'd1' }] });
-  const v = await run(graphWith(llm, browser), '여아 봄 분홍 원피스 120', {});
+  const v = await run(graphWith(llm, browser), '요청 C', {});
   assert.deepEqual(browser.searched, ['女童 春季 粉色 连衣裙', '女童 春季 连衣裙', '女童 连衣裙']);   // 0건 3번 = 첫 시도 + 재검색 2회
   assert.equal(v.recommendation.type, 'none');                                                   // 재검색 상한(2회) 도달
   assert.equal(llm.calls.length, 1);                                                              // 준비된 검색어만으로 상한에 걸려 LLM은 안 부름
@@ -96,7 +96,7 @@ test('S5 검색 0건: 준비된 더 일반적인 검색어로 → 그래도 없�
 test('S6 준비된 검색어가 바닥나면 LLM에게 새 검색어를 받아 계속', async () => {
   const llm = fakeLlm([{ category: '상의', item: '셔츠', ageGroup: '성인', gender: '남성', heightCm: 175 }, { queries: ['男士 衬衣'] }]);
   const browser = fakeBrowser({ '男士 衬衣': [{ id: 's1' }] });
-  const v = await run(graphWith(llm, browser), '남자 셔츠 175', {});
+  const v = await run(graphWith(llm, browser), '요청 D', {});
   assert.deepEqual(browser.searched, ['男装 衬衫', '男士 衬衣']);
   assert.match(llm.calls[1].prompt, /이미 써 본 검색어: \["男装 衬衫"\]/);
   assert.equal(v.recommendation.productId, 's1');
@@ -108,7 +108,7 @@ test('S7 후보 3개 모두 부적합 → 다음 라운드는 남은 검색어�
   const r2 = ['a', 'b', 'd'].map((id) => ({ id }));
   const browser = fakeBrowser({ '女装 夏季 连衣裙': r1, '女装 连衣裙': r2 });
   const out = { verdict: '부적합', unfitReason: 'SIZE_OUT_OF_RANGE' };
-  const v = await run(graphWith(llm, browser, { verdict: { a: out, b: out, c: out } }), '여름 원피스', {});
+  const v = await run(graphWith(llm, browser, { verdict: { a: out, b: out, c: out } }), '요청 E', {});
   assert.deepEqual(browser.searched, ['女装 夏季 连衣裙', '女装 连衣裙']);
   assert.equal(v.round, 2);
   assert.equal(v.recommendation.productId, 'd');              // a, b는 다시 보여주지 않음
@@ -118,7 +118,7 @@ test('S8 로그인 필요 페이지면 멈추고, 로그인 후 이어서 하기
   const llm = fakeLlm([{ category: '상의', item: '니트', ageGroup: '성인', gender: '여성', heightCm: 158 }]);
   const browser = fakeBrowser({ '女装 针织衫': [{ id: 'k1' }] }, { blockedOnce: true });
   const g = graphWith(llm, browser);
-  const input = { request: { query: '니트', profile: {} } };
+  const input = { request: { query: '요청 F', profile: {} } };
   await assert.rejects(runAgent(g, input, { threadId: 'login', onPause: pickFirst }), NeedsLoginError);
   const v = await runAgent(g, input, { threadId: 'login', onPause: pickFirst, resume: true });
   assert.equal(v.recommendation.productId, 'k1');
@@ -146,4 +146,13 @@ test('S10 계절 불일치: 봄 요청인데 상품명에 秋冬만 있으면 �
   const r = rankProducts(pool, { query: '女童 连衣裙', season: '봄', n: 3 });
   assert.equal(r.at(-1).id, 'aw');
   assert.equal(r[0].id, 'sp');
+});
+
+test('S11 규칙 해석: 사전에서 품목을 찾으면 LLM을 부르지 않음 (키·몸무게·예산·사이즈 숫자도 규칙으로)', async () => {
+  const llm = fakeLlm([]);
+  const browser = fakeBrowser({ '男装 衬衫': [{ id: 'w1' }] });
+  const v = await run(graphWith(llm, browser), '남자 와이셔츠 키 175 70kg 3만 5천원 이하', {});
+  assert.equal(llm.calls.length, 0);
+  assert.deepEqual([v.intent.by, v.intent.item, v.intent.gender, v.intent.heightCm, v.intent.weightKg, v.intent.budgetKrw], ['rule', '셔츠', '남성', 175, 70, 35000]);
+  assert.deepEqual(browser.searched, ['男装 衬衫']);
 });

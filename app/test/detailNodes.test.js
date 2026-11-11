@@ -83,7 +83,6 @@ function fakeBrowser({ detail = {}, products = [] } = {}) {
     async loadImages(urls) { loaded.push(urls); return urls.map((url) => ({ url, mimeType: 'image/jpeg', base64: 'AAAA' })); },
   };
 }
-const INTENT = { category: '원피스', item: '원피스', ageGroup: '아동', gender: '여성', heightCm: 120, weightKg: 21 };
 let n = 0;
 async function runAll(llm, browser) {
   const nodes = { ...makeSearchNodes({ llm, browser }), ...makeDetailNodes({ llm, browser }) };
@@ -92,12 +91,12 @@ async function runAll(llm, browser) {
   return runAgent(g, { request: { query: '여아 원피스 키 120 21kg', profile: {} } }, { threadId: `d${n++}`, onPause: pick });
 }
 
-test('D7 전체 흐름: 의도 파악 1회 + 추출 1회 = LLM 2회로 추천과 근거까지', async () => {
-  const llm = fakeLlm([INTENT, KIDS]);
+test('D7 전체 흐름: 의도 파악은 규칙, 추출 1회 = LLM 1회로 추천과 근거까지', async () => {
+  const llm = fakeLlm([KIDS]);                                  // 의도 파악은 규칙으로 (LLM 없음)
   const browser = fakeBrowser({ products: [{ id: 'p1' }], detail: { p1: { images: ['a', 'size', 'b'], skus: [{ label: '120cm', soldOut: false }] } } });
   const v = await runAll(llm, browser);
-  assert.equal(llm.calls.length, 2);
-  assert.equal(llm.calls[1].images.length, 3);                 // 후보 이미지를 한 번에 넣음
+  assert.equal(llm.calls.length, 1);
+  assert.equal(llm.calls[0].images.length, 3);                 // 후보 이미지를 한 번에 넣음
   assert.deepEqual([v.recommendation.type, v.recommendation.size, v.recommendation.verdict], ['recommend', '120', '적합']);
   assert.match(v.recommendation.rationale, /키 120cm → 권장 키 116~125cm 안/);
   assert.match(v.recommendation.rationale, /재고 있음/);
@@ -106,17 +105,29 @@ test('D7 전체 흐름: 의도 파악 1회 + 추출 1회 = LLM 2회로 추천과
 test('D8 검증 실패 → 오류를 알려 1회 재추출 → 통과', async () => {
   const bad = spec([row('110', [106, 115], [16, 20], { chest: { value: 48, basis: '둘레' } }), row('120', [116, 125], [19, 24], { chest: { value: 50, basis: '둘레' } })]);
   const good = spec([row('110', [106, 115], [16, 20], { chest: { value: 48, basis: '단면' } }), row('120', [116, 125], [19, 24], { chest: { value: 50, basis: '단면' } })]);
-  const llm = fakeLlm([INTENT, bad, good]);
+  const llm = fakeLlm([bad, good]);
   const v = await runAll(llm, fakeBrowser({ products: [{ id: 'p1' }] }));
-  assert.equal(llm.calls.length, 3);
-  assert.match(llm.calls[2].prompt, /이전 답변에서 발견된 문제[\s\S]*단면/);
+  assert.equal(llm.calls.length, 2);
+  assert.match(llm.calls[1].prompt, /이전 답변에서 발견된 문제[\s\S]*단면/);
   assert.equal(v.results[0].specStatus, 'ok');
   assert.equal(v.recommendation.size, '120');
 });
 
 test('D9 사이즈표 없음({"none":true}) → 부적합(SPEC_UNKNOWN) → 남은 후보 선택', async () => {
-  const llm = fakeLlm([INTENT, { none: true }, KIDS]);
+  const llm = fakeLlm([{ none: true }, KIDS]);
   const v = await runAll(llm, fakeBrowser({ products: [{ id: 'p1', salesNum: 900 }, { id: 'p2', salesNum: 100 }] }));
   assert.equal(v.results[0].unfitReason, 'SPEC_UNKNOWN');
   assert.equal(v.recommendation.productId, 'p2');
+});
+
+test('D10 페이지의 사이즈표(HTML 표)를 글자로 읽었으면 이미지 없이 글자로 추출', async () => {
+  const llm = fakeLlm([KIDS]);
+  const browser = fakeBrowser({ products: [{ id: 'p1' }] });
+  const detail = browser.detail;
+  browser.detail = async (a) => ({ ...(await detail(a)), sizeTableText: '尺码 | 身高 | 体重\n110 | 106-115 | 16-20\n120 | 116-125 | 19-24' });
+  const v = await runAll(llm, browser);
+  assert.equal(llm.calls[0].images.length, 0);
+  assert.match(llm.calls[0].prompt, /글자로 옮긴 것[\s\S]*116-125/);
+  assert.equal(browser.loaded.length, 0);
+  assert.equal(v.recommendation.size, '120');
 });

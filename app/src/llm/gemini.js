@@ -13,10 +13,10 @@ export function rankFlashModels(names) {
   return [...c].sort((a, b) => ver(b) - ver(a));
 }
 
-export function geminiProvider({ apiKey, model, fetchFn = globalThis.fetch?.bind(globalThis), timeoutMs = 60_000 }) {
+export function geminiProvider({ apiKey, model, cachedModel, fetchFn = globalThis.fetch?.bind(globalThis), timeoutMs = 60_000 }) {
   if (!apiKey) throw new LlmError('Gemini API 키가 설정되지 않았어요', { code: 'NO_KEY' });
   const headers = { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey };
-  const self = { model };
+  const self = { model: model ?? cachedModel, cached: !model && Boolean(cachedModel) };   // cachedModel: 지난번에 고른 모델 (목록 조회 생략)
 
   async function call(url, init) {
     let r;
@@ -50,7 +50,16 @@ export function geminiProvider({ apiKey, model, fetchFn = globalThis.fetch?.bind
       generationConfig: { temperature, ...(json ? { responseMimeType: 'application/json' } : {}) },
       ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
     };
-    const data = await call(`${API}/models/${self.model}:generateContent`, { method: 'POST', headers, body: JSON.stringify(body) });
+    let data;
+    try {
+      data = await call(`${API}/models/${self.model}:generateContent`, { method: 'POST', headers, body: JSON.stringify(body) });
+    } catch (e) {
+      // 저장해 둔 모델이 없어졌으면(404) 목록에서 다시 골라 한 번 더
+      if (e.code !== 404 || !self.cached) throw e;
+      self.model = undefined; self.cached = false;
+      await self.init();
+      data = await call(`${API}/models/${self.model}:generateContent`, { method: 'POST', headers, body: JSON.stringify(body) });
+    }
     const cand = data.candidates?.[0];
     const text = (cand?.content?.parts ?? []).map((p) => p.text ?? '').join('');
     if (!text) throw new LlmError(`빈 응답 (${cand?.finishReason ?? data.promptFeedback?.blockReason ?? '이유 없음'})`, { code: 'EMPTY', retryable: true });

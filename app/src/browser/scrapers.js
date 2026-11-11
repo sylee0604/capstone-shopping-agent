@@ -149,6 +149,19 @@ export async function scrapeDetail() {
     const cls = (el.className || '') + ' ' + (el.parentElement?.className || '');
     skus.push({ label, soldOut: /disabled|isDisabled|soldout|out-of-stock|tb-out-of-stock/i.test(cls) || el.getAttribute('aria-disabled') === 'true' });
   }
+  // 티몰 등은 판매자가 이미지 대신 표준 사이즈표(HTML 표)를 쓰는 경우가 많다: "尺码表" 버튼을 눌러 표를 연 뒤 글자로 읽는다
+  const btn = [...document.querySelectorAll('a, button, span, div')].find((e) => e.children.length <= 2 && /^(查看)?(尺码表|尺码参考|尺码助手|尺码对照表?|尺寸表)$/.test((e.innerText || '').trim()));
+  if (btn) { try { btn.click(); await delay(1800); } catch (e) { /* 무시 */ } }
+  const SIZE = /尺码|身高|体重|胸围|衣长|裤长|腰围|肩宽/;
+  const tableText = (t) => [...t.rows].map((r) => [...r.cells].map((c) => (c.innerText || '').trim()).join(' | ')).join('\n');
+  let tables = [...document.querySelectorAll('table')].map(tableText).filter((x) => SIZE.test(x) && x.split('\n').length >= 2);
+  if (!tables.length) {
+    // 표가 div 격자로 된 경우: 사이즈 관련 말이 있고 줄이 여러 개인 가장 작은 덩어리
+    const boxes = [...document.querySelectorAll('[class*="size" i], [class*="Size"], [class*="chima"], [role="dialog"]')]
+      .map((e) => (e.innerText || '').trim()).filter((x) => SIZE.test(x) && x.split('\n').length >= 4 && x.length < 4000);
+    tables = boxes.sort((a, b) => a.length - b.length).slice(0, 1);
+  }
+  const sizeTableText = [...new Set(tables)].join('\n\n').slice(0, 4000);
   const title = (document.querySelector('h1, [class*="mainTitle"], [class*="ItemTitle"], .tb-main-title')?.innerText || document.title || '').trim().slice(0, 150);
-  return { title, images, skus, url: location.href };
+  return { title, images, skus, sizeTableText, sizeButton: Boolean(btn), url: location.href };
 }

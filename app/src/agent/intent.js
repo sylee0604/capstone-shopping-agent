@@ -1,7 +1,7 @@
 // 의도 파악: LLM은 사용자 문장을 정해진 양식(IntentSchema)으로 옮기기만 하고,
 // 누락 항목 판단·프로필 보충·중국어 검색어 조립은 결정적 코드가 맡는다.
 import { z } from 'zod';
-import { lookup, vocabulary } from '../data/terms.js';
+import { lookup, vocabulary, findTerms } from '../data/terms.js';
 
 const num = z.number().positive().nullable().default(null);
 const list = z.array(z.string()).default([]);
@@ -99,12 +99,54 @@ export function buildQueries(it) {
   return [...new Set(qs)].filter(Boolean);
 }
 
-/** 문장 → 의도 (LLM 1회) */
+const TARGET = { 여성: ['성인', '여성'], 남성: ['성인', '남성'], 여아: ['아동', '여성'], 남아: ['아동', '남성'], 아동: ['아동', null], 공용: [null, '공용'] };
+
+/**
+ * 규칙으로 먼저 해석 (API 호출 없음). 사전에서 품목을 찾았을 때만 결과를 쓰고, 못 찾으면 null → LLM으로 넘긴다.
+ * 숫자: "키 175", "175cm", "70kg", "3만원", "3만 5천원", "100위안", "7살", "110 사이즈", "XL"
+ */
+export function quickParse(query) {
+  const q = String(query);
+  const item = findTerms(q, 'item')[0];
+  if (!item) return null;
+  const it = IntentSchema.parse({});
+  it.item = item.ko[0];
+  it.category = item.cat;
+  const t = findTerms(q, 'target')[0];
+  if (t) [it.ageGroup, it.gender] = TARGET[t.ko[0]] ?? [null, null];
+  if (/아이|애기|아기|초등|유아|키즈|어린이/.test(q) && !it.ageGroup) it.ageGroup = '아동';
+  const num = (re) => { const m = q.match(re); return m ? Number(m[1]) : null; };
+  it.heightCm = num(/키\s*(\d{2,3}(?:\.\d)?)/) ?? num(/(\d{2,3}(?:\.\d)?)\s*(?:cm|센티)/i);
+  it.weightKg = num(/몸무게\s*(\d{2,3}(?:\.\d)?)/) ?? num(/(\d{2,3}(?:\.\d)?)\s*(?:kg|킬로|키로)/i);
+  it.ageYears = num(/(\d{1,2})\s*(?:살|세)/);
+  const man = q.match(/(\d+(?:\.\d+)?)\s*만\s*(?:(\d)\s*천)?\s*원?/);
+  if (man) it.budgetKrw = Math.round(Number(man[1]) * 10000 + (man[2] ? Number(man[2]) * 1000 : 0));
+  else if (num(/(\d{4,7})\s*원/)) it.budgetKrw = num(/(\d{4,7})\s*원/);
+  else if (num(/(\d+)\s*(?:위안|元)/)) it.budgetKrw = num(/(\d+)\s*(?:위안|元)/) * 190;
+  const size = q.match(/(\d{2,3})\s*(?:사이즈|호)/) ?? q.match(/(?:^|\s)(XXS|XS|S|M|L|XL|XXL|2XL|3XL|4XL)(?=\s|$|,)/i);
+  if (size) it.sizeLabel = size[1].toUpperCase();
+  // 아동복은 "원피스 120"처럼 숫자만 써도 사이즈(키 기준 표기)
+  if (!it.sizeLabel && it.ageGroup === '아동') {
+    const m = q.match(/(?:^|\s)(\d{2,3})(?!\s*(?:cm|센티|kg|킬로|키로|원|만|살|세|위안|\d))(?=\s|$|,)/i);
+    if (m && +m[1] >= 70 && +m[1] <= 170 && +m[1] !== it.heightCm) it.sizeLabel = m[1];
+  }
+  it.season = findTerms(q, 'season')[0]?.ko[0] ?? null;
+  it.colors = findTerms(q, 'color').map((x) => x.ko[0]);
+  it.materials = findTerms(q, 'material').map((x) => x.ko[0]);
+  it.styles = findTerms(q, 'style').map((x) => x.ko[0]);
+  return it;
+}
+
+/** 문장 → 의도. 규칙으로 품목을 찾으면 LLM을 부르지 않고, 못 찾을 때만 LLM 1회 */
 export async function parseIntent(llm, query, profile) {
-  const { system, prompt } = intentPrompt(query);
-  const raw = await llm.json({ system, prompt, schema: IntentSchema });
+  let raw = quickParse(query), by = 'rule';
+  if (!raw) {
+    const { system, prompt } = intentPrompt(query);
+    raw = await llm.json({ system, prompt, schema: IntentSchema });
+    by = 'llm';
+  }
   const it = applyProfile(raw, profile);
-  return { ...it, missing: findMissing(it), queriesZh: buildQueries(it) };
+  return { ...it, by, missing: findMissing(it), queriesZh: buildQueries(it) };
 }
 
 /** 되묻기 응답을 반영 (LLM 없이 코드로) */

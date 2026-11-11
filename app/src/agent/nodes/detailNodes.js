@@ -39,24 +39,26 @@ export function makeDetailNodes({ llm, browser }) {
       if (d.blocked) throw new NeedsLoginError(platform);
       return {
         analyzed: [id],
-        current: { productId: id, url: c.url, title: c.title, images: d.images, imageUrls: d.images.map((x) => x.url), skus: d.skus, extractAttempts: 0, errors: [], status: null, spec: null },
-        log: [{ node: 'fetchDetail', images: d.images.length, skus: d.skus.length }],
+        current: { productId: id, url: c.url, title: c.title, images: d.images, imageUrls: d.images.map((x) => x.url), skus: d.skus, sizeTableText: d.sizeTableText || '', extractAttempts: 0, errors: [], status: null, spec: null },
+        log: [{ node: 'fetchDetail', images: d.images.length, skus: d.skus.length, sizeTable: Boolean(d.sizeTableText), sizeButton: d.sizeButton }],
       };
     },
 
     async selectSizeImages(s) {
-      return { current: { ...s.current, sizeImages: pickSizeImages(s.current.images ?? []) } };
+      // 페이지에서 사이즈표를 글자로 읽었으면 이미지는 보내지 않는다 (더 정확하고 토큰도 적음)
+      return { current: { ...s.current, sizeImages: s.current.sizeTableText ? [] : pickSizeImages(s.current.images ?? []) } };
     },
 
     async extractSpec(s) {
       const c = s.current;
-      const images = await browser.loadImages(c.sizeImages);
+      const images = c.sizeTableText ? [] : await browser.loadImages(c.sizeImages);
+      const tableNote = c.sizeTableText ? `\n\n[상품 페이지의 사이즈표를 글자로 옮긴 것 — 이미지 대신 이 표를 읽어라]\n${c.sizeTableText}` : '';
       const feedback = c.errors?.length
         ? `\n\n[이전 답변에서 발견된 문제]\n- ${c.errors.join('\n- ')}\n이미지를 다시 확인해 고쳐서 전체 JSON을 다시 출력하라. 원본이 실제로 그렇다면 그대로 두어도 된다.`
         : '';
       let spec = null;
-      if (images.length) {
-        const r = await llm.json({ prompt: EXTRACT_PROMPT + feedback, images, schema: ExtractSchema });
+      if (images.length || tableNote) {
+        const r = await llm.json({ prompt: EXTRACT_PROMPT + tableNote + feedback, images, schema: ExtractSchema });
         spec = r.none ? null : r;
       }
       return { current: { ...c, prevKey: stableKey(c.spec), spec, extractAttempts: c.extractAttempts + 1 } };
@@ -72,7 +74,7 @@ export function makeDetailNodes({ llm, browser }) {
     async judgeFit(s) {
       const c = s.current, it = s.intent ?? {};
       let r;
-      if (!c.imageUrls.length) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
+      if (!c.imageUrls.length && !c.sizeTableText) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
       else r = judgeFit(c.spec, { heightCm: it.heightCm, weightKg: it.weightKg, ageGroup: it.ageGroup }, c.skus);
       return { results: [{ productId: c.productId, round: s.round, specStatus: c.status, ...r }] };
     },

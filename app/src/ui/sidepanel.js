@@ -36,14 +36,14 @@ function describeIntent(it) {
 
 function describe(node, u) {
   switch (node) {
-    case 'parseIntent': return u.intent?.category || u.intent?.item ? `요청을 분석했어요 · ${describeIntent(u.intent)}${u.intent.queriesZh?.length ? ` → ${u.intent.queriesZh[0]}` : ''}` : '요청을 분석했어요';
+    case 'parseIntent': return u.intent?.category || u.intent?.item ? `요청을 분석했어요${u.intent.by === 'rule' ? '(규칙)' : '(LLM)'} · ${describeIntent(u.intent)}${u.intent.queriesZh?.length ? ` → ${u.intent.queriesZh[0]}` : ''}` : '요청을 분석했어요';
     case 'askUser': return `답변을 반영했어요 · ${describeIntent(u.intent ?? {})}`;
     case 'search': return `상품을 검색했어요${u.usedQueries?.length ? ` "${u.usedQueries[0]}"` : ''} · ${u.candidates.length}건`;
     case 'reformulateQuery': return u.round ? '조건에 맞는 상품이 없어 새로 검색해요' : '결과가 없어 검색어를 바꿔요';
     case 'rankCandidates': u.candidates.forEach((c) => (seen[c.id] = c)); return `후보 ${u.candidates.length}개를 골랐어요`;
     case 'awaitSelection': return '선택한 상품을 확인했어요';
     case 'fetchDetail': return `상세 페이지를 읽었어요 · 이미지 ${u.current.imageUrls.length}장${u.current.skus?.length ? `, 옵션 ${u.current.skus.length}개` : ''}`;
-    case 'selectSizeImages': return u.current.sizeImages?.length ? `사이즈표 후보 이미지 ${u.current.sizeImages.length}장을 골랐어요` : '사이즈표 후보 이미지가 없어요';
+    case 'selectSizeImages': return u.current.sizeTableText ? '페이지에서 사이즈표(표)를 찾았어요' : u.current.sizeImages?.length ? `사이즈표 후보 이미지 ${u.current.sizeImages.length}장을 골랐어요` : '사이즈표 후보 이미지가 없어요';
     case 'extractSpec': return u.current.spec ? `사이즈표를 읽었어요 (${u.current.extractAttempts}회차) · 사이즈 ${u.current.spec.variants[0].sizes.map((x) => x.label).join('/')}` : '이미지에서 사이즈표를 찾지 못했어요';
     case 'validateSpec': return `검증: ${STATUS[u.current.status]}${u.current.errors.length ? ` — ${u.current.errors[0]}` : ''}`;
     case 'judgeFit': { const r = u.results[0]; return `판정: ${r.verdict}${r.unfitReason ? ` (${REASON[r.unfitReason]})` : r.size ? ` · ${r.size}` : ''}`; }
@@ -68,11 +68,13 @@ async function loadSettings() { return (await area.get('settings')).settings ?? 
 // 실행 방식에 맞는 그래프
 async function makeGraph(run) {
   if (run.mode === 'real') {
-    const { apiKey } = await loadSettings();
-    const llm = makeLlm({ provider: 'gemini', apiKey, onRetry: ({ code, waitMs }) => log(`LLM 응답 지연(${code}) → ${waitMs / 1000}초 후 다시 시도`, 'pause') });
+    const { apiKey, model } = await loadSettings();
+    const llm = makeLlm({ provider: 'gemini', apiKey, cachedModel: model, onRetry: ({ code, waitMs }) => log(`LLM 응답 지연(${code}) → ${waitMs / 1000}초 후 다시 시도`, 'pause') });
     const browser = makeChromeBrowser();
     const nodes = { ...makeSearchNodes({ llm, browser }), ...makeDetailNodes({ llm, browser }) };
-    return buildGraph(nodes, { checkpointer: saver, routes: makeRoutes() });
+    const g = buildGraph(nodes, { checkpointer: saver, routes: makeRoutes() });
+    g.llmModel = () => llm.model;                                     // 고른 모델을 저장해 다음 실행 때 목록 조회 생략
+    return g;
   }
   const clock = { t: 0 };
   const { nodes } = makeMockNodes(SCENARIOS[run.scenario].script, clock);
@@ -158,6 +160,7 @@ async function execute(run, resume) {
       onUpdate: (chunk) => { for (const [n, u] of Object.entries(chunk)) if (!n.startsWith('__')) { steps++; log(describe(n, u ?? {})); } },
     });
     showResult(final, run);
+    if (graph.llmModel?.()) { const st = await loadSettings(); if (st.model !== graph.llmModel()) await area.set({ settings: { ...st, model: graph.llmModel() } }); }
     await area.remove?.('activeRun');
   } catch (e) {
     $('error').hidden = false;
@@ -187,7 +190,7 @@ async function init() {
   syncMode();
   $('saveSettings').onclick = async () => {
     const num = (v) => (v === '' ? null : Number(v));
-    await area.set({ settings: { apiKey: $('apiKey').value.trim(), platform: $('platform').value, heightCm: num($('heightCm').value), weightKg: num($('weightKg').value) } });
+    await area.set({ settings: { ...(await loadSettings()), apiKey: $('apiKey').value.trim(), platform: $('platform').value, heightCm: num($('heightCm').value), weightKg: num($('weightKg').value) } });
     $('saved').textContent = '저장했어요';
     setTimeout(() => ($('saved').textContent = ''), 1500);
   };

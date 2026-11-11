@@ -5,9 +5,9 @@
 
 export const TERMS = [
   // ── 대상 (성별·연령) ──
-  { type: 'target', ko: ['여성', '여자', '우먼'], zh: '女装' },
-  { type: 'target', ko: ['남성', '남자', '맨즈'], zh: '男装' },
-  { type: 'target', ko: ['여아', '여자아이', '딸'], zh: '女童' },
+  { type: 'target', ko: ['여성', '여자', '우먼', '아내', '엄마', '여친'], zh: '女装' },
+  { type: 'target', ko: ['남성', '남자', '맨즈', '남편', '아빠', '남친'], zh: '男装' },
+  { type: 'target', ko: ['여아', '여자아이', '딸아이', '딸'], zh: '女童' },
   { type: 'target', ko: ['남아', '남자아이', '아들'], zh: '男童' },
   { type: 'target', ko: ['아동', '키즈', '아이', '어린이'], zh: '童装' },
   { type: 'target', ko: ['공용', '남녀공용', '커플'], zh: '男女同款' },
@@ -18,7 +18,7 @@ export const TERMS = [
   { type: 'item', cat: '상의', ko: ['긴팔티', '긴팔 티셔츠', '롱슬리브'], zh: '长袖T恤' },
   { type: 'item', cat: '상의', ko: ['맨투맨', '스웨트셔츠'], zh: '圆领卫衣' },
   { type: 'item', cat: '상의', ko: ['후드티', '후디', '후드'], zh: '连帽卫衣' },
-  { type: 'item', cat: '상의', ko: ['셔츠', '남방'], zh: '衬衫' },
+  { type: 'item', cat: '상의', ko: ['셔츠', '남방', '와이셔츠', 'Y셔츠'], zh: '衬衫' },
   { type: 'item', cat: '상의', ko: ['블라우스'], zh: '衬衫' },
   { type: 'item', cat: '상의', ko: ['니트', '니트티'], zh: '针织衫' },
   { type: 'item', cat: '상의', ko: ['스웨터'], zh: '毛衣' },
@@ -130,6 +130,21 @@ function norm(s) { return String(s).replace(/\s+/g, '').toLowerCase(); }
 
 /** 한국어 용어 → 사전 항목 (없으면 null) */
 export function lookup(ko) { return ko ? byKo.get(norm(ko)) ?? null : null; }
+
+/** 문장 속에서 사전 용어 찾기: 긴 표현 우선, 한 글자 표현은 띄어 쓴 단어로만 (예: '면', '청') */
+export function findTerms(text, type) {
+  const t = ` ${String(text).replace(/[,.!?·()]/g, ' ')} `;
+  const flat = t.replace(/\s+/g, '');
+  const found = [];
+  const cands = TERMS.filter((x) => x.type === type).flatMap((x) => x.ko.map((k) => ({ k, x }))).sort((a, b) => b.k.length - a.k.length);
+  let rest = flat;
+  for (const { k, x } of cands) {
+    const kk = norm(k);
+    const hit = kk.length === 1 ? new RegExp(`\\s${k}\\s`).test(t) : rest.toLowerCase().includes(kk);
+    if (hit && !found.includes(x)) { found.push(x); rest = rest.toLowerCase().split(kk).join('|'); }
+  }
+  return found;
+}
 
 /** 종류별 표준 용어 목록 (LLM 프롬프트에 선택지로 제공) */
 export function vocabulary(type, cat) {

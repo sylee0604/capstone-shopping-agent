@@ -16,9 +16,10 @@ export function makeRoutes({ limits = LIMITS, now = () => Date.now() } = {}) {
       return s.searchAttempts <= limits.searchRetry ? 'reformulateQuery' : 'finish';
     },
 
-    afterDetail: (s) => (late(s) ? 'finish' : s.current?.imageUrls?.length ? 'selectSizeImages' : 'judgeFit'),
+    afterDetail: (s) => (late(s) ? 'finish' : s.current?.imageUrls?.length || s.current?.sizeTableText ? 'selectSizeImages' : 'judgeFit'),
 
-    afterImages: (s) => (late(s) ? 'finish' : s.current?.sizeImages?.length ? 'extractSpec' : 'judgeFit'),
+    // 사이즈표 후보 이미지 또는 페이지에서 읽은 사이즈표 글자가 있으면 추출
+    afterImages: (s) => (late(s) ? 'finish' : s.current?.sizeImages?.length || s.current?.sizeTableText ? 'extractSpec' : 'judgeFit'),
 
     afterValidate: (s) => {
       if (late(s)) return 'finish';
