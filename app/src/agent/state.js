@@ -3,7 +3,7 @@ import { Annotation } from '@langchain/langgraph/web';
 
 export const LIMITS = {
   searchRetry: 2,      // 검색 0건일 때 재검색 최대 횟수
-  extractRetry: 2,     // 검증 실패 시 재추출 최대 횟수
+  extractRetry: 1,     // 검증 실패 시 재추출 최대 횟수 (API 절약: 2 → 1)
   maxCandidates: 3,    // 한 라운드에 사용자에게 보여줄 후보 수
   research: 1,         // 후보 소진 후 재검색 최대 횟수
   deadlineMs: 90_000,  // 에이전트 작업 시간 상한 (사용자 응답을 기다린 시간은 제외)

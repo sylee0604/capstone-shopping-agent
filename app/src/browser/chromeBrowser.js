@@ -1,8 +1,16 @@
 // 브라우저 조작 (Chrome 확장). 사용자의 로그인된 타오바오·1688 탭에서 검색 결과를 읽는다.
 // 노드는 이 객체의 search / cnyToKrw / translate만 쓰므로, 테스트에서는 가짜 객체로 바꿔 끼운다.
-import { scrapeTaobao, scrape1688, scrollPage, countCards } from './scrapers.js';
+import { scrapeTaobao, scrape1688, scrollPage, countCards, scrapeDetail } from './scrapers.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// 큰 이미지도 스택이 넘치지 않게 나눠서 base64로 변환
+export function toBase64(buf) {
+  const a = new Uint8Array(buf);
+  let s = '';
+  for (let i = 0; i < a.length; i += 0x8000) s += String.fromCharCode.apply(null, a.subarray(i, i + 0x8000));
+  return btoa(s);
+}
 
 const SITES = {
   taobao: {
@@ -69,6 +77,34 @@ export function makeChromeBrowser({ chrome = globalThis.chrome, fetchFn = global
       const url = (await chrome.tabs.get(tabId)).url ?? '';
       const blocked = !products.length && /login|passport|punish|captcha/i.test(url);   // 로그인·보안 확인 페이지로 넘어간 경우
       return { products, blocked };
+    },
+
+    /** 상세 페이지: 검색에 쓰던 탭에서 상품 페이지를 열고 이미지·SKU를 읽는다 */
+    async detail({ url, platform = 'taobao' }) {
+      const tabId = await siteTab(SITES[platform] ?? SITES.taobao);
+      await chrome.tabs.update(tabId, { url });
+      await waitComplete(tabId, 20000);
+      await sleep(1500);
+      const d = (await exec(tabId, scrapeDetail)) ?? { images: [], skus: [] };
+      const now = (await chrome.tabs.get(tabId)).url ?? '';
+      return { ...d, blocked: !d.images.length && /login|passport|punish|captcha/i.test(now) };
+    },
+
+    /** 이미지 → LLM 입력(base64). 긴 이미지는 글자가 뭉개지지 않게 폭 1000px, 높이 3000px 안으로 줄인다 */
+    async loadImages(urls, { maxW = 1000, maxH = 3000 } = {}) {
+      const out = [];
+      for (const url of urls) {
+        try {
+          const blob = await (await fetchFn(url)).blob();
+          const bmp = await createImageBitmap(blob);
+          const k = Math.min(1, maxW / bmp.width, maxH / bmp.height);
+          const c = new OffscreenCanvas(Math.round(bmp.width * k), Math.round(bmp.height * k));
+          c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+          const jpg = await c.convertToBlob({ type: 'image/jpeg', quality: 0.85 });
+          out.push({ url, mimeType: 'image/jpeg', base64: toBase64(await jpg.arrayBuffer()) });
+        } catch { /* 못 불러온 이미지는 건너뜀 */ }
+      }
+      return out;
     },
 
     async cnyToKrw() {

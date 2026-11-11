@@ -64,10 +64,13 @@ export function makeSearchNodes({ llm, browser, limits = LIMITS }) {
       return { ...round, intent: { ...s.intent, queriesZh: [...(s.intent?.queriesZh ?? []), ...more] }, log: [{ node: 'reformulateQuery', added: more }] };
     },
 
+    // 사용자가 고른 상품(selectedId)은 일시정지 중에 상태로 들어온다 — 노드 자체는 할 일 없음
+    async awaitSelection() { return {}; },
+
     async rankCandidates(s) {
       const rate = await browser.cnyToKrw();
       const pool = s.candidates.filter((c) => !s.analyzed.includes(c.id));
-      const top = rankProducts(pool, { budgetKrw: s.intent?.budgetKrw, query: s.usedQueries.at(-1) ?? '', rate, n: limits.maxCandidates });
+      const top = rankProducts(pool, { budgetKrw: s.intent?.budgetKrw, query: s.usedQueries.at(-1) ?? '', rate, n: limits.maxCandidates, season: s.intent?.season });
       const titles = await browser.translate(top.map((c) => c.titleZh));
       return { candidates: top.map((c, i) => ({ ...c, title: titles[i] || c.titleZh })) };
     },

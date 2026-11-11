@@ -109,3 +109,46 @@ export async function scrollPage() {
 export function countCards(selectors) {
   return Math.max(0, ...selectors.map((s) => document.querySelectorAll(s).length));
 }
+
+// 상세 페이지: 상세 설명 이미지(순서대로)와 SKU(사이즈 선택지·품절 여부). 타오바오·티몰·1688 공통으로 넓게 찾는다.
+export async function scrapeDetail() {
+  const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+  // 상세 설명은 아래로 내려야 이미지가 로딩된다
+  let prev = -1;
+  for (let i = 0; i < 40; i++) {
+    window.scrollBy(0, 1200);
+    await delay(250);
+    if (document.documentElement.scrollHeight === prev && i > 5) break;
+    prev = document.documentElement.scrollHeight;
+  }
+  await delay(600);
+  window.scrollTo(0, 0);
+
+  const src = (el) => {
+    let s = el.getAttribute('data-src') || el.getAttribute('data-ks-lazyload') || el.getAttribute('data-lazyload-src') || el.currentSrc || el.src || '';
+    if (s.startsWith('//')) s = 'https:' + s;
+    return s.replace(/_\d+x\d+(q\d+)?\.(jpg|webp|png).*$/i, '').replace(/\.(jpg|png)_\.webp$/i, '.$1');
+  };
+  const root = document.querySelector('#description, .descV8-container, [class*="desc--"], [class*="Desc"], [class*="detail-desc"], #J_DivItemDesc, .content-detail') || document.body;
+  const seen = new Set(), images = [];
+  [...root.querySelectorAll('img')].forEach((el) => {
+    const url = src(el);
+    if (!/^https:\/\//.test(url) || !/alicdn|tbcdn|taobaocdn|1688/.test(url) || seen.has(url)) return;
+    const w = el.naturalWidth || el.width || 0, h = el.naturalHeight || el.height || 0;
+    if (w && w < 200) return;                                     // 아이콘·작은 썸네일 제외
+    seen.add(url);
+    const near = (el.closest('div,p,section')?.innerText || '').slice(0, 80);
+    images.push({ url, w, h, alt: el.alt || '', near });
+  });
+  // 상세 설명 영역을 못 찾았을 때 대비: 페이지 전체 기준이라 맨 앞 상품 사진이 섞일 수 있음
+  const skuEls = [...document.querySelectorAll('[class*="skuItem"], [class*="SkuContent"] [class*="valueItem"], [class*="sku-item"], .J_TSaleProp li, [class*="prop-item"]')];
+  const skus = [];
+  for (const el of skuEls) {
+    const label = (el.getAttribute('title') || el.innerText || '').trim().split('\n')[0];
+    if (!label || label.length > 30 || skus.some((s) => s.label === label)) continue;
+    const cls = (el.className || '') + ' ' + (el.parentElement?.className || '');
+    skus.push({ label, soldOut: /disabled|isDisabled|soldout|out-of-stock|tb-out-of-stock/i.test(cls) || el.getAttribute('aria-disabled') === 'true' });
+  }
+  const title = (document.querySelector('h1, [class*="mainTitle"], [class*="ItemTitle"], .tb-main-title')?.innerText || document.title || '').trim().slice(0, 150);
+  return { title, images, skus, url: location.href };
+}

@@ -64,9 +64,9 @@ test('4. 검증 실패 후 재추출에서 통과', async () => {
 test('5. 검증 실패가 상한까지 반복 → 불확실 / 원본 이상으로 판정 진행', async () => {
   const e = ['라벨 중복'];
   const a = await run({ searchResults: [['a']], validation: { a: [e, e, e, e] } });
-  assert.equal(count(a.trace, 'extractSpec'), 3);
+  assert.equal(count(a.trace, 'extractSpec'), 2);   // 첫 추출 + 재추출 1회 (상한)
   assert.equal(a.final.results[0].specStatus, 'uncertain');
-  const b = await run({ searchResults: [['a']], validation: { a: [e, e, e] }, repeated: { a: true } });
+  const b = await run({ searchResults: [['a']], validation: { a: [e, e] }, repeated: { a: true } });
   assert.equal(b.final.results[0].specStatus, 'source_anomaly');
 });
 
@@ -126,7 +126,7 @@ test('10. 최악의 경우(후보마다 재추출 상한 + 부적합, 재검색 
   const { final, error, trace } = await run({ searchResults: [['a', 'b', 'c'], ['d', 'e', 'f']],
     validation: Object.fromEntries(ids.map((id) => [id, [e, e, e]])), verdict: Object.fromEntries(ids.map((id) => [id, out])) });
   assert.equal(error, undefined);
-  assert.equal(count(trace, 'extractSpec'), 18);
+  assert.equal(count(trace, 'extractSpec'), 12);   // 상품 6개 × (첫 추출 + 재추출 1회)
   assert.equal(final.recommendation.type, 'fallback');
 });
 
