@@ -139,7 +139,7 @@ function showResult(v, run) {
   let head;
   if (r?.type === 'recommend') {
     const c = seen[r.productId];
-    const tbl = r.table?.length ? `<table class="spec"><tr><th>사이즈</th><th>권장 키</th><th>권장 몸무게</th></tr>${r.table.map((t) => `<tr${t.label === r.size ? ' class="hit"' : ''}><td>${esc(t.label)}</td><td>${esc(rng(t.heightCm, 'cm'))}</td><td>${esc(rng(t.weightKg, 'kg'))}</td></tr>`).join('')}</table>` : '';
+    const tbl = r.table?.length ? `<table class="spec"><tr><th>사이즈</th><th>권장 키</th><th>권장 몸무게</th></tr>${r.table.map((t) => `<tr${t.label === r.size ? ' class="hit"' : ''}><td>${esc(t.label)}${t.fromSku ? ' (옵션)' : ''}</td><td>${esc(rng(t.heightCm, 'cm'))}</td><td>${esc(rng(t.weightKg, 'kg'))}</td></tr>`).join('')}</table>` : '';
     head = `<h3>추천: ${esc(title(r.productId))}</h3><p class="big">${r.size ? `${esc(r.size)} 사이즈 · ` : ''}${esc(r.verdict)}</p><p>${esc(r.rationale)}</p>${r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}${tbl}${c?.url ? `<p><a href="${safeUrl(c.url)}" target="_blank" rel="noopener">상품 페이지 열기</a></p>` : ''}`;
   } else if (r?.type === 'fallback') head = '<h3>맞는 상품을 찾지 못했어요</h3><p>조건을 바꾸거나 다른 검색어로 시도해 보세요.</p>';
   else if (v.analyzed.length) head = '<h3>시간 초과</h3><p>에이전트 작업 시간이 90초를 넘었어요. 다시 시도해 주세요.</p>';

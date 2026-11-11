@@ -119,7 +119,10 @@ function withStock(r, skus) {
 export function rationaleText(r, spec) {
   if (!r) return '';
   const lines = [...(r.reason ?? [])];
-  if (r.row) {
+  if (r.row?.fromSku) {
+    // 옵션의 호형에서 보탠 사이즈: 숫자는 옷 실측이 아니라 맞는 체형(키/가슴둘레) 기준
+    lines.push(`${r.size}는 사이즈표에 없고 상품 옵션에서 찾은 사이즈예요 (키 ${r.row.heightCm[0]}cm·가슴둘레 ${r.row.chest.value}cm 체형 기준)`);
+  } else if (r.row) {
     const d = [];
     if (r.row.length) d.push(`총장 ${r.row.length}cm`);
     if (r.row.chest) d.push(`가슴 ${r.row.chest.basis === '단면' ? `단면 ${r.row.chest.value}cm(둘레 약 ${[].concat(r.row.chest.value)[0] * 2}cm)` : `${r.row.chest.value}cm`}`);

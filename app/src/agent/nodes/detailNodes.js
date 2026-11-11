@@ -86,6 +86,7 @@ export function makeDetailNodes({ llm, browser }) {
     async writeRationale(s) {
       const r = s.results.at(-1), c = s.current;
       const table = c.spec?.variants?.[0]?.sizes?.map((x) => ({ label: x.label, heightCm: x.heightCm, weightKg: x.weightKg })) ?? [];
+      if (r.row?.fromSku && !table.some((t) => t.label === r.size)) table.push({ label: r.size, heightCm: r.row.heightCm, weightKg: null, fromSku: true });
       return { recommendation: { type: 'recommend', productId: r.productId, size: r.size, verdict: r.verdict, specStatus: r.specStatus, rationale: rationaleText(r, c.spec), table } };
     },
 

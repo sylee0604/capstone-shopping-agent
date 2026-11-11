@@ -148,3 +148,11 @@ test('D12 키×몸무게 매트릭스: 범위 밖이면 가까운 칸을 믿지 
   const out = judgeFit(m, { heightCm: 185, weightKg: 75 });
   assert.equal(out.verdict, '부적합');                                            // 매트릭스 밖 → 사이즈별 규칙 → 가장 큰 L도 10cm 작음
 });
+
+test('D13 옵션에서 보탠 사이즈의 근거는 실측이 아니라 체형 기준으로 표시', () => {
+  const shirt = spec([row('170/88A', [170, 170], [68, 68]), row('175/96A', [175, 175], [80, 80])], { category: '상의' });
+  const r = judgeFit(shirt, { heightCm: 179, weightKg: 75 }, [{ label: '180/100A', soldOut: false }]);
+  const txt = rationaleText(r, shirt);
+  assert.match(txt, /옵션에서 찾은 사이즈.*체형 기준/);
+  assert.doesNotMatch(txt, /실측/);
+});
