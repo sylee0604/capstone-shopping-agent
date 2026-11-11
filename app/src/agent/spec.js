@@ -22,8 +22,71 @@ export const SpecSchema = z.object({
   variants: z.array(Variant).min(1),
   fitMatrix: n(FitMatrix),
 });
+// LLM이 형식을 조금 다르게 줄 때 받아 주는 정리 단계 (값은 바꾸지 않고 모양만 맞춤)
+//  "160-170" → [160,170], 170 → [170,170], "170以上" → [170,null], "48" → 48, 가슴 48 → {value:48, basis:'불명'}
+const toNum = (v) => {
+  if (typeof v === 'number') return v;
+  if (typeof v !== 'string') return v;
+  const m = v.replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+  return m ? Number(m[0]) : null;
+};
+const toRange = (v) => {
+  if (v == null || v === '' || v === '/' || v === '-') return null;
+  if (typeof v === 'number') return [v, v];
+  if (typeof v === 'string') {
+    const ns = (v.replace(/,/g, '').match(/\d+(?:\.\d+)?/g) ?? []).map(Number);
+    if (!ns.length) return null;
+    if (ns.length === 1) return /以上|이상|\+/.test(v) ? [ns[0], null] : [ns[0], ns[0]];
+    return [ns[0], ns[1]];
+  }
+  if (Array.isArray(v)) {
+    const a = v.map((x) => (x == null ? null : toNum(x)));
+    if (!a.length || a[0] == null) return null;
+    return a.length === 1 ? [a[0], a[0]] : [a[0], a[1] ?? null];
+  }
+  if (typeof v === 'object' && ('min' in v || 'max' in v)) return [toNum(v.min), v.max == null ? null : toNum(v.max)];
+  return v;
+};
+const toGirth = (v) => {
+  if (v == null || v === '') return null;
+  if (typeof v === 'number' || typeof v === 'string') { const x = toNum(v); return x == null ? null : { value: x, basis: '불명' }; }
+  if (typeof v === 'object' && !Array.isArray(v)) {
+    const val = Array.isArray(v.value) ? v.value.map(toNum) : toNum(v.value);
+    return val == null ? null : { value: val, basis: ['단면', '둘레', '불명'].includes(v.basis) ? v.basis : '불명' };
+  }
+  return v;
+};
+const toSleeve = (v) => {
+  if (v == null || v === '') return null;
+  if (typeof v !== 'object') { const x = toNum(v); return x == null ? null : { value: x, from: '불명' }; }
+  const x = toNum(v.value);
+  return x == null ? null : { value: x, from: ['어깨', '목', '불명'].includes(v.from) ? v.from : '불명' };
+};
+export function normalizeRaw(raw) {
+  let r = Array.isArray(raw) ? raw[0] : raw;
+  if (!r || typeof r !== 'object' || r.none === true) return r;
+  if (!r.variants && Array.isArray(r.sizes)) r = { ...r, variants: [{ name: null, fitHeightCm: null, sizes: r.sizes }] };
+  if (!Array.isArray(r.variants)) return r;
+  return {
+    ...r,
+    fitMatrix: r.fitMatrix && Array.isArray(r.fitMatrix.cells) ? r.fitMatrix : null,
+    variants: r.variants.map((v) => ({
+      name: v.name ?? null,
+      fitHeightCm: toRange(v.fitHeightCm),
+      sizes: (v.sizes ?? []).map((s) => ({
+        ...s,
+        label: String(s.label ?? s.size ?? ''),
+        heightCm: toRange(s.heightCm), weightKg: toRange(s.weightKg), ageYears: toRange(s.ageYears),
+        length: s.length == null ? null : toNum(s.length), shoulder: s.shoulder == null ? null : toNum(s.shoulder),
+        chest: toGirth(s.chest), waist: toGirth(s.waist), hip: toGirth(s.hip), sleeve: toSleeve(s.sleeve),
+        extra: Object.fromEntries(Object.entries(s.extra && typeof s.extra === 'object' ? s.extra : {}).map(([k, x]) => [k, String(x)])),
+      })),
+    })),
+  };
+}
+
 // 여러 이미지 중 사이즈표가 없으면 {"none": true}
-export const ExtractSchema = z.union([z.object({ none: z.literal(true) }), SpecSchema]);
+export const ExtractSchema = z.preprocess(normalizeRaw, z.union([z.object({ none: z.literal(true) }), SpecSchema]));
 
 export const EXTRACT_PROMPT = `너는 중국 쇼핑몰(타오바오·티몰·1688) 의류 사이즈표 이미지를 구조화 데이터로 옮기는 추출기다.
 이미지에 적힌 그대로 읽어서 아래 JSON 형식으로만 답하라. 설명 문장은 쓰지 마라.

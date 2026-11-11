@@ -54,7 +54,7 @@ function describe(node, u) {
   }
 }
 
-let saver, t0, steps;
+let saver, t0, steps, graphRef;
 function log(text, kind = '') {
   const li = document.createElement('li');
   li.className = kind;
@@ -155,6 +155,7 @@ async function execute(run, resume) {
   t0 = performance.now(); steps = 0;
   try {
     const graph = await makeGraph(run);
+    graphRef = graph;
     const final = await runAgent(graph, { request: { query: run.query, platform: run.platform, profile: run.profile } }, {
       threadId: run.threadId, resume, onPause,
       onUpdate: (chunk) => { for (const [n, u] of Object.entries(chunk)) if (!n.startsWith('__')) { steps++; log(describe(n, u ?? {})); } },
@@ -165,6 +166,17 @@ async function execute(run, resume) {
   } catch (e) {
     $('error').hidden = false;
     $('error').textContent = `실행이 멈췄어요: ${e.message}`;
+    // 진단 정보: 형식 오류 때 LLM이 실제로 준 응답과 페이지에서 읽은 사이즈표 글자 (복사해서 확인용)
+    try {
+      const st = graphRef ? (await graphRef.getState({ configurable: { thread_id: run.threadId } })).values : null;
+      const diag = [e.raw && `[LLM 응답]\n${e.raw}`, st?.current?.sizeTableText && `[페이지 사이즈표]\n${st.current.sizeTableText}`, st?.current?.url && `[상품] ${st.current.url}`].filter(Boolean).join('\n\n');
+      if (diag) {
+        const d = document.createElement('details');
+        d.innerHTML = '<summary>진단 정보 (복사해서 보내 주세요)</summary><textarea readonly rows="8" style="width:100%;font-size:11px"></textarea>';
+        d.querySelector('textarea').value = diag;
+        $('error').append(d);
+      }
+    } catch { /* 진단 정보는 없어도 됨 */ }
     $('resume').hidden = false;
     $('resume').textContent = '이어서 하기';
   } finally {

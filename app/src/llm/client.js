@@ -49,7 +49,7 @@ export function makeLlm({ provider = 'gemini', waits = [2000, 5000], sleep = (ms
       const fix = `${prompt}\n\n[이전 응답]\n${text.slice(0, 2000)}\n\n[형식 오류]\n${problem.error}\n위 오류를 고쳐 JSON만 다시 출력하라.`;
       text = await generate({ system, prompt: fix, images, temperature, json: true });
       problem = check(text, schema);
-      if (!problem.ok) throw new LlmError(`LLM 응답 형식 오류: ${problem.error}`, { code: 'BAD_FORMAT' });
+      if (!problem.ok) { const e = new LlmError(`LLM 응답 형식 오류: ${problem.error}`, { code: 'BAD_FORMAT' }); e.raw = String(text).slice(0, 3000); throw e; }
     }
     return problem.value;
   }
@@ -72,6 +72,9 @@ export function check(text, schema) {
   if (!schema) return { ok: true, value };
   const r = schema.safeParse(value);
   if (r.success) return { ok: true, value: r.data };
-  const msg = r.error.issues.slice(0, 5).map((i) => `${i.path.join('.') || '(전체)'}: ${i.message}`).join('; ');
+  // 여러 형식 중 하나(union)일 때는 가장 깊이 들어간 쪽의 구체적인 오류를 보여 준다
+  const flat = (issues) => issues.flatMap((i) => (i.code === 'invalid_union' && i.unionErrors ? i.unionErrors.flatMap((e) => flat(e.issues)) : [i]));
+  const issues = flat(r.error.issues).sort((a, b) => b.path.length - a.path.length);
+  const msg = issues.slice(0, 5).map((i) => `${i.path.join('.') || '(전체)'}: ${i.message}`).join('; ');
   return { ok: false, error: msg };
 }
