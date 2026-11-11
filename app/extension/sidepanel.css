@@ -44,3 +44,7 @@ details#settings label { margin-top: 8px; }
 .tag { font-size: 10px; color: var(--warn); border: 1px solid #fcd34d; border-radius: 6px; padding: 0 4px; margin-left: 4px; }
 .pause-box .field { margin-bottom: 8px; font-size: 12px; color: var(--muted); }
 .pause-box .field select, .pause-box .field input { margin-top: 3px; }
+table.spec { border-collapse: collapse; width: 100%; margin: 6px 0; font-size: 12px; }
+table.spec th, table.spec td { border: 1px solid var(--line); padding: 3px 6px; text-align: center; }
+table.spec th { background: #f3f4f6; font-weight: 600; }
+table.spec tr.hit td { background: #eff6ff; font-weight: 700; }

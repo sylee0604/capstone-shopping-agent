@@ -1,11 +1,12 @@
 // 사이드패널: 그래프 실행, 진행 표시, 일시정지 응답, 결과 표시, 중단 후 재개
-// 실행 방식: real = 검색 단계 실제 노드(LLM·타오바오) + 분석 단계 가짜 노드 / mock = 전부 가짜(시나리오)
+// 실행 방식: real = 모든 노드 실제 구현(LLM은 의도 파악·스펙 추출에만) / mock = 전부 가짜(흐름 확인용 시나리오)
 import { buildGraph } from '../agent/graph.js';
 import { makeRoutes } from '../agent/routes.js';
 import { runAgent } from '../agent/runner.js';
 import { ChromeStorageSaver } from '../agent/chromeSaver.js';
 import { makeMockNodes } from '../agent/mockNodes.js';
 import { makeSearchNodes } from '../agent/nodes/searchNodes.js';
+import { makeDetailNodes } from '../agent/nodes/detailNodes.js';
 import { makeLlm } from '../llm/client.js';
 import { makeChromeBrowser } from '../browser/chromeBrowser.js';
 import { SCENARIOS, CATALOG } from './scenarios.js';
@@ -41,11 +42,11 @@ function describe(node, u) {
     case 'reformulateQuery': return u.round ? '조건에 맞는 상품이 없어 새로 검색해요' : '결과가 없어 검색어를 바꿔요';
     case 'rankCandidates': u.candidates.forEach((c) => (seen[c.id] = c)); return `후보 ${u.candidates.length}개를 골랐어요`;
     case 'awaitSelection': return '선택한 상품을 확인했어요';
-    case 'fetchDetail': return `상세 페이지를 읽었어요 · ${title(u.current.productId)}`;
-    case 'selectSizeImages': return '사이즈표 이미지를 찾았어요';
-    case 'extractSpec': return `사이즈표를 읽었어요 (${u.current.extractAttempts}회차)`;
+    case 'fetchDetail': return `상세 페이지를 읽었어요 · 이미지 ${u.current.imageUrls.length}장${u.current.skus?.length ? `, 옵션 ${u.current.skus.length}개` : ''}`;
+    case 'selectSizeImages': return u.current.sizeImages?.length ? `사이즈표 후보 이미지 ${u.current.sizeImages.length}장을 골랐어요` : '사이즈표 후보 이미지가 없어요';
+    case 'extractSpec': return u.current.spec ? `사이즈표를 읽었어요 (${u.current.extractAttempts}회차) · 사이즈 ${u.current.spec.variants[0].sizes.map((x) => x.label).join('/')}` : '이미지에서 사이즈표를 찾지 못했어요';
     case 'validateSpec': return `검증: ${STATUS[u.current.status]}${u.current.errors.length ? ` — ${u.current.errors[0]}` : ''}`;
-    case 'judgeFit': { const r = u.results[0]; return `판정: ${r.verdict}${r.unfitReason ? ` (${REASON[r.unfitReason]})` : ` · ${r.size}`}`; }
+    case 'judgeFit': { const r = u.results[0]; return `판정: ${r.verdict}${r.unfitReason ? ` (${REASON[r.unfitReason]})` : r.size ? ` · ${r.size}` : ''}`; }
     case 'analyzeFailure': return '후보를 모두 확인했지만 맞는 상품이 없어요';
     case 'writeRationale': return '추천 근거를 만들었어요';
     case 'finish': return '완료';
@@ -64,12 +65,13 @@ function log(text, kind = '') {
 
 async function loadSettings() { return (await area.get('settings')).settings ?? { platform: 'taobao' }; }
 
-// 실행 방식에 맞는 그래프. real: 검색 단계는 실제 노드, 분석 단계(상세 페이지~근거)는 아직 가짜 노드
+// 실행 방식에 맞는 그래프
 async function makeGraph(run) {
   if (run.mode === 'real') {
     const { apiKey } = await loadSettings();
     const llm = makeLlm({ provider: 'gemini', apiKey, onRetry: ({ code, waitMs }) => log(`LLM 응답 지연(${code}) → ${waitMs / 1000}초 후 다시 시도`, 'pause') });
-    const nodes = { ...makeMockNodes({}).nodes, ...makeSearchNodes({ llm, browser: makeChromeBrowser() }) };
+    const browser = makeChromeBrowser();
+    const nodes = { ...makeSearchNodes({ llm, browser }), ...makeDetailNodes({ llm, browser }) };
     return buildGraph(nodes, { checkpointer: saver, routes: makeRoutes() });
   }
   const clock = { t: 0 };
@@ -125,6 +127,7 @@ function onPause(node, state) {
   });
 }
 
+const rng = (r, u) => (r ? (r[1] == null ? `${r[0]}${u}~` : r[0] === r[1] ? `${r[0]}${u}` : `${r[0]}~${r[1]}${u}`) : '-');
 const activeSec = (v) => (v.activeMs + (v.segmentStartedAt != null ? Date.now() - v.segmentStartedAt : 0)) / 1000;
 
 function showResult(v, run) {
@@ -134,8 +137,8 @@ function showResult(v, run) {
   let head;
   if (r?.type === 'recommend') {
     const c = seen[r.productId];
-    head = `<h3>추천: ${esc(title(r.productId))}</h3><p class="big">${esc(r.size)} 사이즈 · ${esc(r.verdict)}</p><p>${esc(r.rationale)}</p>${r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}${c?.url ? `<p><a href="${safeUrl(c.url)}" target="_blank" rel="noopener">상품 페이지 열기</a></p>` : ''}`;
-    if (run.mode === 'real') head += '<p class="warn">※ 지금은 분석 단계가 가짜라 판정·근거는 예시예요.</p>';
+    const tbl = r.table?.length ? `<table class="spec"><tr><th>사이즈</th><th>권장 키</th><th>권장 몸무게</th></tr>${r.table.map((t) => `<tr${t.label === r.size ? ' class="hit"' : ''}><td>${esc(t.label)}</td><td>${esc(rng(t.heightCm, 'cm'))}</td><td>${esc(rng(t.weightKg, 'kg'))}</td></tr>`).join('')}</table>` : '';
+    head = `<h3>추천: ${esc(title(r.productId))}</h3><p class="big">${r.size ? `${esc(r.size)} 사이즈 · ` : ''}${esc(r.verdict)}</p><p>${esc(r.rationale)}</p>${r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}${tbl}${c?.url ? `<p><a href="${safeUrl(c.url)}" target="_blank" rel="noopener">상품 페이지 열기</a></p>` : ''}`;
   } else if (r?.type === 'fallback') head = '<h3>맞는 상품을 찾지 못했어요</h3><p>조건을 바꾸거나 다른 검색어로 시도해 보세요.</p>';
   else if (v.analyzed.length) head = '<h3>시간 초과</h3><p>에이전트 작업 시간이 90초를 넘었어요. 다시 시도해 주세요.</p>';
   else head = '<h3>검색 결과 없음</h3><p>검색어를 바꿔 다시 찾아봤지만 상품이 없었어요.</p>';
@@ -169,7 +172,7 @@ async function execute(run, resume) {
 function syncMode() {
   const real = $('mode').value === 'real';
   $('scenarioRow').hidden = real;
-  $('modeNote').textContent = real ? '검색까지 실제로 동작 · 상세 분석·판정은 아직 가짜' : 'LangGraph 흐름 확인용 · 노드는 가짜 함수';
+  $('modeNote').textContent = real ? '검색 → 사이즈표 추출 → 판정까지 실제 실행 (LLM 호출: 의도 파악 1회 + 상품당 1~2회)' : 'LangGraph 흐름 확인용 · 노드는 가짜 함수';
 }
 
 async function init() {

@@ -136,3 +136,14 @@ test('S9 후보 선별: 예산 안 상품만, 예산 안에 없으면 초과 표
   assert.equal(over[0].id, 'hot');
   assert.ok(over.every((p) => p.overBudget));
 });
+
+test('S10 계절 불일치: 봄 요청인데 상품명에 秋冬만 있으면 뒤로', () => {
+  const pool = [
+    { id: 'aw', titleZh: '女童 秋冬 连衣裙', priceCny: 50, salesNum: 5000 },
+    { id: 'sp', titleZh: '女童 春季 连衣裙', priceCny: 50, salesNum: 1000 },
+    { id: 'all', titleZh: '女童 四季 连衣裙', priceCny: 50, salesNum: 900 },
+  ];
+  const r = rankProducts(pool, { query: '女童 连衣裙', season: '봄', n: 3 });
+  assert.equal(r.at(-1).id, 'aw');
+  assert.equal(r[0].id, 'sp');
+});
