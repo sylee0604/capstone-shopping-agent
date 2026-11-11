@@ -131,3 +131,20 @@ test('D10 페이지의 사이즈표(HTML 표)를 글자로 읽었으면 이미�
   assert.equal(browser.loaded.length, 0);
   assert.equal(v.recommendation.size, '120');
 });
+
+test('D11 호형(175/96A) 표: 키 179cm → 가장 가까운 큰 사이즈(180), 표에 없으면 옵션(SKU)에서 보탬', () => {
+  const shirt = spec([row('170/88A', [170, 170], [68, 68]), row('175/92A', [175, 175], [74, 74]), row('175/96A', [175, 175], [80, 80])], { category: '상의' });
+  const skus = ['170/88A', '175/92A', '175/96A', '180/100A', '185/104A'].map((label) => ({ label, soldOut: false }));
+  const r = judgeFit(shirt, { heightCm: 179, weightKg: 75 }, skus);
+  assert.deepEqual([r.verdict, r.size], ['적합', '180/100A']);
+  const noSku = judgeFit(shirt, { heightCm: 179, weightKg: 75 });
+  assert.deepEqual([noSku.verdict, noSku.size], ['경계', '175/96A']);       // 표에서 가장 큰 사이즈, 작을 수 있음
+  assert.equal(judgeFit(shirt, { heightCm: 174, weightKg: 70 }).size, '175/92A');
+});
+
+test('D12 키×몸무게 매트릭스: 범위 밖이면 가까운 칸을 믿지 않고, 사이에 있으면 큰 쪽', () => {
+  const m = spec([row('S', [165, 165], null), row('M', [170, 170], null), row('L', [175, 175], null)], { fitMatrix: { heightCm: [165, 170, 175], weightKg: [55, 65, 75], cells: [['S', 'M', 'M'], ['M', 'M', 'L'], ['M', 'L', 'L']] } });
+  assert.equal(judgeFit(m, { heightCm: 168, weightKg: 60 }).size, 'M');            // 168 → 170 행, 60 → 65 열
+  const out = judgeFit(m, { heightCm: 185, weightKg: 75 });
+  assert.equal(out.verdict, '부적합');                                            // 매트릭스 밖 → 사이즈별 규칙 → 가장 큰 L도 10cm 작음
+});

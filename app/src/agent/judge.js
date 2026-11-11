@@ -23,17 +23,40 @@ export function judgeFit(spec, body = {}, skus = []) {
   if (!spec?.variants?.length) return { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN', reason: ['사이즈표를 찾지 못했어요'] };
   const { heightCm: h, weightKg: w } = body;
 
-  // 키×몸무게 매트릭스가 있으면 가장 가까운 칸
+  // 키×몸무게 매트릭스: 키·몸무게가 표 범위 안(±2)일 때만 가장 가까운 칸을 쓴다. 범위 밖이면 아래 사이즈별 규칙으로
   if (spec.fitMatrix && h != null && w != null) {
     const m = spec.fitMatrix;
-    const near = (arr, x) => arr.reduce((bi, v, i) => (Math.abs(v - x) < Math.abs(arr[bi] - x) ? i : bi), 0);
-    const label = m.cells[near(m.heightCm, h)]?.[near(m.weightKg, w)];
-    if (label) return withStock({ verdict: '적합', size: label, reason: [`키 ${h}cm·몸무게 ${w}kg에 해당하는 칸이 ${label} 사이즈예요`] }, skus);
+    const inside = (arr, x) => arr.length && x >= Math.min(...arr) - 2 && x <= Math.max(...arr) + 2;
+    if (inside(m.heightCm, h) && inside(m.weightKg, w)) {
+      const up = (arr, x) => { const i = arr.findIndex((v) => v >= x - 2); return i < 0 ? arr.length - 1 : i; };   // 2 이내로 넘으면 그 칸, 더 크면 다음(큰) 칸
+      const label = m.cells[up(m.heightCm, h)]?.[up(m.weightKg, w)];
+      if (label) return withStock({ verdict: '적합', size: label, reason: [`키 ${h}cm·몸무게 ${w}kg에 해당하는 칸이 ${label} 사이즈예요`] }, skus);
+    }
   }
 
   // 길이 버전이 여러 개면 키에 맞는 버전, 없으면 첫 번째 표
   const variant = spec.variants.find((v) => inRange(h, v.fitHeightCm)) ?? spec.variants[0];
-  const rows = variant.sizes.map((s) => ({ ...s, heightCm: s.heightCm ?? variant.fitHeightCm }));
+  const rows = mergeHaoxing(variant.sizes.map((s) => ({ ...s, heightCm: s.heightCm ?? variant.fitHeightCm })), skus);
+
+  // 중국 호형(号型) 표기처럼 사이즈마다 키가 한 값(175/96A → 키 175)인 표: 키 이상인 가장 가까운 사이즈로 (179 → 180)
+  const point = rows.length && rows.every((s) => s.heightCm && s.heightCm[0] === s.heightCm[1]);
+  if (point && h != null) {
+    const sorted = [...rows].sort((a, b) => a.heightCm[0] - b.heightCm[0] || (a.weightKg?.[0] ?? 0) - (b.weightKg?.[0] ?? 0));
+    const fitsW = (s) => w == null || !s.weightKg || w <= s.weightKg[0] + 3;
+    const inStock = (s) => stockOf(s.label, skus) !== false;
+    const cand = sorted.filter((s) => s.heightCm[0] >= h - 2 && fitsW(s));
+    const pick = cand.find(inStock);
+    if (!pick && cand.length) return { verdict: '부적합', unfitReason: 'SIZE_SOLD_OUT', size: cand[0].label, reason: [`맞는 사이즈(${cand.map((x) => x.label).join(', ')})가 모두 품절이에요`] };
+    if (pick) {
+      const gap = pick.heightCm[0] - h;
+      const reason = [`키 ${h}cm → ${pick.label}(기준 키 ${pick.heightCm[0]}cm)가 가장 가까운 큰 사이즈예요`];
+      if (w != null && pick.weightKg) reason.push(`몸무게 ${w}kg → 기준 ${pick.weightKg[0]}kg${w > pick.weightKg[0] ? ' 보다 조금 무거움' : ' 이하'}`);
+      return { verdict: gap <= 5 ? '적합' : '경계', size: pick.label, row: pick, stock: stockOf(pick.label, skus), reason: gap > 5 ? [...reason, `기준 키보다 ${gap}cm 커서 클 수 있어요`] : reason };
+    }
+    const top = sorted.at(-1);
+    if (h - top.heightCm[0] <= 5) return { verdict: '경계', size: top.label, row: top, stock: stockOf(top.label, skus), reason: [`가장 큰 사이즈 ${top.label}(기준 키 ${top.heightCm[0]}cm)도 키 ${h}cm보다 작아요. 작을 수 있어요`] };
+    return { verdict: '부적합', unfitReason: 'SIZE_OUT_OF_RANGE', reason: [`가장 큰 사이즈(${top.label})도 키 ${h}cm보다 많이 작아요`] };
+  }
   const hasRanges = rows.some((s) => s.heightCm || s.weightKg);
 
   if (!hasRanges) {
@@ -68,6 +91,22 @@ export function judgeFit(spec, body = {}, skus = []) {
     return { verdict, size: x.s.label, row: x.s, stock: stockOf(x.s.label, skus), reason: reasonOf(x) };
   }
   return { verdict: '부적합', unfitReason: 'SIZE_OUT_OF_RANGE', reason: [`키 ${h ?? '?'}cm${w != null ? `·몸무게 ${w}kg` : ''}에 맞는 사이즈가 없어요`] };
+}
+
+// SKU 옵션에 호형(180/100A 등)이 있는데 표에 빠진 사이즈는 옵션에서 키를 읽어 보탠다 (표가 잘려 읽힌 경우 대비)
+const HAOXING = /(\d{3})\s*\/\s*(\d{2,3})\s*[ABYC]?/i;
+export function mergeHaoxing(rows, skus = []) {
+  const have = new Set(rows.map((r) => norm(r.label)));
+  const add = [];
+  for (const k of skus) {
+    const m = String(k.label).match(HAOXING);
+    if (!m || [...have].some((x) => x.includes(`${m[1]}/${m[2]}`))) continue;
+    have.add(norm(k.label));
+    add.push({ label: `${m[1]}/${m[2]}A`, heightCm: [+m[1], +m[1]], weightKg: null, chest: { value: +m[2], basis: '둘레' }, fromSku: true });
+  }
+  // 표의 행도 라벨이 호형이면 키를 라벨에서 채움
+  const filled = rows.map((r) => { const m = String(r.label).match(HAOXING); return m && !r.heightCm ? { ...r, heightCm: [+m[1], +m[1]] } : r; });
+  return add.length && filled.every((r) => r.heightCm && r.heightCm[0] === r.heightCm[1]) ? [...filled, ...add] : filled;
 }
 
 function withStock(r, skus) {

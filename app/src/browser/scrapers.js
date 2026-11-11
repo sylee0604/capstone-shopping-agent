@@ -113,16 +113,49 @@ export function countCards(selectors) {
 // 상세 페이지: 상세 설명 이미지(순서대로)와 SKU(사이즈 선택지·품절 여부). 타오바오·티몰·1688 공통으로 넓게 찾는다.
 export async function scrapeDetail() {
   const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-  // 상세 설명은 아래로 내려야 이미지가 로딩된다
-  let prev = -1;
-  for (let i = 0; i < 40; i++) {
-    window.scrollBy(0, 1200);
-    await delay(250);
-    if (document.documentElement.scrollHeight === prev && i > 5) break;
-    prev = document.documentElement.scrollHeight;
+  const scrollDown = async (times) => {
+    let prev = -1;
+    for (let i = 0; i < times; i++) {
+      window.scrollBy(0, 1200);
+      await delay(250);
+      if (document.documentElement.scrollHeight === prev && i > 5) break;
+      prev = document.documentElement.scrollHeight;
+    }
+    await delay(400);
+    window.scrollTo(0, 0);
+  };
+
+  // 1) 옵션(SKU): 페이지 위쪽에 있어 스크롤 없이 읽는다. 티몰 새 페이지는 valueItem--xxxx, 예전 페이지는 J_TSaleProp li
+  const skuEls = [...document.querySelectorAll('[class*="valueItem"], [class*="skuItem"], [class*="sku-item"], [data-vid], .J_TSaleProp li, [class*="prop-item"]')]
+    .filter((el) => !el.querySelector('[class*="valueItem"], [data-vid]'));                     // 바깥 껍데기 말고 실제 선택지
+  const skus = [];
+  for (const el of skuEls) {
+    const label = (el.getAttribute('title') || el.querySelector('[title]')?.getAttribute('title') || el.innerText || '').trim().split('\n')[0];
+    if (!label || label.length > 40 || skus.some((s) => s.label === label)) continue;
+    const cls = `${el.className || ''} ${el.parentElement?.className || ''}`;
+    skus.push({ label, soldOut: /disabled|soldout|out-of-stock|noStock|isDisable/i.test(cls) || el.getAttribute('aria-disabled') === 'true' });
   }
-  await delay(600);
-  window.scrollTo(0, 0);
+
+  // 2) 사이즈표: 티몰 등은 판매자가 이미지 대신 표준 사이즈표(HTML 표)를 쓰는 경우가 많다. "尺码表" 버튼을 눌러 표를 연 뒤 글자로 읽는다
+  const SIZE = /尺码|身高|体重|胸围|衣长|裤长|腰围|肩宽/;
+  const tableText = (t) => [...t.rows].map((r) => [...r.cells].map((c) => (c.innerText || '').trim()).join(' | ')).join('\n');
+  const findTable = async () => {
+    const btn = [...document.querySelectorAll('a, button, span, div')].find((e) => e.children.length <= 2 && /^(查看)?(尺码表|尺码参考|尺码助手|尺码对照表?|尺寸表|尺码信息)$/.test((e.innerText || '').trim()));
+    if (btn) { try { btn.click(); await delay(1800); } catch (e) { /* 무시 */ } }
+    let tables = [...document.querySelectorAll('table')].map(tableText).filter((x) => SIZE.test(x) && x.split('\n').length >= 2);
+    if (!tables.length) {
+      // 표가 div 격자로 된 경우: 사이즈 관련 말이 있고 줄이 여러 개인 가장 작은 덩어리
+      const boxes = [...document.querySelectorAll('[class*="size" i], [class*="chima"], [role="dialog"]')]
+        .map((e) => (e.innerText || '').trim()).filter((x) => SIZE.test(x) && x.split('\n').length >= 4 && x.length < 8000);
+      tables = boxes.sort((a, b) => a.length - b.length).slice(0, 1);
+    }
+    return { text: [...new Set(tables)].join('\n\n').slice(0, 8000), button: Boolean(btn) };
+  };
+  let table = await findTable();
+
+  // 3) 상세 설명 이미지: 표를 찾았으면 짧게만 내리고(시간 절약), 못 찾았으면 끝까지 내려 이미지를 모두 불러온 뒤 표를 한 번 더 찾는다
+  await scrollDown(table.text ? 4 : 40);
+  if (!table.text) table = await findTable();
 
   const src = (el) => {
     let s = el.getAttribute('data-src') || el.getAttribute('data-ks-lazyload') || el.getAttribute('data-lazyload-src') || el.currentSrc || el.src || '';
@@ -140,28 +173,6 @@ export async function scrapeDetail() {
     const near = (el.closest('div,p,section')?.innerText || '').slice(0, 80);
     images.push({ url, w, h, alt: el.alt || '', near });
   });
-  // 상세 설명 영역을 못 찾았을 때 대비: 페이지 전체 기준이라 맨 앞 상품 사진이 섞일 수 있음
-  const skuEls = [...document.querySelectorAll('[class*="skuItem"], [class*="SkuContent"] [class*="valueItem"], [class*="sku-item"], .J_TSaleProp li, [class*="prop-item"]')];
-  const skus = [];
-  for (const el of skuEls) {
-    const label = (el.getAttribute('title') || el.innerText || '').trim().split('\n')[0];
-    if (!label || label.length > 30 || skus.some((s) => s.label === label)) continue;
-    const cls = (el.className || '') + ' ' + (el.parentElement?.className || '');
-    skus.push({ label, soldOut: /disabled|isDisabled|soldout|out-of-stock|tb-out-of-stock/i.test(cls) || el.getAttribute('aria-disabled') === 'true' });
-  }
-  // 티몰 등은 판매자가 이미지 대신 표준 사이즈표(HTML 표)를 쓰는 경우가 많다: "尺码表" 버튼을 눌러 표를 연 뒤 글자로 읽는다
-  const btn = [...document.querySelectorAll('a, button, span, div')].find((e) => e.children.length <= 2 && /^(查看)?(尺码表|尺码参考|尺码助手|尺码对照表?|尺寸表)$/.test((e.innerText || '').trim()));
-  if (btn) { try { btn.click(); await delay(1800); } catch (e) { /* 무시 */ } }
-  const SIZE = /尺码|身高|体重|胸围|衣长|裤长|腰围|肩宽/;
-  const tableText = (t) => [...t.rows].map((r) => [...r.cells].map((c) => (c.innerText || '').trim()).join(' | ')).join('\n');
-  let tables = [...document.querySelectorAll('table')].map(tableText).filter((x) => SIZE.test(x) && x.split('\n').length >= 2);
-  if (!tables.length) {
-    // 표가 div 격자로 된 경우: 사이즈 관련 말이 있고 줄이 여러 개인 가장 작은 덩어리
-    const boxes = [...document.querySelectorAll('[class*="size" i], [class*="Size"], [class*="chima"], [role="dialog"]')]
-      .map((e) => (e.innerText || '').trim()).filter((x) => SIZE.test(x) && x.split('\n').length >= 4 && x.length < 4000);
-    tables = boxes.sort((a, b) => a.length - b.length).slice(0, 1);
-  }
-  const sizeTableText = [...new Set(tables)].join('\n\n').slice(0, 4000);
   const title = (document.querySelector('h1, [class*="mainTitle"], [class*="ItemTitle"], .tb-main-title')?.innerText || document.title || '').trim().slice(0, 150);
-  return { title, images, skus, sizeTableText, sizeButton: Boolean(btn), url: location.href };
+  return { title, images, skus, sizeTableText: table.text, sizeButton: table.button, url: location.href };
 }
