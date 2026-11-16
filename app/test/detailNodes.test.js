@@ -178,3 +178,19 @@ test('D16 대표 사진 마지막 장은 사이즈표 후보에 우선 포함', 
   imgs.push({ url: 'g-last', w: 0, h: 0, alt: '', near: '', gallery: true, galleryLast: true });
   assert.ok(pickSizeImages(imgs).includes('g-last'));
 });
+
+test('D17 옵션에 호형과 斤 몸무게를 적어 둔 경우 (175/84A 33推荐135~142斤)', () => {
+  const L = ['165/72A 29推荐107~112斤', '170/74A 30推荐113~118斤', '170/78A 31推荐119~126斤', '175/82A 32推荐127~134斤', '175/84A 33推荐135~142斤',
+    '175/88A 34推荐143~150斤', '175/90A 35推荐151~160斤', '180/92A 36推荐161~170斤', '180/96A 38推荐177~180斤', '185/100A 40推荐181~200斤',
+    '185/108A 42推荐201~212斤', '165/70A 28推荐100~106斤', '185/112A 44推荐213~230斤'];
+  const skus = L.map((label) => ({ label, soldOut: /^165\/70A|^185\/112A/.test(label) }));
+  const sp = specFromSkus(skus);
+  const r175 = sp.variants[0].sizes.find((x) => x.label === '175/84A 33');
+  assert.deepEqual([r175.heightCm, r175.weightKg], [[175, 175], [67.5, 71]]);
+  assert.equal(sp.weightUnit, '斤');
+  const a = judgeFit(sp, { heightCm: 174, weightKg: 70 }, skus);           // 키 175 옵션 중 몸무게 67.5~71kg
+  assert.deepEqual([a.verdict, a.size], ['적합', '175/84A 33']);
+  assert.equal(a.stock, true);
+  const b = judgeFit(sp, { heightCm: 179, weightKg: 75 }, skus);           // 키 180 옵션 중 가장 작은 것
+  assert.equal(b.size, '180/92A 36');
+});

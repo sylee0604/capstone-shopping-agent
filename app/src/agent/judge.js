@@ -44,7 +44,10 @@ export function judgeFit(spec, body = {}, skus = []) {
     const sorted = [...rows].sort((a, b) => a.heightCm[0] - b.heightCm[0] || (a.weightKg?.[0] ?? 0) - (b.weightKg?.[0] ?? 0));
     const fitsW = (s) => w == null || !s.weightKg || w <= s.weightKg[0] + 3;
     const inStock = (s) => stockOf(s.label, skus) !== false;
-    const cand = sorted.filter((s) => s.heightCm[0] >= h - 2 && fitsW(s));
+    const inW = (s) => w != null && s.weightKg && w >= s.weightKg[0] - 1 && w <= (s.weightKg[1] ?? s.weightKg[0]) + 1;
+    const tall = sorted.filter((s) => s.heightCm[0] >= h - 2);
+    // 키가 맞는 것 중 몸무게 범위에 드는 옵션 우선 → 없으면 몸무게가 기준보다 많이 넘지 않는 가장 작은 것
+    const cand = tall.some(inW) ? tall.filter(inW) : tall.filter(fitsW);
     const pick = cand.find(inStock);
     if (!pick && cand.length) return { verdict: '부적합', unfitReason: 'SIZE_SOLD_OUT', size: cand[0].label, reason: [`맞는 사이즈(${cand.map((x) => x.label).join(', ')})가 모두 품절이에요`] };
     if (pick) {
@@ -115,20 +118,29 @@ export function mergeHaoxing(rows, skus = []) {
  */
 export function specFromSkus(skus = []) {
   const rows = [];
+  const RANGE = '\\s*[-~～到至]\\s*';
   for (const k of skus) {
     const t = String(k.label);
-    const lab = t.match(/(?:^|[^\d])(\d{2,3})(?:\s*(?:cm|CM|码|号))?/);
-    if (!lab || +lab[1] < 59 || +lab[1] > 190) continue;
-    const hr = t.match(/身高\s*(\d{2,3})\s*[-~～到至]\s*(\d{2,3})/) ?? t.match(/(\d{2,3})\s*[-~～]\s*(\d{2,3})\s*cm/i);
-    const wr = t.match(/体重\s*(\d{2,3})\s*[-~～到至]\s*(\d{2,3})\s*(斤|kg|公斤)?/i);
-    const label = lab[1];
+    // 호형: "175/84A 33推荐135~142斤" → 기준 키 175, 표시 이름은 옵션 앞부분(추천 문구 전)
+    const hx = t.match(/(\d{3})\s*\/\s*(\d{2,3})\s*[ABYC]?/i);
+    const num = t.match(/(?:^|[^\d])(\d{2,3})(?:\s*(?:cm|CM|码|号))?/);
+    if (!hx && (!num || +num[1] < 59 || +num[1] > 190)) continue;
+    const label = hx ? t.split(/推荐|建议|适合|[（(【\[]/)[0].trim() : num[1];
+    const hr = t.match(new RegExp(`身高\\s*(\\d{2,3})${RANGE}(\\d{2,3})`)) ?? t.match(new RegExp(`(\\d{2,3})${RANGE}(\\d{2,3})\\s*cm`, 'i'));
+    // 몸무게: 단위(斤·kg)가 붙은 범위만 ("推荐135~142斤", "体重50-60kg")
+    const wr = t.match(new RegExp(`(\\d{2,3}(?:\\.\\d)?)${RANGE}(\\d{2,3}(?:\\.\\d)?)\\s*(斤|kg|KG|公斤)`)) ?? t.match(new RegExp(`体重\\s*(\\d{2,3})${RANGE}(\\d{2,3})`));
     if (rows.some((r) => r.label === label)) continue;
     const half = wr && wr[3] === '斤';
-    rows.push({ label, heightCm: hr ? [+hr[1], +hr[2]] : null, weightKg: wr ? [half ? wr[1] / 2 : +wr[1], half ? wr[2] / 2 : +wr[2]] : null, ageYears: null, length: null, chest: null, waist: null, hip: null, shoulder: null, sleeve: null, extra: {} });
+    rows.push({
+      label, skuLabel: k.label,
+      heightCm: hr ? [+hr[1], +hr[2]] : hx ? [+hx[1], +hx[1]] : null,
+      weightKg: wr ? [half ? wr[1] / 2 : +wr[1], half ? wr[2] / 2 : +wr[2]] : null,
+      ageYears: null, length: null, chest: null, waist: null, hip: null, shoulder: null, sleeve: null, extra: {},
+    });
   }
   if (rows.length < 2) return null;
-  rows.sort((a, b) => a.label - b.label);
-  return { category: '상의', weightUnit: 'kg', variants: [{ name: null, fitHeightCm: null, sizes: rows }], fitMatrix: null, fromSku: true };
+  rows.sort((a, b) => (a.heightCm?.[0] ?? +a.label) - (b.heightCm?.[0] ?? +b.label) || (a.weightKg?.[0] ?? 0) - (b.weightKg?.[0] ?? 0));
+  return { category: '상의', weightUnit: rows.some((r) => r.weightKg) && skus.some((k) => /斤/.test(k.label)) ? '斤' : 'kg', variants: [{ name: null, fitHeightCm: null, sizes: rows }], fitMatrix: null, fromSku: true };
 }
 
 /** 사용자가 사이즈를 직접 말한 경우("110 사이즈"): 표에 그 사이즈가 있으면 그대로 추천 */
