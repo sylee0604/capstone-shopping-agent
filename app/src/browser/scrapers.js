@@ -151,6 +151,13 @@ export async function scrapeDetail() {
     }
     return { text: [...new Set(tables)].join('\n\n').slice(0, 8000), button: Boolean(btn) };
   };
+  // 옵션 이름에 사이즈 정보(호형 175/84A, 身高·体重·推荐 …斤 등)가 2개 이상이면 사이즈표·상세 이미지는 찾지 않는다 (시간 절약)
+  const SKU_INFO = /\d{3}\s*\/\s*\d{2,3}|身高|体重|推荐|建议|\d\s*斤|\d\s*kg/i;
+  const skuRich = skus.filter((x) => SKU_INFO.test(x.label)).length >= 2;
+  if (skuRich) {
+    const title0 = (document.querySelector('h1, [class*="mainTitle"], [class*="ItemTitle"], .tb-main-title')?.innerText || document.title || '').trim().slice(0, 150);
+    return { title: title0, images: [], skus, sizeTableText: '', sizeButton: false, skuRich: true, url: location.href };
+  }
   let table = await findTable();
 
   // 3) 상세 설명 이미지: 표를 찾았으면 짧게만 내리고(시간 절약), 못 찾았으면 끝까지 내려 이미지를 모두 불러온 뒤 표를 한 번 더 찾는다

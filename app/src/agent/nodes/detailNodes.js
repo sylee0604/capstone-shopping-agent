@@ -38,9 +38,12 @@ export function makeDetailNodes({ llm, browser }) {
       const platform = s.request.platform ?? 'taobao';
       const d = await browser.detail({ url: c.url, platform });
       if (d.blocked) throw new NeedsLoginError(platform);
+      // 옵션 이름만으로 판정할 수 있으면(키·몸무게 범위나 호형이 적혀 있음) 사이즈표 추출(LLM)을 건너뛴다
+      const skuSpec = specFromSkus(d.skus);
+      const usable = skuSpec && skuSpec.variants[0].sizes.filter((r) => r.heightCm || r.weightKg).length >= 2 ? skuSpec : null;
       return {
         analyzed: [id],
-        current: { productId: id, url: c.url, title: c.title, images: d.images, imageUrls: d.images.map((x) => x.url), skus: d.skus, sizeTableText: d.sizeTableText || '', extractAttempts: 0, errors: [], status: null, spec: null },
+        current: { productId: id, url: c.url, title: c.title, images: d.images, imageUrls: d.images.map((x) => x.url), skus: d.skus, sizeTableText: d.sizeTableText || '', extractAttempts: 0, errors: [], status: usable ? 'from_sku' : null, spec: usable, specSource: usable ? 'sku' : null },
         log: [{ node: 'fetchDetail', images: d.images.length, skus: d.skus.length, sizeTable: Boolean(d.sizeTableText), sizeButton: d.sizeButton }],
       };
     },
@@ -75,14 +78,14 @@ export function makeDetailNodes({ llm, browser }) {
     async judgeFit(s) {
       const c = s.current, it = s.intent ?? {};
       // 사이즈표가 없으면 옵션 이름의 사이즈 표기(110cm, 建议身高 등)로 대신 판정
-      const fromSku = !c.spec ? specFromSkus(c.skus) : null;
+      const fromSku = c.specSource === 'sku' ? c.spec : !c.spec ? specFromSkus(c.skus) : null;
       const spec = c.spec ?? fromSku;
       let r;
       if (!c.imageUrls.length && !c.sizeTableText && !spec) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
       else {
         // "110 사이즈"처럼 사이즈를 직접 말했으면(키는 말하지 않음) 그 사이즈를 우선
         r = (it.heightFrom === 'sizeLabel' && judgeWanted(spec, it.sizeLabel, c.skus)) || judgeFit(spec, { heightCm: it.heightCm, weightKg: it.weightKg, ageGroup: it.ageGroup }, c.skus);
-        if (fromSku) r = { ...r, reason: ['사이즈표가 없어 옵션의 사이즈 표기로 판정했어요', ...(r.reason ?? [])] };
+        if (fromSku) r = { ...r, reason: [c.specSource === 'sku' ? '상품 옵션에 적힌 사이즈 정보로 판정했어요' : '사이즈표가 없어 옵션의 사이즈 표기로 판정했어요', ...(r.reason ?? [])] };
       }
       return { results: [{ productId: c.productId, round: s.round, specStatus: fromSku ? 'from_sku' : c.status, ...r }], ...(fromSku ? { current: { ...c, spec: fromSku } } : {}) };
     },

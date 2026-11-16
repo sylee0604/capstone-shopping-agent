@@ -42,7 +42,7 @@ function describe(node, u) {
     case 'reformulateQuery': return u.round ? '조건에 맞는 상품이 없어 새로 검색해요' : '결과가 없어 검색어를 바꿔요';
     case 'rankCandidates': u.candidates.forEach((c) => (seen[c.id] = c)); return `후보 ${u.candidates.length}개를 골랐어요`;
     case 'awaitSelection': return '선택한 상품을 확인했어요';
-    case 'fetchDetail': return `상세 페이지를 읽었어요 · 이미지 ${u.current.imageUrls.length}장${u.current.skus?.length ? `, 옵션 ${u.current.skus.length}개` : ''}`;
+    case 'fetchDetail': return u.current.specSource === 'sku' ? `상세 페이지를 읽었어요 · 옵션 ${u.current.skus.length}개에 사이즈 정보가 있어 사이즈표는 건너뛰어요` : `상세 페이지를 읽었어요 · 이미지 ${u.current.imageUrls.length}장${u.current.skus?.length ? `, 옵션 ${u.current.skus.length}개` : ''}`;
     case 'selectSizeImages': return u.current.sizeTableText ? '페이지에서 사이즈표(표)를 찾았어요' : u.current.sizeImages?.length ? `사이즈표 후보 이미지 ${u.current.sizeImages.length}장을 골랐어요` : '사이즈표 후보 이미지가 없어요';
     case 'extractSpec': return u.current.spec ? `사이즈표를 읽었어요 (${u.current.extractAttempts}회차) · 사이즈 ${u.current.spec.variants[0].sizes.map((x) => x.label).join('/')}` : '이미지에서 사이즈표를 찾지 못했어요';
     case 'validateSpec': return `검증: ${STATUS[u.current.status]}${u.current.errors.length ? ` — ${u.current.errors[0]}` : ''}`;
@@ -140,7 +140,7 @@ function showResult(v, run) {
   if (r?.type === 'recommend') {
     const c = seen[r.productId];
     const tbl = r.table?.length ? `<table class="spec"><tr><th>사이즈</th><th>권장 키</th><th>권장 몸무게</th></tr>${r.table.map((t) => `<tr${t.label === r.size ? ' class="hit"' : ''}><td>${esc(t.label)}${t.fromSku ? ' (옵션)' : ''}</td><td>${esc(rng(t.heightCm, 'cm'))}</td><td>${esc(rng(t.weightKg, 'kg'))}</td></tr>`).join('')}</table>` : '';
-    head = `<h3>추천: ${esc(title(r.productId))}</h3><p class="big">${r.size ? `${esc(r.size)} 사이즈 · ` : ''}${esc(r.verdict)}</p><p>${esc(r.rationale)}</p>${r.specStatus === 'from_sku' ? '<p class="warn">상품에 사이즈표가 없어 옵션 이름(110cm 등)으로 판정했어요. 상품 페이지에서 한 번 더 확인해 주세요.</p>' : r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}${tbl}${c?.url ? `<p><a href="${safeUrl(c.url)}" target="_blank" rel="noopener">상품 페이지 열기</a></p>` : ''}`;
+    head = `<h3>추천: ${esc(title(r.productId))}</h3><p class="big">${r.size ? `${esc(r.size)} 사이즈 · ` : ''}${esc(r.verdict)}</p><p>${esc(r.rationale)}</p>${r.specStatus === 'from_sku' ? '<p class="warn">상품 옵션에 적힌 사이즈 정보로 판정했어요. 실측 치수는 상품 페이지에서 확인해 주세요.</p>' : r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}${tbl}${c?.url ? `<p><a href="${safeUrl(c.url)}" target="_blank" rel="noopener">상품 페이지 열기</a></p>` : ''}`;
   } else if (r?.type === 'fallback') head = '<h3>맞는 상품을 찾지 못했어요</h3><p>조건을 바꾸거나 다른 검색어로 시도해 보세요.</p>';
   else if (v.analyzed.length) head = '<h3>시간 초과</h3><p>에이전트 작업 시간이 90초를 넘었어요. 다시 시도해 주세요.</p>';
   else head = '<h3>검색 결과 없음</h3><p>검색어를 바꿔 다시 찾아봤지만 상품이 없었어요.</p>';

@@ -194,3 +194,13 @@ test('D17 옵션에 호형과 斤 몸무게를 적어 둔 경우 (175/84A 33推�
   const b = judgeFit(sp, { heightCm: 179, weightKg: 75 }, skus);           // 키 180 옵션 중 가장 작은 것
   assert.equal(b.size, '180/92A 36');
 });
+
+test('D18 옵션에 사이즈 정보가 있으면 사이즈표 추출(LLM)을 건너뛰고 바로 판정', async () => {
+  const llm = fakeLlm([]);
+  const browser = fakeBrowser({ products: [{ id: 'p1' }], detail: { p1: { images: [], skus: ['110cm(建议身高100-110)', '120cm(建议身高110-120)', '130cm(建议身高120-130)'].map((label) => ({ label, soldOut: false })) } } });
+  const v = await runAll(llm, browser);
+  assert.equal(llm.calls.length, 0);                     // LLM 호출 없음
+  assert.equal(browser.loaded.length, 0);                // 이미지도 불러오지 않음
+  assert.deepEqual([v.recommendation.size, v.recommendation.verdict], ['120', '적합']);
+  assert.match(v.recommendation.rationale, /옵션에 적힌 사이즈 정보/);
+});

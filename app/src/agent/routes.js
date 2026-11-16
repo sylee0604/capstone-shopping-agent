@@ -16,7 +16,8 @@ export function makeRoutes({ limits = LIMITS, now = () => Date.now() } = {}) {
       return s.searchAttempts <= limits.searchRetry ? 'reformulateQuery' : 'finish';
     },
 
-    afterDetail: (s) => (late(s) ? 'finish' : s.current?.imageUrls?.length || s.current?.sizeTableText ? 'selectSizeImages' : 'judgeFit'),
+    // 옵션 이름으로 이미 사이즈를 알았으면(spec) 사이즈표를 찾지 않고 바로 판정
+    afterDetail: (s) => (late(s) ? 'finish' : s.current?.spec ? 'judgeFit' : s.current?.imageUrls?.length || s.current?.sizeTableText ? 'selectSizeImages' : 'judgeFit'),
 
     // 사이즈표 후보 이미지 또는 페이지에서 읽은 사이즈표 글자가 있으면 추출
     afterImages: (s) => (late(s) ? 'finish' : s.current?.sizeImages?.length || s.current?.sizeTableText ? 'extractSpec' : 'judgeFit'),
