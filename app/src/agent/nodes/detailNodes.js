@@ -2,11 +2,11 @@
 // API 절약: LLM은 extractSpec 한 곳에서만, 상품당 1회(검증 실패 시 +1회). 이미지 선별·판정·근거 문장은 코드로 한다.
 import { ExtractSchema, EXTRACT_PROMPT, validateSpec } from '../spec.js';
 import { specStatus } from '../routes.js';
-import { judgeFit, rationaleText } from '../judge.js';
+import { judgeFit, rationaleText, specFromSkus, judgeWanted } from '../judge.js';
 import { NeedsLoginError } from './searchNodes.js';
 
 const SIZE_WORDS = /尺码|尺寸|码数|尺碼|size|参考|身高|体重|胸围|衣长|裤长|裙长/i;
-export const MAX_SIZE_IMAGES = 5;
+export const MAX_SIZE_IMAGES = 6;
 
 /** 사이즈표일 가능성이 높은 이미지 고르기 (코드). 한 번의 LLM 호출에 함께 넣어 LLM이 그중 사이즈표를 읽게 한다. */
 export function pickSizeImages(images, max = MAX_SIZE_IMAGES) {
@@ -18,7 +18,8 @@ export function pickSizeImages(images, max = MAX_SIZE_IMAGES) {
       const r = im.w && im.h ? im.h / im.w : 1;
       if (r < 0.25) s -= 2;                                          // 가로로 긴 띠 배너
       if (r >= 0.4 && r <= 2.5) s += 1;                              // 표 모양에 가까운 비율
-      if (n > 3 && i >= n * 0.3) s += 1;                             // 사이즈표는 상세 설명 뒤쪽에 많음
+      if (!im.gallery && n > 3 && i >= n * 0.3) s += 1;               // 사이즈표는 상세 설명 뒤쪽에 많음
+      if (im.galleryLast) s += 2;                                     // 대표 사진 마지막 장에 사이즈표를 넣는 판매자가 많음
       return { url: im.url, i, s };
     })
     .sort((a, b) => b.s - a.s || b.i - a.i)
@@ -73,10 +74,17 @@ export function makeDetailNodes({ llm, browser }) {
 
     async judgeFit(s) {
       const c = s.current, it = s.intent ?? {};
+      // 사이즈표가 없으면 옵션 이름의 사이즈 표기(110cm, 建议身高 등)로 대신 판정
+      const fromSku = !c.spec ? specFromSkus(c.skus) : null;
+      const spec = c.spec ?? fromSku;
       let r;
-      if (!c.imageUrls.length && !c.sizeTableText) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
-      else r = judgeFit(c.spec, { heightCm: it.heightCm, weightKg: it.weightKg, ageGroup: it.ageGroup }, c.skus);
-      return { results: [{ productId: c.productId, round: s.round, specStatus: c.status, ...r }] };
+      if (!c.imageUrls.length && !c.sizeTableText && !spec) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
+      else {
+        // "110 사이즈"처럼 사이즈를 직접 말했으면(키는 말하지 않음) 그 사이즈를 우선
+        r = (it.heightFrom === 'sizeLabel' && judgeWanted(spec, it.sizeLabel, c.skus)) || judgeFit(spec, { heightCm: it.heightCm, weightKg: it.weightKg, ageGroup: it.ageGroup }, c.skus);
+        if (fromSku) r = { ...r, reason: ['사이즈표가 없어 옵션의 사이즈 표기로 판정했어요', ...(r.reason ?? [])] };
+      }
+      return { results: [{ productId: c.productId, round: s.round, specStatus: fromSku ? 'from_sku' : c.status, ...r }], ...(fromSku ? { current: { ...c, spec: fromSku } } : {}) };
     },
 
     async analyzeFailure(s) {

@@ -156,3 +156,12 @@ test('S11 규칙 해석: 사전에서 품목을 찾으면 LLM을 부르지 않�
   assert.deepEqual([v.intent.by, v.intent.item, v.intent.gender, v.intent.heightCm, v.intent.weightKg, v.intent.budgetKrw], ['rule', '셔츠', '남성', 175, 70, 35000]);
   assert.deepEqual(browser.searched, ['男装 衬衫']);
 });
+
+test('S12 같은 상품이 카드 두 개로 잡혀도 후보에는 하나만', () => {
+  const pool = [
+    { id: '1', titleZh: '女童 春季 连衣裙 公主裙', priceCny: 50, salesNum: 900, image: 'https://img.alicdn.com/a.jpg_460x460q90.jpg' },
+    { id: '1x', titleZh: '女童 春季 连衣裙 公主裙', priceCny: 50, salesNum: 10, image: '//img.alicdn.com/a.jpg_300x300.jpg' },      // 광고 카드 (같은 사진)
+    { id: '2', titleZh: '女童 碎花 连衣裙', priceCny: 60, salesNum: 500 },
+  ];
+  assert.deepEqual(rankProducts(pool, { query: '女童 连衣裙' }).map((p) => p.id), ['1', '2']);
+});

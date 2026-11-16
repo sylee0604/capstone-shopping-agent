@@ -9,7 +9,11 @@ export function seasonMismatch(title = '', season) {
 }
 
 export function rankProducts(pool, { budgetKrw = null, query = '', rate = 190, n = 3, season = null } = {}) {
-  const withKrw = pool.map((p) => ({ ...p, priceKrw: p.priceCny != null ? Math.round(p.priceCny * rate) : null }));
+  // 같은 상품이 카드 두 개로 잡힌 경우(광고+일반: 같은 대표 사진, 같은 이름·가격) 하나만 남긴다: 판매량이 큰 쪽
+  const img = (p) => (p.image ?? '').replace(/_\d+x\d+.*$/, '').replace(/^https?:/, '');
+  const same = (a, b) => a.id === b.id || (img(a) && img(a) === img(b)) || (a.titleZh && a.titleZh === b.titleZh && a.priceCny === b.priceCny && a.shop && a.shop === b.shop);
+  const uniq = [...pool].sort((a, b) => (b.salesNum || 0) - (a.salesNum || 0)).filter((p, i, arr) => arr.findIndex((q) => same(q, p)) === i);
+  const withKrw = uniq.map((p) => ({ ...p, priceKrw: p.priceCny != null ? Math.round(p.priceCny * rate) : null }));
   const inBudget = budgetKrw ? withKrw.filter((p) => p.priceKrw != null && p.priceKrw <= budgetKrw) : withKrw;
   // 예산 안에 상품이 없으면 예산 초과 상품이라도 보여주되 표시해 둔다
   const base = inBudget.length ? inBudget : withKrw.map((p) => ({ ...p, overBudget: Boolean(budgetKrw) }));

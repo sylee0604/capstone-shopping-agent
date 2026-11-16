@@ -6,7 +6,7 @@ import { makeRoutes } from '../src/agent/routes.js';
 import { runAgent } from '../src/agent/runner.js';
 import { makeSearchNodes } from '../src/agent/nodes/searchNodes.js';
 import { makeDetailNodes, pickSizeImages } from '../src/agent/nodes/detailNodes.js';
-import { judgeFit, rationaleText, stockOf } from '../src/agent/judge.js';
+import { judgeFit, rationaleText, stockOf, specFromSkus, judgeWanted } from '../src/agent/judge.js';
 import { validateSpec } from '../src/agent/spec.js';
 
 const row = (label, h, w, extra = {}) => ({ label, heightCm: h, weightKg: w, ageYears: null, length: null, chest: null, waist: null, hip: null, shoulder: null, sleeve: null, extra: {}, ...extra });
@@ -155,4 +155,26 @@ test('D13 옵션에서 보탠 사이즈의 근거는 실측이 아니라 체형 
   const txt = rationaleText(r, shirt);
   assert.match(txt, /옵션에서 찾은 사이즈.*체형 기준/);
   assert.doesNotMatch(txt, /실측/);
+});
+
+test('D14 사이즈표가 없으면 옵션 이름(110cm, 建议身高)으로 판정', () => {
+  const skus = [{ label: '100cm(建议身高90-100)', soldOut: false }, { label: '110cm(建议身高100-110)', soldOut: false }, { label: '120cm(建议身高110-120)', soldOut: true }];
+  const sp = specFromSkus(skus);
+  assert.deepEqual(sp.variants[0].sizes.map((x) => [x.label, x.heightCm]), [['100', [90, 100]], ['110', [100, 110]], ['120', [110, 120]]]);
+  assert.equal(judgeFit(sp, { heightCm: 108, ageGroup: '아동' }, skus).size, '110');
+  assert.equal(specFromSkus([{ label: '红色' }, { label: '蓝色' }]), null);
+});
+
+test('D15 "110 사이즈"라고 말하면 표의 110을 그대로 추천 (판매자 기준이 달라도)', () => {
+  const shifted = spec([row('110', [95, 105], null), row('120', [106, 115], null)]);   // 키 110이면 120 범위인 표
+  const r = judgeWanted(shifted, '110', [{ label: '110cm', soldOut: false }]);
+  assert.deepEqual([r.verdict, r.size], ['적합', '110']);
+  assert.match(r.reason[0], /요청하신 110 사이즈.*권장 키 95~105cm/);
+  assert.equal(judgeWanted(shifted, '110', [{ label: '110cm', soldOut: true }]).unfitReason, 'SIZE_SOLD_OUT');
+});
+
+test('D16 대표 사진 마지막 장은 사이즈표 후보에 우선 포함', () => {
+  const imgs = Array.from({ length: 12 }, (_, i) => ({ url: `d${i}`, w: 750, h: 1000, alt: '', near: '' }));
+  imgs.push({ url: 'g-last', w: 0, h: 0, alt: '', near: '', gallery: true, galleryLast: true });
+  assert.ok(pickSizeImages(imgs).includes('g-last'));
 });

@@ -29,9 +29,9 @@ export function scrapeTaobao() {
   };
   const out = [], seen = new Set();
   for (const card of cards()) {
-    let id = card.getAttribute('data-spm-act-id') || (card.id.match(/item_id_(\d+)/) || [])[1] || card.querySelector('a[data-spm-act-id]')?.getAttribute('data-spm-act-id') || '';
+    // 상품 id는 링크 주소의 id= 를 우선 (광고 카드의 data-spm-act-id는 상품 id가 아니라 같은 상품이 두 번 잡힘)
     const link = card.matches('a') ? card : card.querySelector('a[href*="item.taobao.com"], a[href*="detail.tmall.com"], a[href*="item.htm?id="]');
-    if (!id && link) id = (link.href.match(/[?&]id=(\d+)/) || [])[1] || '';
+    let id = (link?.href.match(/[?&]id=(\d+)/) || [])[1] || card.getAttribute('data-spm-act-id') || (card.id.match(/item_id_(\d+)/) || [])[1] || card.querySelector('a[data-spm-act-id]')?.getAttribute('data-spm-act-id') || '';
     if (!id) id = card.getAttribute('data-nid') || '';
     const title = (card.querySelector('[class*="title"], [class*="Title"], h3, h2')?.innerText || '').trim().slice(0, 150);
     if (!title || seen.has(id || title)) continue;
@@ -172,6 +172,14 @@ export async function scrapeDetail() {
     seen.add(url);
     const near = (el.closest('div,p,section')?.innerText || '').slice(0, 80);
     images.push({ url, w, h, alt: el.alt || '', near });
+  });
+  // 대표 사진(갤러리): 판매자가 사이즈표를 대표 사진 마지막 장에 넣는 경우가 많다
+  const gallery = [...document.querySelectorAll('[class*="thumbnail" i] img, [class*="PicGallery"] img, #J_UlThumb img, [class*="mainPic" i] img, [class*="picGallery" i] img')];
+  gallery.forEach((el, gi) => {
+    const url = src(el);
+    if (!/^https:\/\//.test(url) || !/alicdn|tbcdn|taobaocdn|1688/.test(url) || seen.has(url)) return;
+    seen.add(url);
+    images.push({ url, w: 0, h: 0, alt: el.alt || '', near: '', gallery: true, galleryLast: gi === gallery.length - 1 });
   });
   const title = (document.querySelector('h1, [class*="mainTitle"], [class*="ItemTitle"], .tb-main-title')?.innerText || document.title || '').trim().slice(0, 150);
   return { title, images, skus, sizeTableText: table.text, sizeButton: table.button, url: location.href };

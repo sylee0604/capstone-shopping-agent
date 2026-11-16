@@ -24,13 +24,13 @@ const won = (n) => (n == null ? '' : `약 ${Math.round(n).toLocaleString()}원`)
 
 const MOCK_DELAY = 350;
 const REASON = { SIZE_OUT_OF_RANGE: '맞는 사이즈 없음', SIZE_SOLD_OUT: '맞는 사이즈 품절', SPEC_UNKNOWN: '사이즈 정보 없음', CONDITION_MISMATCH: '예산·소재 불일치', FETCH_FAILED: '상세 페이지 수집 실패' };
-const STATUS = { ok: '통과', uncertain: '확인 필요(재추출 상한)', source_anomaly: '원본 이상', retry: '오류 → 다시 읽기' };
+const STATUS = { ok: '통과', uncertain: '확인 필요(재추출 상한)', source_anomaly: '원본 이상', retry: '오류 → 다시 읽기', from_sku: '사이즈표 없음 → 옵션 표기로 판정' };
 
 const seen = {};                                                  // 상품 id → 화면 표시용 정보
 const title = (id) => seen[id]?.title ?? CATALOG[id]?.title ?? id;
 
 function describeIntent(it) {
-  const parts = [it.item ?? it.category, [it.ageGroup, it.gender].filter(Boolean).join(' '), it.heightCm && `키 ${it.heightCm}`, it.budgetKrw && `${it.budgetKrw.toLocaleString()}원 이하`].filter(Boolean);
+  const parts = [it.item ?? it.category, [it.ageGroup, it.gender].filter(Boolean).join(' '), it.heightCm && (it.heightFrom === 'sizeLabel' ? `${it.sizeLabel} 사이즈(키 ${it.heightCm}cm로 가정)` : `키 ${it.heightCm}`), it.budgetKrw && `${it.budgetKrw.toLocaleString()}원 이하`].filter(Boolean);
   return parts.length ? parts.join(' · ') : '조건 없음';
 }
 
@@ -140,7 +140,7 @@ function showResult(v, run) {
   if (r?.type === 'recommend') {
     const c = seen[r.productId];
     const tbl = r.table?.length ? `<table class="spec"><tr><th>사이즈</th><th>권장 키</th><th>권장 몸무게</th></tr>${r.table.map((t) => `<tr${t.label === r.size ? ' class="hit"' : ''}><td>${esc(t.label)}${t.fromSku ? ' (옵션)' : ''}</td><td>${esc(rng(t.heightCm, 'cm'))}</td><td>${esc(rng(t.weightKg, 'kg'))}</td></tr>`).join('')}</table>` : '';
-    head = `<h3>추천: ${esc(title(r.productId))}</h3><p class="big">${r.size ? `${esc(r.size)} 사이즈 · ` : ''}${esc(r.verdict)}</p><p>${esc(r.rationale)}</p>${r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}${tbl}${c?.url ? `<p><a href="${safeUrl(c.url)}" target="_blank" rel="noopener">상품 페이지 열기</a></p>` : ''}`;
+    head = `<h3>추천: ${esc(title(r.productId))}</h3><p class="big">${r.size ? `${esc(r.size)} 사이즈 · ` : ''}${esc(r.verdict)}</p><p>${esc(r.rationale)}</p>${r.specStatus === 'from_sku' ? '<p class="warn">상품에 사이즈표가 없어 옵션 이름(110cm 등)으로 판정했어요. 상품 페이지에서 한 번 더 확인해 주세요.</p>' : r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}${tbl}${c?.url ? `<p><a href="${safeUrl(c.url)}" target="_blank" rel="noopener">상품 페이지 열기</a></p>` : ''}`;
   } else if (r?.type === 'fallback') head = '<h3>맞는 상품을 찾지 못했어요</h3><p>조건을 바꾸거나 다른 검색어로 시도해 보세요.</p>';
   else if (v.analyzed.length) head = '<h3>시간 초과</h3><p>에이전트 작업 시간이 90초를 넘었어요. 다시 시도해 주세요.</p>';
   else head = '<h3>검색 결과 없음</h3><p>검색어를 바꿔 다시 찾아봤지만 상품이 없었어요.</p>';

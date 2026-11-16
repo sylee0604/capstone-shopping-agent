@@ -109,6 +109,41 @@ export function mergeHaoxing(rows, skus = []) {
   return add.length && filled.every((r) => r.heightCm && r.heightCm[0] === r.heightCm[1]) ? [...filled, ...add] : filled;
 }
 
+/**
+ * 사이즈표가 없을 때: 옵션(SKU) 이름에서 사이즈를 읽는다 (코드, LLM 없음).
+ * 예) "110cm", "120码(建议身高110-120)", "130【身高120-130cm 体重40-50斤】"
+ */
+export function specFromSkus(skus = []) {
+  const rows = [];
+  for (const k of skus) {
+    const t = String(k.label);
+    const lab = t.match(/(?:^|[^\d])(\d{2,3})(?:\s*(?:cm|CM|码|号))?/);
+    if (!lab || +lab[1] < 59 || +lab[1] > 190) continue;
+    const hr = t.match(/身高\s*(\d{2,3})\s*[-~～到至]\s*(\d{2,3})/) ?? t.match(/(\d{2,3})\s*[-~～]\s*(\d{2,3})\s*cm/i);
+    const wr = t.match(/体重\s*(\d{2,3})\s*[-~～到至]\s*(\d{2,3})\s*(斤|kg|公斤)?/i);
+    const label = lab[1];
+    if (rows.some((r) => r.label === label)) continue;
+    const half = wr && wr[3] === '斤';
+    rows.push({ label, heightCm: hr ? [+hr[1], +hr[2]] : null, weightKg: wr ? [half ? wr[1] / 2 : +wr[1], half ? wr[2] / 2 : +wr[2]] : null, ageYears: null, length: null, chest: null, waist: null, hip: null, shoulder: null, sleeve: null, extra: {} });
+  }
+  if (rows.length < 2) return null;
+  rows.sort((a, b) => a.label - b.label);
+  return { category: '상의', weightUnit: 'kg', variants: [{ name: null, fitHeightCm: null, sizes: rows }], fitMatrix: null, fromSku: true };
+}
+
+/** 사용자가 사이즈를 직접 말한 경우("110 사이즈"): 표에 그 사이즈가 있으면 그대로 추천 */
+export function judgeWanted(spec, want, skus = []) {
+  if (!spec?.variants?.length || !want) return null;
+  const W = norm(want);
+  const row = spec.variants.flatMap((v) => v.sizes).find((s) => { const L = norm(s.label); return L === W || L.startsWith(W) || L.replace(/CM|码|号/g, '') === W; });
+  if (!row) return null;
+  const st = stockOf(row.label, skus);
+  if (st === false) return { verdict: '부적합', unfitReason: 'SIZE_SOLD_OUT', size: row.label, reason: [`요청하신 ${want} 사이즈가 품절이에요`] };
+  const fmtR = (r, u) => (r ? (r[0] === r[1] ? `${r[0]}${u}` : `${r[0]}~${r[1] ?? ''}${u}`) : null);
+  const info = [fmtR(row.heightCm, 'cm') && `권장 키 ${fmtR(row.heightCm, 'cm')}`, fmtR(row.weightKg, 'kg') && `권장 몸무게 ${fmtR(row.weightKg, 'kg')}`].filter(Boolean).join(', ');
+  return { verdict: '적합', size: row.label, row, stock: st, reason: [`요청하신 ${want} 사이즈가 있어요${info ? ` (이 상품 ${info})` : ''}`] };
+}
+
 function withStock(r, skus) {
   const st = stockOf(r.size, skus);
   if (st === false) return { verdict: '부적합', unfitReason: 'SIZE_SOLD_OUT', size: r.size, reason: [`${r.size} 사이즈가 품절이에요`] };
