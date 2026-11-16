@@ -13,7 +13,7 @@ export function rankFlashModels(names) {
   return [...c].sort((a, b) => ver(b) - ver(a));
 }
 
-export function geminiProvider({ apiKey, model, cachedModel, fetchFn = globalThis.fetch?.bind(globalThis), timeoutMs = 60_000 }) {
+export function geminiProvider({ apiKey, model, cachedModel, fetchFn = globalThis.fetch?.bind(globalThis), timeoutMs = 30_000 }) {
   if (!apiKey) throw new LlmError('Gemini API 키가 설정되지 않았어요', { code: 'NO_KEY' });
   const headers = { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey };
   const self = { model: model ?? cachedModel, cached: !model && Boolean(cachedModel) };   // cachedModel: 지난번에 고른 모델 (목록 조회 생략)

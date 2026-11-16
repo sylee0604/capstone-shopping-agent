@@ -215,3 +215,45 @@ test('D19 옵션은 S/M/L뿐이고 표처럼 보이는 이미지도 없으면 LL
   assert.equal(llm.calls.length, 1);                       // p1에서는 호출 없음, p2에서만 1회
   assert.equal(v.recommendation.productId, 'p2');
 });
+
+test('D20 옵션이 S/M/L뿐이면 "표일 수도"(글자 많은 홍보 이미지) 수준은 보내지 않고, 다른 상품에서는 보냄 (최대 3장)', async () => {
+  const llm = fakeLlm([KIDS]);
+  const imgs = ['a', 'b', 'c', 'd', 'e'];
+  const browser = fakeBrowser({ products: [{ id: 'p1', salesNum: 900 }, { id: 'p2', salesNum: 100 }], detail: { p1: { images: imgs, skus: ['S', 'M', 'L', 'XL', '黑色'].map((label) => ({ label, soldOut: false })) }, p2: { images: imgs } } });
+  browser.chartLike = async (urls) => Object.fromEntries(urls.map((u) => [u, 1]));     // 모두 '표일 수도'
+  const v = await runAll(llm, browser);
+  assert.match(v.results[0].reason[0], /S\/M\/L/);
+  assert.equal(llm.calls.length, 1);                        // p1은 호출 없음
+  assert.equal(llm.calls[0].images.length, 3);              // p2는 최대 3장만
+  assert.equal(v.recommendation.productId, 'p2');
+});
+
+test('D21 옵션이 S/M/L이어도 "표로 보임"(격자·열 구조) 이미지가 있으면 그것만 보냄', async () => {
+  const llm = fakeLlm([KIDS]);
+  const browser = fakeBrowser({ products: [{ id: 'p1' }], detail: { p1: { images: ['a', 'size', 'b'], skus: ['S', 'M', 'L'].map((label) => ({ label, soldOut: false })) } } });
+  browser.chartLike = async (urls) => Object.fromEntries(urls.map((u) => [u, u.includes('_size') ? 2 : 1]));
+  await runAll(llm, browser);
+  assert.deepEqual(browser.loaded[0].map((u) => u.split('/').pop()), ['p1_size.jpg']);
+});
+
+test('D22 LLM 혼잡(503)·시간 초과면 실행을 멈추지 않고 그 상품만 LLM_FAILED → 남은 후보 선택', async () => {
+  const outputs = [KIDS];
+  let first = true;
+  const llm = { calls: [], async json(req) { this.calls.push(req); if (first) { first = false; throw Object.assign(new Error('Gemini 오류 503'), { code: 'HTTP_503', retryable: true }); } return req.schema.parse(outputs.shift()); } };
+  const v = await runAll(llm, fakeBrowser({ products: [{ id: 'p1', salesNum: 900 }, { id: 'p2', salesNum: 100 }] }));
+  assert.equal(v.results[0].unfitReason, 'LLM_FAILED');
+  assert.equal(v.recommendation.productId, 'p2');
+  // 키 오류처럼 다시 해도 안 되는 오류는 그대로 멈춤
+  const bad = { async json() { throw Object.assign(new Error('API 키 오류'), { code: 'AUTH', retryable: false }); } };
+  await assert.rejects(runAll(bad, fakeBrowser({ products: [{ id: 'p1' }] })), /API 키/);
+});
+
+test('D23 글자 사이즈만 있는 옵션 판별', async () => {
+  const { letterSizesOnly } = await import('../src/agent/nodes/detailNodes.js');
+  const L = (...xs) => xs.map((label) => ({ label }));
+  assert.equal(letterSizesOnly(L('S', 'M', 'L', '2XL', '黑色')), true);
+  assert.equal(letterSizesOnly(L('M（建议100-120斤）', 'L')), false);
+  assert.equal(letterSizesOnly(L('110cm', '120cm')), false);
+  assert.equal(letterSizesOnly(L('175/92A', 'L')), false);
+  assert.equal(letterSizesOnly(L('黑色', '白色')), false);
+});

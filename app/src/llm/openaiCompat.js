@@ -1,7 +1,7 @@
 // OpenAI 호환 서버 (자체 GPU 서버의 vLLM + Qwen2.5-VL 등). 서버 지원이 확정되면 provider만 'openai'로 바꾼다.
 import { LlmError } from './errors.js';
 
-export function openaiCompatProvider({ baseUrl, apiKey = '', model = 'Qwen/Qwen2.5-VL-7B-Instruct', fetchFn = globalThis.fetch?.bind(globalThis), timeoutMs = 60_000 }) {
+export function openaiCompatProvider({ baseUrl, apiKey = '', model = 'Qwen/Qwen2.5-VL-7B-Instruct', fetchFn = globalThis.fetch?.bind(globalThis), timeoutMs = 30_000 }) {
   if (!baseUrl) throw new LlmError('서버 주소가 설정되지 않았어요', { code: 'NO_URL' });
   return {
     model,

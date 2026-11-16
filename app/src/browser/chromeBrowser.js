@@ -13,13 +13,18 @@ export function looksLikeChart(bmp, W = 120) {
   const px = ctx.getImageData(0, 0, W, H).data;
   return bandsLookLikeChart(px, W, H);
 }
+/**
+ * 2 = 표로 보임(격자선이나 열 구조가 뚜렷), 1 = 표일 수도 있음(흰 배경 + 글자), 0 = 아님
+ * 1은 글자가 많은 홍보·설명 이미지도 통과하므로, 옵션이 S/M/L뿐인 상품에서는 2만 믿는다.
+ */
 export function bandsLookLikeChart(px, W, H) {
   const at = (x, y) => (y * W + x) * 4;
+  let best = 0;
   for (let y0 = 0; y0 < Math.max(1, H - W / 2); y0 += W) {
-    const y1 = Math.min(H, y0 + W);
-    if (y1 - y0 < 20) continue;
+    const y1 = Math.min(H, y0 + W), bh = y1 - y0;
+    if (bh < 20) continue;
     let low = 0, n = 0, edges = 0, m = 0;
-    const colHit = new Uint8Array(W), rowHit = new Uint8Array(y1 - y0);
+    const colCnt = new Uint32Array(W), rowCnt = new Uint32Array(bh);
     for (let y = y0; y < y1; y++) {
       for (let x = 0; x < W; x++) {
         const i = at(x, y), r = px[i] / 255, g = px[i + 1] / 255, b = px[i + 2] / 255;
@@ -31,14 +36,25 @@ export function bandsLookLikeChart(px, W, H) {
           const j = at(x + 1, y), k = at(x, y + 1);
           const gx = Math.abs(gray - (px[j] + px[j + 1] + px[j + 2]) / 765), gy = Math.abs(gray - (px[k] + px[k + 1] + px[k + 2]) / 765);
           m++;
-          if (Math.max(gx, gy) > 0.16) { edges++; colHit[x] = 1; rowHit[y - y0] = 1; }
+          if (Math.max(gx, gy) > 0.16) { edges++; colCnt[x]++; rowCnt[y - y0]++; }
         }
       }
     }
-    const dens = edges / m, cols = colHit.reduce((a, v) => a + v, 0) / W, rows = rowHit.reduce((a, v) => a + v, 0) / (y1 - y0);
-    if (low / n >= 0.7 && dens >= 0.04 && dens <= 0.5 && cols >= 0.5 && rows >= 0.3) return true;
+    const dens = edges / m;
+    const cols = colCnt.reduce((a, v) => a + (v > 0), 0) / W, rows = rowCnt.reduce((a, v) => a + (v > 0), 0) / bh;
+    if (!(low / n >= 0.7 && dens >= 0.04 && dens <= 0.5 && cols >= 0.5 && rows >= 0.3)) continue;
+    // 표 구조: 가로 격자선(폭의 80% 이상 이어진 경계 줄), 세로 격자선(높이의 60% 이상), 빈 세로 틈으로 나뉜 열 덩어리 수
+    let grid = 0, vgrid = 0, runs = 0, prev = false;
+    for (let y = 0; y < bh - 1; y++) if (rowCnt[y] / (W - 1) > 0.8) grid++;
+    for (let x = 0; x < W - 1; x++) {
+      const p = colCnt[x] / (bh - 1);
+      if (p > 0.6) vgrid++;
+      const on = p > 0.02; if (on && !prev) runs++; prev = on;
+    }
+    if (grid >= 2 || vgrid >= 2 || runs >= 3) return 2;
+    best = 1;
   }
-  return false;
+  return best;
 }
 
 // 큰 이미지도 스택이 넘치지 않게 나눠서 base64로 변환
@@ -146,8 +162,8 @@ export function makeChromeBrowser({ chrome = globalThis.chrome, fetchFn = global
 
     /**
      * 사이즈표처럼 보이는지 빠르게 판별 (LLM 없이 이 컴퓨터에서 계산).
-     * 폭 120px로 줄여 정사각형 띠로 나누고, 채도가 낮고(흰·회색·검정 배경) 글자·선 같은 경계가 고르게 퍼진 띠가 하나라도 있으면 true.
-     * 사이즈표 이미지 25장으로 맞춘 기준: 25장 모두 통과, 옷 사진(채도 높음 / 흰 배경 + 옷 덩어리)은 걸러짐.
+     * 폭 120px로 줄여 정사각형 띠로 나누고, 채도가 낮고(흰·회색·검정 배경) 글자·선 같은 경계가 고르게 퍼진 띠를 찾는다.
+     * 반환: { url: 2(표) | 1(표일 수도) | 0(아님) }. 사이즈표 25장 기준 1 이상 25장, 2는 24장. 옷 사진은 0.
      */
     async chartLike(urls) {
       const out = {};
@@ -155,7 +171,7 @@ export function makeChromeBrowser({ chrome = globalThis.chrome, fetchFn = global
         try {
           const bmp = await createImageBitmap(await (await fetchFn(url)).blob());
           out[url] = looksLikeChart(bmp);
-        } catch { out[url] = true; }          // 판별 실패 시에는 LLM에게 맡긴다 (놓치지 않는 쪽)
+        } catch { out[url] = 1; }             // 판별 실패 시에는 '표일 수도'로 (놓치지 않는 쪽)
       }
       return out;
     },

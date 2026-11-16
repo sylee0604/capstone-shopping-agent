@@ -6,7 +6,7 @@ import { judgeFit, rationaleText, specFromSkus, judgeWanted } from '../judge.js'
 import { NeedsLoginError } from './searchNodes.js';
 
 const SIZE_WORDS = /尺码|尺寸|码数|尺碼|size|参考|身高|体重|胸围|衣长|裤长|裙长/i;
-export const MAX_SIZE_IMAGES = 6;
+export const MAX_SIZE_IMAGES = 3;          // LLM에 보내는 이미지 수 (적을수록 빠르고 혼잡 오류도 덜 남)
 
 /** 사이즈표일 가능성이 높은 이미지 고르기 (코드). 한 번의 LLM 호출에 함께 넣어 LLM이 그중 사이즈표를 읽게 한다. */
 export function pickSizeImages(images, max = MAX_SIZE_IMAGES) {
@@ -26,6 +26,15 @@ export function pickSizeImages(images, max = MAX_SIZE_IMAGES) {
     .slice(0, max)
     .sort((a, b) => a.i - b.i)                                       // 원래 순서로 (이어진 표 대비)
     .map((x) => x.url);
+}
+
+// 옵션이 S/M/L 같은 글자 사이즈뿐인지 (숫자 사이즈·호형·키 정보가 없음)
+const LETTER = /^(X{0,4}S|M|X{0,4}L|[2-6]XL|XXS|均码|F|FREE|ONE ?SIZE)$/i;
+export function letterSizesOnly(skus = []) {
+  const raw = skus.map((k) => String(k.label).trim());
+  const letters = raw.filter((l) => LETTER.test(l.replace(/[\s(（].*$/, ''))).length;
+  const numeric = raw.some((l) => /\d{2,3}|斤|身高|体重/.test(l));       // 숫자 사이즈·호형·괄호 속 키/몸무게 안내
+  return letters >= 2 && !numeric;
 }
 
 const stableKey = (spec) => JSON.stringify(spec?.variants?.map((v) => v.sizes.map((s) => [s.label, s.heightCm, s.weightKg, s.chest?.value])) ?? null);
@@ -51,11 +60,15 @@ export function makeDetailNodes({ llm, browser }) {
     async selectSizeImages(s) {
       // 페이지에서 사이즈표를 글자로 읽었으면 이미지는 보내지 않는다 (더 정확하고 토큰도 적음)
       if (s.current.sizeTableText) return { current: { ...s.current, sizeImages: [] } };
-      // 후보를 넉넉히 고른 뒤, 표처럼 보이는 이미지만 남긴다 (LLM 없이). 하나도 없으면 LLM을 부르지 않고 '사이즈표 없음'
+      // 후보를 넉넉히 고른 뒤 표처럼 보이는지 LLM 없이 확인 (2 = 표, 1 = 표일 수도).
+      // 옵션이 S/M/L뿐인 상품은 사이즈표가 없는 경우가 많아 '표일 수도'(글자 많은 홍보 이미지 등)는 보내지 않는다 → LLM 호출 없이 바로 '사이즈표 없음'
       const cands = pickSizeImages(s.current.images ?? [], 12);
-      const look = browser.chartLike ? await browser.chartLike(cands) : Object.fromEntries(cands.map((u) => [u, true]));
-      const sizeImages = cands.filter((u) => look[u]).slice(0, MAX_SIZE_IMAGES);
-      return { current: { ...s.current, sizeImages, checkedImages: cands.length } };
+      const look = browser.chartLike ? await browser.chartLike(cands) : Object.fromEntries(cands.map((u) => [u, 1]));
+      const level = (u) => (look[u] === true ? 1 : +look[u] || 0);
+      const strict = cands.filter((u) => level(u) >= 2), maybe = cands.filter((u) => level(u) === 1);
+      const letterOnly = letterSizesOnly(s.current.skus);
+      const sizeImages = (strict.length ? strict : letterOnly ? [] : maybe).slice(0, MAX_SIZE_IMAGES);
+      return { current: { ...s.current, sizeImages, checkedImages: cands.length, letterOnly } };
     },
 
     async extractSpec(s) {
@@ -67,8 +80,14 @@ export function makeDetailNodes({ llm, browser }) {
         : '';
       let spec = null;
       if (images.length || tableNote) {
-        const r = await llm.json({ prompt: EXTRACT_PROMPT + tableNote + feedback, images, schema: ExtractSchema });
-        spec = r.none ? null : r;
+        try {
+          const r = await llm.json({ prompt: EXTRACT_PROMPT + tableNote + feedback, images, schema: ExtractSchema });
+          spec = r.none ? null : r;
+        } catch (e) {
+          // 혼잡(503·429)·시간 초과는 실행을 멈추지 않고 이 상품만 '읽기 실패'로 → 다른 후보를 고르게 한다. 키 오류·형식 오류(진단 표시)는 멈춤
+          if (!e.retryable) throw e;
+          return { current: { ...c, spec: null, llmFailed: `${e.code ?? ''} ${e.message}`.trim().slice(0, 120), extractAttempts: c.extractAttempts + 1 } };
+        }
       }
       return { current: { ...c, prevKey: stableKey(c.spec), spec, extractAttempts: c.extractAttempts + 1 } };
     },
@@ -87,6 +106,8 @@ export function makeDetailNodes({ llm, browser }) {
       const spec = c.spec ?? fromSku;
       let r;
       if (!c.imageUrls.length && !c.sizeTableText && !spec) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
+      else if (c.llmFailed && !spec) r = { verdict: '부적합', unfitReason: 'LLM_FAILED', reason: ['LLM 서버가 혼잡해 사이즈표를 읽지 못했어요. 다른 후보를 고르거나 잠시 뒤 다시 시도해 주세요'] };
+      else if (!spec && c.checkedImages && !c.sizeImages?.length && c.letterOnly) r = { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN', reason: [`사이즈표가 없어요 (옵션이 S/M/L 같은 글자 사이즈뿐이고, 이미지 ${c.checkedImages}장 중 표로 보이는 것도 없음)`] };
       else if (!spec && c.checkedImages && !c.sizeImages?.length) r = { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN', reason: [`사이즈표가 없어요 (옵션에 사이즈 정보가 없고, 이미지 ${c.checkedImages}장 중 표로 보이는 것도 없음)`] };
       else {
         // "110 사이즈"처럼 사이즈를 직접 말했으면(키는 말하지 않음) 그 사이즈를 우선
