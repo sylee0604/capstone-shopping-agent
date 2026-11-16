@@ -74,6 +74,7 @@ async function makeGraph(run) {
     const nodes = { ...makeSearchNodes({ llm, browser }), ...makeDetailNodes({ llm, browser }) };
     const g = buildGraph(nodes, { checkpointer: saver, routes: makeRoutes() });
     g.llmModel = () => llm.model;                                     // 고른 모델을 저장해 다음 실행 때 목록 조회 생략
+    g.llmCalls = () => llm.usage.calls;                               // 실행 기록용 LLM 호출 수
     return g;
   }
   const clock = { t: 0 };
@@ -161,9 +162,12 @@ async function execute(run, resume) {
       onUpdate: (chunk) => { for (const [n, u] of Object.entries(chunk)) if (!n.startsWith('__')) { steps++; log(describe(n, u ?? {})); } },
     });
     showResult(final, run);
+    run.llmCalls = (run.llmCalls ?? 0) + (graph.llmCalls?.() ?? 0);
+    if (run.mode === 'real' && final.recommendation?.type === 'recommend') await appendRunLog(final, run);
     if (graph.llmModel?.()) { const st = await loadSettings(); if (st.model !== graph.llmModel()) await area.set({ settings: { ...st, model: graph.llmModel() } }); }
     await area.remove?.('activeRun');
   } catch (e) {
+    try { run.llmCalls = (run.llmCalls ?? 0) + (graphRef?.llmCalls?.() ?? 0); await area.set({ activeRun: run }); } catch { /* 무시 */ }
     $('error').hidden = false;
     $('error').textContent = `실행이 멈췄어요: ${e.message}`;
     // 진단 정보: 형식 오류 때 LLM이 실제로 준 응답과 페이지에서 읽은 사이즈표 글자 (복사해서 확인용)
@@ -182,6 +186,42 @@ async function execute(run, resume) {
   } finally {
     $('start').disabled = false;
   }
+}
+
+// ── 실행 기록: 추천까지 나온 실제 실행만 쌓고 CSV로 내보낸다 (보고서·발표 결과표용, "맞았나"는 직접 표시) ──
+const LOG_KEY = 'runLog';
+const SRC = { ok: '사이즈표', from_sku: '옵션 표기', uncertain: '사이즈표(확인 필요)', source_anomaly: '사이즈표(원본 이상)' };
+async function appendRunLog(v, run) {
+  const r = v.recommendation, c = seen[r.productId] ?? {};
+  const entry = {
+    시각: new Date().toLocaleString('ko-KR'), 요청: run.query, 쇼핑몰: run.platform === '1688' ? '1688' : '타오바오',
+    상품명: c.title ?? '', 상품명_원문: c.titleZh ?? '', 상품주소: c.url ?? '',
+    추천사이즈: r.size ?? '', 판정: r.verdict, 판정근거출처: SRC[r.specStatus] ?? r.specStatus ?? '', 근거: r.rationale ?? '',
+    작업시간_초: activeSec(v).toFixed(1), 분석한상품수: v.analyzed.length, 검색라운드: v.round, LLM호출수: run.llmCalls ?? '',
+    검색어: (v.usedQueries ?? []).join(' → '), 맞았나_OX: '',
+  };
+  const { runLog = [] } = await area.get(LOG_KEY);
+  runLog.push(entry);
+  await area.set({ [LOG_KEY]: runLog });
+  renderLogCount(runLog.length);
+}
+function renderLogCount(n) { $('logCount').textContent = n; }
+// 저장소가 키 순서를 바꾸므로 열 순서를 고정
+const LOG_COLS = ['시각', '요청', '쇼핑몰', '상품명', '상품명_원문', '상품주소', '추천사이즈', '판정', '판정근거출처', '근거', '작업시간_초', '분석한상품수', '검색라운드', 'LLM호출수', '검색어', '맞았나_OX'];
+function toCsv(rows) {
+  const cols = LOG_COLS;
+  const cell = (x) => `"${String(x ?? '').replace(/"/g, '""')}"`;
+  return [cols.map(cell).join(','), ...rows.map((r) => cols.map((k) => cell(r[k])).join(','))].join('\r\n');
+}
+async function exportRunLog() {
+  const { runLog = [] } = await area.get(LOG_KEY);
+  if (!runLog.length) return;
+  const d = new Date(), z = (n) => String(n).padStart(2, '0');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + toCsv(runLog)], { type: 'text/csv;charset=utf-8' }));   // BOM: 엑셀에서 한글 깨짐 방지
+  a.download = `실행기록_${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
 function syncMode() {
@@ -207,6 +247,13 @@ async function init() {
     setTimeout(() => ($('saved').textContent = ''), 1500);
   };
 
+  renderLogCount(((await area.get(LOG_KEY)).runLog ?? []).length);
+  $('logExport').onclick = exportRunLog;
+  $('logClear').onclick = async () => {
+    if ($('logClear').dataset.armed) { await area.set({ [LOG_KEY]: [] }); renderLogCount(0); $('logClear').textContent = '비우기'; delete $('logClear').dataset.armed; return; }
+    $('logClear').dataset.armed = '1'; $('logClear').textContent = '한 번 더 누르면 비워요';         // 실수로 지우지 않게 두 번 누르기
+    setTimeout(() => { delete $('logClear').dataset.armed; $('logClear').textContent = '비우기'; }, 3000);
+  };
   saver = await ChromeStorageSaver.load(area);
   const { activeRun } = await area.get('activeRun');
   if (activeRun) {

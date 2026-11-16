@@ -48,3 +48,5 @@ table.spec { border-collapse: collapse; width: 100%; margin: 6px 0; font-size: 1
 table.spec th, table.spec td { border: 1px solid var(--line); padding: 3px 6px; text-align: center; }
 table.spec th { background: #f3f4f6; font-weight: 600; }
 table.spec tr.hit td { background: #eff6ff; font-weight: 700; }
+.runlog { margin-top: 8px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.runlog button { padding: 3px 8px; font-size: 12px; }
