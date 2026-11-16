@@ -86,7 +86,7 @@ export function makeDetailNodes({ llm, browser }) {
         } catch (e) {
           // 혼잡(503·429)·시간 초과는 실행을 멈추지 않고 이 상품만 '읽기 실패'로 → 다른 후보를 고르게 한다. 키 오류·형식 오류(진단 표시)는 멈춤
           if (!e.retryable) throw e;
-          return { current: { ...c, spec: null, llmFailed: `${e.code ?? ''} ${e.message}`.trim().slice(0, 120), extractAttempts: c.extractAttempts + 1 } };
+          return { current: { ...c, spec: null, llmFailed: `${e.code ?? ''} ${e.message}`.trim().slice(0, 120), llmLimit: e.code === 429, extractAttempts: c.extractAttempts + 1 } };
         }
       }
       return { current: { ...c, prevKey: stableKey(c.spec), spec, extractAttempts: c.extractAttempts + 1 } };
@@ -106,6 +106,7 @@ export function makeDetailNodes({ llm, browser }) {
       const spec = c.spec ?? fromSku;
       let r;
       if (!c.imageUrls.length && !c.sizeTableText && !spec) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
+      else if (c.llmFailed && !spec && c.llmLimit) r = { verdict: '부적합', unfitReason: 'LLM_LIMIT', reason: ['LLM 무료 사용량 한도(429)에 걸려 사이즈표를 읽지 못했어요. 하루 한도는 한국 시간 오후 5시(서머타임 기간엔 4시)에 초기화돼요'] };
       else if (c.llmFailed && !spec) r = { verdict: '부적합', unfitReason: 'LLM_FAILED', reason: ['LLM 서버가 혼잡해 사이즈표를 읽지 못했어요. 다른 후보를 고르거나 잠시 뒤 다시 시도해 주세요'] };
       else if (!spec && c.checkedImages && !c.sizeImages?.length && c.letterOnly) r = { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN', reason: [`사이즈표가 없어요 (옵션이 S/M/L 같은 글자 사이즈뿐이고, 이미지 ${c.checkedImages}장 중 표로 보이는 것도 없음)`] };
       else if (!spec && c.checkedImages && !c.sizeImages?.length) r = { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN', reason: [`사이즈표가 없어요 (옵션에 사이즈 정보가 없고, 이미지 ${c.checkedImages}장 중 표로 보이는 것도 없음)`] };

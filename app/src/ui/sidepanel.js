@@ -23,7 +23,7 @@ const safeUrl = (u) => (/^https:\/\//.test(u ?? '') ? esc(u) : '');
 const won = (n) => (n == null ? '' : `약 ${Math.round(n).toLocaleString()}원`);
 
 const MOCK_DELAY = 350;
-const REASON = { SIZE_OUT_OF_RANGE: '맞는 사이즈 없음', SIZE_SOLD_OUT: '맞는 사이즈 품절', SPEC_UNKNOWN: '사이즈 정보 없음', CONDITION_MISMATCH: '예산·소재 불일치', FETCH_FAILED: '상세 페이지 수집 실패', LLM_FAILED: 'LLM 혼잡으로 사이즈표 읽기 실패' };
+const REASON = { SIZE_OUT_OF_RANGE: '맞는 사이즈 없음', SIZE_SOLD_OUT: '맞는 사이즈 품절', SPEC_UNKNOWN: '사이즈 정보 없음', CONDITION_MISMATCH: '예산·소재 불일치', FETCH_FAILED: '상세 페이지 수집 실패', LLM_FAILED: 'LLM 혼잡으로 사이즈표 읽기 실패', LLM_LIMIT: 'LLM 사용량 한도(429)로 사이즈표 읽기 실패' };
 const STATUS = { ok: '통과', uncertain: '확인 필요(재추출 상한)', source_anomaly: '원본 이상', retry: '오류 → 다시 읽기', from_sku: '사이즈표 없음 → 옵션 표기로 판정' };
 
 const seen = {};                                                  // 상품 id → 화면 표시용 정보
@@ -44,7 +44,7 @@ function describe(node, u) {
     case 'awaitSelection': return '선택한 상품을 확인했어요';
     case 'fetchDetail': return u.current.specSource === 'sku' ? `상세 페이지를 읽었어요 · 옵션 ${u.current.skus.length}개에 사이즈 정보가 있어 사이즈표는 건너뛰어요` : `상세 페이지를 읽었어요 · 이미지 ${u.current.imageUrls.length}장${u.current.skus?.length ? `, 옵션 ${u.current.skus.length}개` : ''}`;
     case 'selectSizeImages': return u.current.sizeTableText ? '페이지에서 사이즈표(표)를 찾았어요' : u.current.sizeImages?.length ? `이미지 ${u.current.checkedImages ?? u.current.sizeImages.length}장 중 표처럼 보이는 ${u.current.sizeImages.length}장을 골랐어요` : `이미지 ${u.current.checkedImages ?? 0}장 중 사이즈표로 보이는 것이 없어요${u.current.letterOnly ? ' (옵션도 S/M/L뿐)' : ''} → LLM 호출 안 함`;
-    case 'extractSpec': return u.current.spec ? `사이즈표를 읽었어요 (${u.current.extractAttempts}회차) · 사이즈 ${u.current.spec.variants[0].sizes.map((x) => x.label).join('/')}` : u.current.llmFailed ? `LLM 오류로 이 상품은 건너뛰어요 (${u.current.llmFailed.slice(0, 40)})` : '이미지에서 사이즈표를 찾지 못했어요';
+    case 'extractSpec': return u.current.spec ? `사이즈표를 읽었어요 (${u.current.extractAttempts}회차) · 사이즈 ${u.current.spec.variants[0].sizes.map((x) => x.label).join('/')}` : u.current.llmFailed ? (u.current.llmLimit ? 'LLM 사용량 한도(429) → 이 상품은 건너뛰어요' : `LLM 오류로 이 상품은 건너뛰어요 (${u.current.llmFailed.slice(0, 40)})`) : '이미지에서 사이즈표를 찾지 못했어요';
     case 'validateSpec': return `검증: ${STATUS[u.current.status]}${u.current.errors.length ? ` — ${u.current.errors[0]}` : ''}`;
     case 'judgeFit': { const r = u.results[0]; return `판정: ${r.verdict}${r.unfitReason ? ` (${REASON[r.unfitReason]})` : r.size ? ` · ${r.size}` : ''}`; }
     case 'analyzeFailure': return '후보를 모두 확인했지만 맞는 상품이 없어요';

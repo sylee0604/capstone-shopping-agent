@@ -257,3 +257,12 @@ test('D23 글자 사이즈만 있는 옵션 판별', async () => {
   assert.equal(letterSizesOnly(L('175/92A', 'L')), false);
   assert.equal(letterSizesOnly(L('黑色', '白色')), false);
 });
+
+test('D24 사용량 한도(429)면 재시도 없이 그 상품만 LLM_LIMIT → 남은 후보 선택', async () => {
+  let first = true;
+  const llm = { calls: [], async json(req) { this.calls.push(req); if (first) { first = false; throw Object.assign(new Error('Gemini 오류 429 (무료 사용량 한도)'), { code: 429, retryable: true }); } return req.schema.parse(KIDS); } };
+  const v = await runAll(llm, fakeBrowser({ products: [{ id: 'p1', salesNum: 900 }, { id: 'p2', salesNum: 100 }] }));
+  assert.equal(v.results[0].unfitReason, 'LLM_LIMIT');
+  assert.match(v.results[0].reason[0], /사용량 한도/);
+  assert.equal(v.recommendation.productId, 'p2');
+});

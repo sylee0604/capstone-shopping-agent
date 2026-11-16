@@ -30,8 +30,13 @@ test('L2 JSON 응답을 스키마로 검사해 돌려줌, 키는 헤더로만 �
   assert.equal(llm.usage.inputTokens, 10);
 });
 
-test('L3 429·503은 짧게 기다렸다 재시도, 400은 바로 실패', async () => {
-  const f = fakeFetch([fail(429), fail(503), ok('{"category":"하의","heightCm":null}')]);
+test('L3 503은 짧게 기다렸다 재시도, 429(사용량 한도)·400은 바로 실패', async () => {
+  const h = fakeFetch([fail(429), ok('{}')]);
+  const llm0 = makeLlm({ apiKey: 'K', model: 'm', fetchFn: h.fn, sleep: noSleep });
+  await assert.rejects(llm0.json({ prompt: 'p', schema: Schema }), (e) => e.code === 429 && e.retryable);
+  assert.equal(h.calls.length, 1);
+
+  const f = fakeFetch([fail(503), fail(503), ok('{"category":"하의","heightCm":null}')]);
   const waited = [];
   const llm = makeLlm({ apiKey: 'K', model: 'm', fetchFn: f.fn, sleep: async (ms) => waited.push(ms) });
   assert.equal((await llm.json({ prompt: 'p', schema: Schema })).category, '하의');

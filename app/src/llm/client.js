@@ -23,7 +23,7 @@ export function makeLlm({ provider = 'gemini', waits = [2000, 5000], sleep = (ms
   const p = make(opts);
   const usage = { calls: 0, retries: 0, repairs: 0, inputTokens: 0, outputTokens: 0 };
 
-  // 혼잡(429·5xx)·네트워크 오류만 재시도, 나머지(키 오류 등)는 바로 실패
+  // 혼잡(5xx)·네트워크 오류만 재시도. 429(사용량 한도)는 기다려도 풀리지 않는 경우가 많아 바로 넘긴다(상품 분석이면 다른 후보로). 키 오류 등도 바로 실패
   async function generate(req) {
     for (let attempt = 0; ; attempt++) {
       try {
@@ -33,7 +33,7 @@ export function makeLlm({ provider = 'gemini', waits = [2000, 5000], sleep = (ms
         usage.outputTokens += r.usage?.outputTokens ?? 0;
         return r.text;
       } catch (e) {
-        if (!(e instanceof LlmError) || !e.retryable || attempt >= waits.length) throw e;
+        if (!(e instanceof LlmError) || !e.retryable || e.code === 429 || attempt >= waits.length) throw e;
         usage.retries++;
         onRetry?.({ attempt: attempt + 1, code: e.code, waitMs: waits[attempt] });
         await sleep(waits[attempt]);
