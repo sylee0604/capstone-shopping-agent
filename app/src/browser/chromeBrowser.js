@@ -4,6 +4,43 @@ import { scrapeTaobao, scrape1688, scrollPage, countCards, scrapeDetail } from '
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/** 이미지가 표처럼 보이는지 (chartLike의 계산부, 테스트용으로 분리) */
+export function looksLikeChart(bmp, W = 120) {
+  const H = Math.max(1, Math.round(bmp.height * (W / bmp.width)));
+  const c = new OffscreenCanvas(W, H);
+  const ctx = c.getContext('2d');
+  ctx.drawImage(bmp, 0, 0, W, H);
+  const px = ctx.getImageData(0, 0, W, H).data;
+  return bandsLookLikeChart(px, W, H);
+}
+export function bandsLookLikeChart(px, W, H) {
+  const at = (x, y) => (y * W + x) * 4;
+  for (let y0 = 0; y0 < Math.max(1, H - W / 2); y0 += W) {
+    const y1 = Math.min(H, y0 + W);
+    if (y1 - y0 < 20) continue;
+    let low = 0, n = 0, edges = 0, m = 0;
+    const colHit = new Uint8Array(W), rowHit = new Uint8Array(y1 - y0);
+    for (let y = y0; y < y1; y++) {
+      for (let x = 0; x < W; x++) {
+        const i = at(x, y), r = px[i] / 255, g = px[i + 1] / 255, b = px[i + 2] / 255;
+        const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+        if ((mx > 0 ? (mx - mn) / mx : 0) < 0.25) low++;
+        n++;
+        if (x < W - 1 && y < y1 - 1) {
+          const gray = (r + g + b) / 3;
+          const j = at(x + 1, y), k = at(x, y + 1);
+          const gx = Math.abs(gray - (px[j] + px[j + 1] + px[j + 2]) / 765), gy = Math.abs(gray - (px[k] + px[k + 1] + px[k + 2]) / 765);
+          m++;
+          if (Math.max(gx, gy) > 0.16) { edges++; colHit[x] = 1; rowHit[y - y0] = 1; }
+        }
+      }
+    }
+    const dens = edges / m, cols = colHit.reduce((a, v) => a + v, 0) / W, rows = rowHit.reduce((a, v) => a + v, 0) / (y1 - y0);
+    if (low / n >= 0.7 && dens >= 0.04 && dens <= 0.5 && cols >= 0.5 && rows >= 0.3) return true;
+  }
+  return false;
+}
+
 // 큰 이미지도 스택이 넘치지 않게 나눠서 base64로 변환
 export function toBase64(buf) {
   const a = new Uint8Array(buf);
@@ -103,6 +140,22 @@ export function makeChromeBrowser({ chrome = globalThis.chrome, fetchFn = global
           const jpg = await c.convertToBlob({ type: 'image/jpeg', quality: 0.85 });
           out.push({ url, mimeType: 'image/jpeg', base64: toBase64(await jpg.arrayBuffer()) });
         } catch { /* 못 불러온 이미지는 건너뜀 */ }
+      }
+      return out;
+    },
+
+    /**
+     * 사이즈표처럼 보이는지 빠르게 판별 (LLM 없이 이 컴퓨터에서 계산).
+     * 폭 120px로 줄여 정사각형 띠로 나누고, 채도가 낮고(흰·회색·검정 배경) 글자·선 같은 경계가 고르게 퍼진 띠가 하나라도 있으면 true.
+     * 사이즈표 이미지 25장으로 맞춘 기준: 25장 모두 통과, 옷 사진(채도 높음 / 흰 배경 + 옷 덩어리)은 걸러짐.
+     */
+    async chartLike(urls) {
+      const out = {};
+      for (const url of urls) {
+        try {
+          const bmp = await createImageBitmap(await (await fetchFn(url)).blob());
+          out[url] = looksLikeChart(bmp);
+        } catch { out[url] = true; }          // 판별 실패 시에는 LLM에게 맡긴다 (놓치지 않는 쪽)
       }
       return out;
     },

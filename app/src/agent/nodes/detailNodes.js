@@ -50,7 +50,12 @@ export function makeDetailNodes({ llm, browser }) {
 
     async selectSizeImages(s) {
       // 페이지에서 사이즈표를 글자로 읽었으면 이미지는 보내지 않는다 (더 정확하고 토큰도 적음)
-      return { current: { ...s.current, sizeImages: s.current.sizeTableText ? [] : pickSizeImages(s.current.images ?? []) } };
+      if (s.current.sizeTableText) return { current: { ...s.current, sizeImages: [] } };
+      // 후보를 넉넉히 고른 뒤, 표처럼 보이는 이미지만 남긴다 (LLM 없이). 하나도 없으면 LLM을 부르지 않고 '사이즈표 없음'
+      const cands = pickSizeImages(s.current.images ?? [], 12);
+      const look = browser.chartLike ? await browser.chartLike(cands) : Object.fromEntries(cands.map((u) => [u, true]));
+      const sizeImages = cands.filter((u) => look[u]).slice(0, MAX_SIZE_IMAGES);
+      return { current: { ...s.current, sizeImages, checkedImages: cands.length } };
     },
 
     async extractSpec(s) {
@@ -82,6 +87,7 @@ export function makeDetailNodes({ llm, browser }) {
       const spec = c.spec ?? fromSku;
       let r;
       if (!c.imageUrls.length && !c.sizeTableText && !spec) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
+      else if (!spec && c.checkedImages && !c.sizeImages?.length) r = { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN', reason: [`사이즈표가 없어요 (옵션에 사이즈 정보가 없고, 이미지 ${c.checkedImages}장 중 표로 보이는 것도 없음)`] };
       else {
         // "110 사이즈"처럼 사이즈를 직접 말했으면(키는 말하지 않음) 그 사이즈를 우선
         r = (it.heightFrom === 'sizeLabel' && judgeWanted(spec, it.sizeLabel, c.skus)) || judgeFit(spec, { heightCm: it.heightCm, weightKg: it.weightKg, ageGroup: it.ageGroup }, c.skus);

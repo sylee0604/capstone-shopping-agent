@@ -43,7 +43,7 @@ function describe(node, u) {
     case 'rankCandidates': u.candidates.forEach((c) => (seen[c.id] = c)); return `후보 ${u.candidates.length}개를 골랐어요`;
     case 'awaitSelection': return '선택한 상품을 확인했어요';
     case 'fetchDetail': return u.current.specSource === 'sku' ? `상세 페이지를 읽었어요 · 옵션 ${u.current.skus.length}개에 사이즈 정보가 있어 사이즈표는 건너뛰어요` : `상세 페이지를 읽었어요 · 이미지 ${u.current.imageUrls.length}장${u.current.skus?.length ? `, 옵션 ${u.current.skus.length}개` : ''}`;
-    case 'selectSizeImages': return u.current.sizeTableText ? '페이지에서 사이즈표(표)를 찾았어요' : u.current.sizeImages?.length ? `사이즈표 후보 이미지 ${u.current.sizeImages.length}장을 골랐어요` : '사이즈표 후보 이미지가 없어요';
+    case 'selectSizeImages': return u.current.sizeTableText ? '페이지에서 사이즈표(표)를 찾았어요' : u.current.sizeImages?.length ? `이미지 ${u.current.checkedImages ?? u.current.sizeImages.length}장 중 표처럼 보이는 ${u.current.sizeImages.length}장을 골랐어요` : `이미지 ${u.current.checkedImages ?? 0}장 중 사이즈표로 보이는 것이 없어요 (LLM 호출 안 함)`;
     case 'extractSpec': return u.current.spec ? `사이즈표를 읽었어요 (${u.current.extractAttempts}회차) · 사이즈 ${u.current.spec.variants[0].sizes.map((x) => x.label).join('/')}` : '이미지에서 사이즈표를 찾지 못했어요';
     case 'validateSpec': return `검증: ${STATUS[u.current.status]}${u.current.errors.length ? ` — ${u.current.errors[0]}` : ''}`;
     case 'judgeFit': { const r = u.results[0]; return `판정: ${r.verdict}${r.unfitReason ? ` (${REASON[r.unfitReason]})` : r.size ? ` · ${r.size}` : ''}`; }

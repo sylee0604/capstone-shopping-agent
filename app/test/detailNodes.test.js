@@ -204,3 +204,14 @@ test('D18 옵션에 사이즈 정보가 있으면 사이즈표 추출(LLM)을 �
   assert.deepEqual([v.recommendation.size, v.recommendation.verdict], ['120', '적합']);
   assert.match(v.recommendation.rationale, /옵션에 적힌 사이즈 정보/);
 });
+
+test('D19 옵션은 S/M/L뿐이고 표처럼 보이는 이미지도 없으면 LLM을 부르지 않고 바로 "사이즈표 없음"', async () => {
+  const llm = fakeLlm([KIDS]);
+  const browser = fakeBrowser({ products: [{ id: 'p1', salesNum: 900 }, { id: 'p2', salesNum: 100 }], detail: { p1: { skus: ['S', 'M', 'L'].map((label) => ({ label, soldOut: false })) } } });
+  browser.chartLike = async (urls) => Object.fromEntries(urls.map((u) => [u, !u.includes('p1_')]));   // p1의 이미지는 모두 사진
+  const v = await runAll(llm, browser);
+  assert.equal(v.results[0].unfitReason, 'SPEC_UNKNOWN');
+  assert.match(v.results[0].reason[0], /표로 보이는 것도 없음/);
+  assert.equal(llm.calls.length, 1);                       // p1에서는 호출 없음, p2에서만 1회
+  assert.equal(v.recommendation.productId, 'p2');
+});
