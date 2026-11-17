@@ -97,8 +97,19 @@ const FIELDS = {
   height: { q: '키(cm)', html: () => '<input name="heightCm" type="number" min="50" max="220" required />' },
 };
 
+// 실행 중에 '시작'을 다시 누르면 지금 실행을 멈추고 새로 시작한다
+let runToken = 0, cancelPause = null, abortCtl = null;
+const cancelled = () => Object.assign(new Error('취소됨'), { cancelled: true });
+function stopCurrent() {
+  runToken++;
+  abortCtl?.abort(); abortCtl = null;
+  cancelPause?.(); cancelPause = null;
+  $('pause').hidden = true;
+}
+
 function onPause(node, state) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    cancelPause = () => reject(cancelled());
     const box = $('pause');
     box.hidden = false;
     if (node === 'askUser') {
@@ -157,22 +168,29 @@ function showResult(v, run) {
 }
 
 async function execute(run, resume) {
-  $('start').disabled = true; $('resume').hidden = true; $('result').hidden = true; $('error').hidden = true;
+  stopCurrent();
+  const my = runToken, ctl = new AbortController();
+  abortCtl = ctl;
+  const live = () => my === runToken;
+  $('start').textContent = '새로 시작'; $('resume').hidden = true; $('result').hidden = true; $('error').hidden = true;
   if (!resume) $('progress').innerHTML = '';
   t0 = performance.now(); steps = 0;
   try {
     const graph = await makeGraph(run);
     graphRef = graph;
     const final = await runAgent(graph, { request: { query: run.query, platform: run.platform, profile: run.profile } }, {
-      threadId: run.threadId, resume, onPause,
-      onUpdate: (chunk) => { for (const [n, u] of Object.entries(chunk)) if (!n.startsWith('__')) { steps++; log(describe(n, u ?? {})); } },
+      threadId: run.threadId, resume, signal: ctl.signal,
+      onPause: (node, st) => (live() ? onPause(node, st) : Promise.reject(cancelled())),
+      onUpdate: (chunk) => { if (!live()) return; for (const [n, u] of Object.entries(chunk)) if (!n.startsWith('__')) { steps++; log(describe(n, u ?? {})); } },
     });
+    if (!live()) return;
     showResult(final, run);
     run.llmCalls = (run.llmCalls ?? 0) + (graph.llmCalls?.() ?? 0);
     if (run.mode === 'real' && final.recommendation?.type === 'recommend') await appendRunLog(final, run);
     if (graph.llmModel?.()) { const st = await loadSettings(); if (st.model !== graph.llmModel()) await area.set({ settings: { ...st, model: graph.llmModel() } }); }
     await area.remove?.('activeRun');
   } catch (e) {
+    if (!live() || e.cancelled || e.name === 'AbortError') return;      // 새 요청으로 바뀐 이전 실행은 조용히 끝냄
     try { run.llmCalls = (run.llmCalls ?? 0) + (graphRef?.llmCalls?.() ?? 0); await area.set({ activeRun: run }); } catch { /* 무시 */ }
     $('error').hidden = false;
     $('error').textContent = `실행이 멈췄어요: ${e.message}`;
@@ -190,7 +208,7 @@ async function execute(run, resume) {
     $('resume').hidden = false;
     $('resume').textContent = '이어서 하기';
   } finally {
-    $('start').disabled = false;
+    if (live()) { $('start').textContent = '시작'; abortCtl = null; cancelPause = null; }
   }
 }
 
