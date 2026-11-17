@@ -133,12 +133,15 @@ export function makeChromeBrowser({ chrome = globalThis.chrome, fetchFn = global
     },
 
     /** 상세 페이지: 검색에 쓰던 탭에서 상품 페이지를 열고 이미지·SKU를 읽는다 */
-    async detail({ url, platform = 'taobao' }) {
+    // full: 이미 열린 상세 페이지를 다시 읽되, 옵션 지름길 없이 사이즈표·이미지까지 모두 읽는다 (페이지 이동 없음)
+    async detail({ url, platform = 'taobao', full = false }) {
       const tabId = await siteTab(SITES[platform] ?? SITES.taobao);
-      await chrome.tabs.update(tabId, { url });
-      await waitComplete(tabId, 20000);
-      await sleep(1500);
-      const d = (await exec(tabId, scrapeDetail)) ?? { images: [], skus: [] };
+      if (!full) {
+        await chrome.tabs.update(tabId, { url });
+        await waitComplete(tabId, 20000);
+        await sleep(1500);
+      }
+      const d = (await exec(tabId, scrapeDetail, [{ full }])) ?? { images: [], skus: [] };
       const now = (await chrome.tabs.get(tabId)).url ?? '';
       return { ...d, blocked: !d.images.length && /login|passport|punish|captcha/i.test(now) };
     },

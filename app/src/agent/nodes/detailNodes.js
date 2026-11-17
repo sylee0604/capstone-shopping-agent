@@ -45,8 +45,13 @@ export function makeDetailNodes({ llm, browser }) {
       const id = s.selectedId;
       const c = s.candidates.find((x) => x.id === id) ?? {};
       const platform = s.request.platform ?? 'taobao';
-      const d = await browser.detail({ url: c.url, platform });
+      let d = await browser.detail({ url: c.url, platform });
       if (d.blocked) throw new NeedsLoginError(platform);
+      // 페이지가 옵션에 사이즈 정보가 있다고 보고 사이즈표·이미지를 건너뛰었는데, 옵션으로 판정할 수 없으면 같은 페이지를 끝까지 다시 읽는다
+      if (d.skuRich) {
+        const sp = specFromSkus(d.skus);
+        if (!(sp && sp.variants[0].sizes.filter((r) => r.heightCm || r.weightKg).length >= 2)) d = { ...(await browser.detail({ url: c.url, platform, full: true })), reread: true };
+      }
       // 옵션 이름만으로 판정할 수 있으면(키·몸무게 범위나 호형이 적혀 있음) 사이즈표 추출(LLM)을 건너뛴다
       const skuSpec = specFromSkus(d.skus);
       const usable = skuSpec && skuSpec.variants[0].sizes.filter((r) => r.heightCm || r.weightKg).length >= 2 ? skuSpec : null;
@@ -57,7 +62,7 @@ export function makeDetailNodes({ llm, browser }) {
       return {
         analyzed: [id],
         current: { productId: id, url: c.url, pageUrl: d.url ?? null, pageTitle: (d.title || '').slice(0, 60), pageMismatch, title: c.title, images: d.images, imageUrls: d.images.map((x) => x.url), skus: d.skus, sizeTableText: d.sizeTableText || '', extractAttempts: 0, errors: [], status: usable ? 'from_sku' : null, spec: usable, specSource: usable ? 'sku' : null },
-        log: [{ node: 'fetchDetail', wantId, pageId, pageMismatch, images: d.images.length, skus: d.skus.length, sizeTable: Boolean(d.sizeTableText), sizeButton: d.sizeButton }],
+        log: [{ node: 'fetchDetail', reread: Boolean(d.reread), skuSample: d.skus.slice(0, 3).map((k) => k.label), wantId, pageId, pageMismatch, images: d.images.length, skus: d.skus.length, sizeTable: Boolean(d.sizeTableText), sizeButton: d.sizeButton }],
       };
     },
 
@@ -109,7 +114,9 @@ export function makeDetailNodes({ llm, browser }) {
       const fromSku = c.specSource === 'sku' ? c.spec : !c.spec ? specFromSkus(c.skus) : null;
       const spec = c.spec ?? fromSku;
       let r;
-      if (!c.imageUrls.length && !c.sizeTableText && !spec) r = { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지 이미지를 읽지 못했어요'] };
+      if (!c.imageUrls.length && !c.sizeTableText && !spec) r = c.skus?.length || c.pageTitle
+        ? { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN', reason: ['상세 페이지에서 사이즈표나 설명 이미지를 찾지 못했어요 (옵션에도 키·몸무게 정보 없음)'] }
+        : { verdict: '부적합', unfitReason: 'FETCH_FAILED', reason: ['상세 페이지를 읽지 못했어요'] };
       else if (c.llmFailed && !spec && c.llmLimit) r = { verdict: '부적합', unfitReason: 'LLM_LIMIT', reason: ['LLM 무료 사용량 한도(429)에 걸려 사이즈표를 읽지 못했어요. 하루 한도는 한국 시간 오후 5시(서머타임 기간엔 4시)에 초기화돼요'] };
       else if (c.llmFailed && !spec) r = { verdict: '부적합', unfitReason: 'LLM_FAILED', reason: ['LLM 서버가 혼잡해 사이즈표를 읽지 못했어요. 다른 후보를 고르거나 잠시 뒤 다시 시도해 주세요'] };
       else if (!spec && c.checkedImages && !c.sizeImages?.length && c.letterOnly) r = { verdict: '부적합', unfitReason: 'SPEC_UNKNOWN', reason: [`사이즈표가 없어요 (옵션이 S/M/L 같은 글자 사이즈뿐이고, 이미지 ${c.checkedImages}장 중 표로 보이는 것도 없음)`] };

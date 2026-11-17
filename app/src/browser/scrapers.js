@@ -117,7 +117,7 @@ export function countCards(selectors) {
 }
 
 // 상세 페이지: 상세 설명 이미지(순서대로)와 SKU(사이즈 선택지·품절 여부). 타오바오·티몰·1688 공통으로 넓게 찾는다.
-export async function scrapeDetail() {
+export async function scrapeDetail({ full = false } = {}) {
   const delay = (ms) => new Promise((r) => setTimeout(r, ms));
   const scrollDown = async (times) => {
     let prev = -1;
@@ -168,8 +168,9 @@ export async function scrapeDetail() {
     return { text: [...new Set(tables)].join('\n\n').slice(0, 8000), button: Boolean(btn) };
   };
   // 옵션 이름에 사이즈 정보(호형 175/84A, 身高·体重·推荐 …斤 등)가 2개 이상이면 사이즈표·상세 이미지는 찾지 않는다 (시간 절약)
-  const SKU_INFO = /\d{3}\s*\/\s*\d{2,3}|身高|体重|推荐|建议|\d\s*斤|\d\s*kg/i;
-  const skuRich = skus.filter((x) => SKU_INFO.test(x.label)).length >= 2;
+  // 숫자가 함께 있어야 사이즈 정보로 본다 ('建议拍大一码'처럼 숫자 없는 안내는 제외). full이면 이 지름길을 쓰지 않는다
+  const SKU_INFO = /\d{3}\s*\/\s*\d{2,3}|(身高|体重|推荐|建议)[^\d]{0,6}\d{2,3}|\d{2,3}\s*[-~～到至]\s*\d{2,3}\s*(斤|kg|公斤|cm)/i;
+  const skuRich = !full && skus.filter((x) => SKU_INFO.test(x.label)).length >= 2;
   if (skuRich) {
     const title0 = pageTitle();
     return { title: title0, images: [], skus, sizeTableText: '', sizeButton: false, skuRich: true, url: location.href };

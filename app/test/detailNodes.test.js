@@ -273,3 +273,29 @@ test('D25 옵션 사이즈 목록: 키·몸무게가 적힌 옵션이 있으면 
   const sp = specFromSkus(skus);
   assert.deepEqual(sp.variants[0].sizes.map((r) => r.label), ['170/88A', '175/92A', '180/100A']);
 });
+
+test('D26 옵션에 사이즈 정보가 있어 보였지만(建议拍大一码 등) 판정할 수 없으면 같은 페이지를 끝까지 다시 읽어 사이즈표 추출', async () => {
+  const llm = fakeLlm([KIDS]);
+  const browser = fakeBrowser({ products: [{ id: 'p1' }] });
+  const calls = [];
+  const full = await browser.detail({ url: 'https://item.taobao.com/item.htm?id=p1' });
+  browser.detail = async (a) => {
+    calls.push(Boolean(a.full));
+    const skus = ['S【建议拍大一码】', 'M【建议拍大一码】'].map((label) => ({ label, soldOut: false }));
+    return a.full ? { ...full, skus } : { images: [], skus, skuRich: true, blocked: false };
+  };
+  const v = await runAll(llm, browser);
+  assert.deepEqual(calls, [false, true]);
+  assert.equal(llm.calls.length, 1);
+  assert.equal(v.recommendation.size, '120');
+});
+
+test('D27 페이지는 읽었는데 사이즈표·이미지가 없으면 "수집 실패"가 아니라 "사이즈 정보 없음"', async () => {
+  const llm = fakeLlm([KIDS]);
+  const browser = fakeBrowser({ products: [{ id: 'p1', salesNum: 900 }, { id: 'p2', salesNum: 100 }] });
+  const detail = browser.detail;
+  browser.detail = async (a) => (a.url.includes('p1') ? { images: [], skus: [{ label: 'S' }, { label: 'M' }], title: '某商品', blocked: false } : detail(a));
+  const v = await runAll(llm, browser);
+  assert.equal(v.results[0].unfitReason, 'SPEC_UNKNOWN');
+  assert.match(v.results[0].reason[0], /사이즈표나 설명 이미지를 찾지 못했어요/);
+});
