@@ -120,23 +120,36 @@ test('D9 사이즈표 없음({"none":true}) → 부적합(SPEC_UNKNOWN) → 남�
   assert.equal(v.recommendation.productId, 'p2');
 });
 
-test('D10 페이지의 사이즈표(HTML 표)를 글자로 읽었으면 코드로 바로 읽음 (LLM·이미지 없음), 못 읽는 모양이면 LLM에 글자로', async () => {
+test('D10 페이지의 글자 사이즈표에 키·몸무게 칸이 있으면 LLM이 글자로 읽음 (이미지 없음), LLM이 실패하면 코드로 읽은 결과로', async () => {
+  const TXT = '尺码 | 身高 | 体重\n110 | 106-115 | 16-20\n120 | 116-125 | 19-24';
   const llm = fakeLlm([KIDS]);
   const browser = fakeBrowser({ products: [{ id: 'p1' }] });
   const detail = browser.detail;
-  browser.detail = async (a) => ({ ...(await detail(a)), sizeTableText: '尺码 | 身高 | 体重\n110 | 106-115 | 16-20\n120 | 116-125 | 19-24' });
+  browser.detail = async (a) => ({ ...(await detail(a)), sizeTableText: TXT });
   const v = await runAll(llm, browser);
-  assert.equal(llm.calls.length, 0);
+  assert.equal(llm.calls.length, 1);
+  assert.equal(llm.calls[0].images.length, 0);
+  assert.match(llm.calls[0].prompt, /글자로 옮긴 것[\s\S]*116-125/);
   assert.equal(browser.loaded.length, 0);
   assert.equal(v.recommendation.size, '120');
 
-  const llm2 = fakeLlm([KIDS]);
+  const busy = { calls: [], async json(req) { this.calls.push(req); throw Object.assign(new Error('Gemini 오류 503'), { code: 503, retryable: true }); } };
   const b2 = fakeBrowser({ products: [{ id: 'p1' }] });
   const d2 = b2.detail;
-  b2.detail = async (a) => ({ ...(await d2(a)), sizeTableText: '尺码表\n110 106-115 16-20\n120 116-125 19-24' });   // 칸 구분이 없는 덩어리
-  await runAll(llm2, b2);
-  assert.equal(llm2.calls[0].images.length, 0);
-  assert.match(llm2.calls[0].prompt, /글자로 옮긴 것[\s\S]*116-125/);
+  b2.detail = async (a) => ({ ...(await d2(a)), sizeTableText: TXT });
+  const v2 = await runAll(busy, b2);
+  assert.equal(busy.calls.length, 1);
+  assert.equal(v2.recommendation.size, '120');                  // 코드로 읽은 표로 판정
+});
+
+test('D10-1 글자 표가 실측 치수뿐이고 더 볼 이미지도 없으면 LLM 없이 코드 결과로', async () => {
+  const llm = fakeLlm([]);
+  const browser = fakeBrowser({ products: [{ id: 'p1' }], detail: { p1: { images: [] } } });
+  const detail = browser.detail;
+  browser.detail = async (a) => ({ ...(await detail(a)), sizeTableText: '尺码 | 衣长 | 胸围\nM | 68 | 112\nL | 70 | 116' });
+  const v = await runAll(llm, browser);
+  assert.equal(llm.calls.length, 0);
+  assert.equal(v.recommendation.verdict, '경계');
 });
 
 test('D11 호형(175/96A) 표: 키 179cm → 가장 가까운 큰 사이즈(180), 표에 없으면 옵션(SKU)에서 보탬', () => {

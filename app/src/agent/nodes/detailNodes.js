@@ -100,9 +100,10 @@ export function makeDetailNodes({ llm, browser }) {
 
     async extractSpec(s) {
       const c = s.current;
-      // 페이지의 사이즈표가 글자 표면 먼저 코드로 읽는다 (LLM 없음). 못 읽거나 검증에서 문제가 나면 LLM으로
+      // 페이지의 글자 표: 키·몸무게 칸이 있으면 LLM이 읽는다 (코드가 읽은 결과는 LLM 실패 시 대신 씀).
+      // 실측 치수만 있고 더 볼 이미지도 없으면 LLM이 더 알아낼 것이 없어 코드 결과를 바로 쓴다
       const tableSpec = c.sizeTableText ? parseTableText(c.sizeTableText) : null;
-      if (tableSpec && !c.errors?.length && c.specSource !== 'table' && (hasFit(tableSpec) || !c.sizeImages?.length)) {
+      if (tableSpec && !c.errors?.length && c.specSource !== 'table' && !hasFit(tableSpec) && !c.sizeImages?.length) {
         return { current: { ...c, prevKey: null, spec: tableSpec, specSource: 'table', extractAttempts: c.extractAttempts + 1 } };
       }
       // 5장 이상이면 작게 줄여 보냄 (폭 800px·높이 2000px 안: 표 글자는 읽히고 응답은 덜 느려짐)
