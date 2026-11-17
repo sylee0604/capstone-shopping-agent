@@ -7,6 +7,7 @@ import { NeedsLoginError } from './searchNodes.js';
 
 const SIZE_WORDS = /尺码|尺寸|码数|尺碼|size|参考|身高|体重|胸围|衣长|裤长|裙长/i;
 export const MAX_SIZE_IMAGES = 4;          // LLM에 보내는 이미지 수 (적을수록 빠르고 혼잡 오류도 덜 남)
+export const MAX_SIZE_IMAGES_MANY = 8;     // 표처럼 보이는 이미지가 많을 때(5장 이상)는 작게 줄여 8장까지 한 번에 보냄
 
 /** 사이즈표일 가능성이 높은 이미지 고르기 (코드). 한 번의 LLM 호출에 함께 넣어 LLM이 그중 사이즈표를 읽게 한다. */
 export function pickSizeImages(images, max = MAX_SIZE_IMAGES) {
@@ -77,11 +78,15 @@ export function makeDetailNodes({ llm, browser }) {
       const score = (u) => (look[u] === true ? 1 : +look[u] || 0);
       const level = (u) => Math.floor(score(u));
       // '표'가 여러 장이면 표다운 순서로 최대 4장 → 페이지 순서로 되돌려 보냄 (이어진 표 대비)
-      const strict = cands.filter((u) => level(u) >= 2).sort((a, b) => score(b) - score(a));
+      // 이미지 주변 글자·대체 텍스트에 사이즈 관련 말(尺码 등)이 있으면 우선
+      const near = Object.fromEntries((s.current.images ?? []).map((x) => [x.url, SIZE_WORDS.test(`${x.alt ?? ''} ${x.near ?? ''}`) ? 1 : 0]));
+      const strict = cands.filter((u) => level(u) >= 2).sort((a, b) => (near[b] ?? 0) - (near[a] ?? 0) || score(b) - score(a));
       const maybe = cands.filter((u) => level(u) === 1);
       const letterOnly = letterSizesOnly(s.current.skus);
       const order = (u) => cands.indexOf(u);
-      const sizeImages = (strict.length ? strict : letterOnly ? [] : maybe).slice(0, MAX_SIZE_IMAGES).sort((a, b) => order(a) - order(b));
+      const pool = strict.length ? strict : letterOnly ? [] : maybe;
+      const max = pool.length > MAX_SIZE_IMAGES ? MAX_SIZE_IMAGES_MANY : MAX_SIZE_IMAGES;
+      const sizeImages = pool.slice(0, max).sort((a, b) => order(a) - order(b));
       const all = (s.current.images ?? []).map((x) => x.url);
       const pickedIdx = sizeImages.map((u) => all.indexOf(u) + 1);
       return { current: { ...s.current, sizeImages, checkedImages: cands.length, strictCount: strict.length, pickedIdx, letterOnly } };
@@ -89,7 +94,8 @@ export function makeDetailNodes({ llm, browser }) {
 
     async extractSpec(s) {
       const c = s.current;
-      const images = c.sizeTableText ? [] : await browser.loadImages(c.sizeImages);
+      // 5장 이상이면 작게 줄여 보냄 (폭 800px·높이 2000px 안: 표 글자는 읽히고 응답은 덜 느려짐)
+      const images = c.sizeTableText ? [] : await browser.loadImages(c.sizeImages, c.sizeImages.length > MAX_SIZE_IMAGES ? { maxW: 800, maxH: 2000 } : undefined);
       const tableNote = c.sizeTableText ? `\n\n[상품 페이지의 사이즈표를 글자로 옮긴 것 — 이미지 대신 이 표를 읽어라]\n${c.sizeTableText}` : '';
       const feedback = c.errors?.length
         ? `\n\n[이전 답변에서 발견된 문제]\n- ${c.errors.join('\n- ')}\n이미지를 다시 확인해 고쳐서 전체 JSON을 다시 출력하라. 원본이 실제로 그렇다면 그대로 두어도 된다.`
