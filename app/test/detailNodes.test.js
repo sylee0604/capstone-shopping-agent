@@ -120,16 +120,23 @@ test('D9 사이즈표 없음({"none":true}) → 부적합(SPEC_UNKNOWN) → 남�
   assert.equal(v.recommendation.productId, 'p2');
 });
 
-test('D10 페이지의 사이즈표(HTML 표)를 글자로 읽었으면 이미지 없이 글자로 추출', async () => {
+test('D10 페이지의 사이즈표(HTML 표)를 글자로 읽었으면 코드로 바로 읽음 (LLM·이미지 없음), 못 읽는 모양이면 LLM에 글자로', async () => {
   const llm = fakeLlm([KIDS]);
   const browser = fakeBrowser({ products: [{ id: 'p1' }] });
   const detail = browser.detail;
   browser.detail = async (a) => ({ ...(await detail(a)), sizeTableText: '尺码 | 身高 | 体重\n110 | 106-115 | 16-20\n120 | 116-125 | 19-24' });
   const v = await runAll(llm, browser);
-  assert.equal(llm.calls[0].images.length, 0);
-  assert.match(llm.calls[0].prompt, /글자로 옮긴 것[\s\S]*116-125/);
+  assert.equal(llm.calls.length, 0);
   assert.equal(browser.loaded.length, 0);
   assert.equal(v.recommendation.size, '120');
+
+  const llm2 = fakeLlm([KIDS]);
+  const b2 = fakeBrowser({ products: [{ id: 'p1' }] });
+  const d2 = b2.detail;
+  b2.detail = async (a) => ({ ...(await d2(a)), sizeTableText: '尺码表\n110 106-115 16-20\n120 116-125 19-24' });   // 칸 구분이 없는 덩어리
+  await runAll(llm2, b2);
+  assert.equal(llm2.calls[0].images.length, 0);
+  assert.match(llm2.calls[0].prompt, /글자로 옮긴 것[\s\S]*116-125/);
 });
 
 test('D11 호형(175/96A) 표: 키 179cm → 가장 가까운 큰 사이즈(180), 표에 없으면 옵션(SKU)에서 보탬', () => {
@@ -308,4 +315,19 @@ test('D28 표처럼 보이는 이미지가 많으면 표다운 순서로 골라 
   browser.chartLike = async (urls) => Object.fromEntries(urls.map((u) => [u, sc[u.split('_')[1][0]]]));
   await runAll(llm, browser);
   assert.deepEqual(browser.loaded[0].map((u) => u.split('_')[1][0]), ['a', 'b', 'c', 'd', 'f', 'g', 'j', 'k']);   // 10장 중 점수 높은 8장 (h·i 제외)
+});
+
+test('D29 글자 표 읽기: 가로·세로 표, 斤 단위, 호형 키, 단면(宽)/둘레(围)', async () => {
+  const { parseTableText } = await import('../src/agent/tableText.js');
+  const a = parseTableText('尺码 | 身高(cm) | 体重(斤) | 胸围 | 衣长\nM | 165-170 | 110-125 | 108 | 68\nL | 170-175 | 125-140 | 112 | 70\nXL | 175-180 | 140-155 | 116 | 72');
+  assert.equal(a.weightUnit, '斤');
+  assert.deepEqual(a.variants[0].sizes[1].weightKg, [62.5, 70]);
+  assert.deepEqual(a.variants[0].sizes[2].chest, { value: 116, basis: '둘레' });
+  const b = parseTableText('尺码 | S | M | L\n身高 | 160/84A | 165/88A | 170/92A\n胸宽 | 50 | 52 | 54');
+  assert.deepEqual(b.variants[0].sizes.map((x) => [x.label, x.heightCm[0], x.chest.basis]), [['S', 160, '단면'], ['M', 165, '단면'], ['L', 170, '단면']]);
+  const c = parseTableText('尺码 | 身高 | 体重\nM | 170 | 120\nL | 175 | 135');      // 단위 없음, 키 170에 120 → 斤으로 추정
+  assert.equal(c.weightUnit, '추정_斤');
+  assert.equal(parseTableText('商品参数\n面料 | 棉\n产地 | 中国'), null);
+  const tr = judgeFit(a, { heightCm: 172, weightKg: 66 });
+  assert.deepEqual([tr.verdict, tr.size], ['적합', 'L']);
 });

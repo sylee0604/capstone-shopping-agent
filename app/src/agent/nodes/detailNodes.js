@@ -1,6 +1,7 @@
 // 상세 분석 단계 실제 노드: fetchDetail · selectSizeImages · extractSpec · validateSpec · judgeFit · writeRationale · analyzeFailure · finish
 // API 절약: LLM은 extractSpec 한 곳에서만, 상품당 1회(검증 실패 시 +1회). 이미지 선별·판정·근거 문장은 코드로 한다.
 import { ExtractSchema, EXTRACT_PROMPT, validateSpec } from '../spec.js';
+import { parseTableText } from '../tableText.js';
 import { specStatus } from '../routes.js';
 import { judgeFit, rationaleText, specFromSkus, judgeWanted } from '../judge.js';
 import { NeedsLoginError } from './searchNodes.js';
@@ -94,6 +95,11 @@ export function makeDetailNodes({ llm, browser }) {
 
     async extractSpec(s) {
       const c = s.current;
+      // 페이지의 사이즈표가 글자 표면 먼저 코드로 읽는다 (LLM 없음). 못 읽거나 검증에서 문제가 나면 LLM으로
+      if (c.sizeTableText && !c.errors?.length && c.specSource !== 'table') {
+        const spec = parseTableText(c.sizeTableText);
+        if (spec) return { current: { ...c, prevKey: null, spec, specSource: 'table', extractAttempts: c.extractAttempts + 1 } };
+      }
       // 5장 이상이면 작게 줄여 보냄 (폭 800px·높이 2000px 안: 표 글자는 읽히고 응답은 덜 느려짐)
       const images = c.sizeTableText ? [] : await browser.loadImages(c.sizeImages, c.sizeImages.length > MAX_SIZE_IMAGES ? { maxW: 800, maxH: 2000 } : undefined);
       const tableNote = c.sizeTableText ? `\n\n[상품 페이지의 사이즈표를 글자로 옮긴 것 — 이미지 대신 이 표를 읽어라]\n${c.sizeTableText}` : '';
@@ -111,7 +117,7 @@ export function makeDetailNodes({ llm, browser }) {
           return { current: { ...c, spec: null, llmFailed: `${e.code ?? ''} ${e.message}`.trim().slice(0, 120), llmLimit: e.code === 429, extractAttempts: c.extractAttempts + 1 } };
         }
       }
-      return { current: { ...c, prevKey: stableKey(c.spec), spec, extractAttempts: c.extractAttempts + 1 } };
+      return { current: { ...c, prevKey: stableKey(c.spec), spec, specSource: c.sizeTableText ? 'table_llm' : 'image', extractAttempts: c.extractAttempts + 1 } };
     },
 
     async validateSpec(s) {

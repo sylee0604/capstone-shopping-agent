@@ -80,3 +80,15 @@ test('L7 check(): 코드 블록 제거, 스키마 오류 경로 표시', () => {
   assert.equal(check('```json\n{"a":1}\n```').value.a, 1);
   assert.match(check('{"category":"x","heightCm":1}', Schema).error, /category/);
 });
+
+test('L8 자동 선택 모델이 서버 혼잡(503)이면 다음 flash 모델로 한 번 더 (429에는 쓰지 않음)', async () => {
+  const list = { ok: true, status: 200, json: async () => ({ models: ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-3.8-flash-lite'].map((n) => ({ name: `models/${n}`, supportedGenerationMethods: ['generateContent'] })) }) };
+  const f = fakeFetch([fail(503), list, ok('{"category":"하의","heightCm":null}')]);
+  const llm = makeLlm({ apiKey: 'K', cachedModel: 'gemini-3.8-flash', fetchFn: f.fn, sleep: noSleep });
+  assert.equal((await llm.json({ prompt: 'p', schema: Schema })).category, '하의');
+  assert.match(f.calls[2].url, /gemini-2\.5-flash:generateContent/);
+  const g = fakeFetch([fail(429)]);
+  const llm2 = makeLlm({ apiKey: 'K', cachedModel: 'gemini-3.8-flash', fetchFn: g.fn, sleep: noSleep });
+  await assert.rejects(llm2.json({ prompt: 'p', schema: Schema }), (e) => e.code === 429);
+  assert.equal(g.calls.length, 1);
+});

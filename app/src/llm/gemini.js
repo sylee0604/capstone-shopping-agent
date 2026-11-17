@@ -16,7 +16,8 @@ export function rankFlashModels(names) {
 export function geminiProvider({ apiKey, model, cachedModel, fetchFn = globalThis.fetch?.bind(globalThis), timeoutMs = 30_000 }) {
   if (!apiKey) throw new LlmError('Gemini API 키가 설정되지 않았어요', { code: 'NO_KEY' });
   const headers = { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey };
-  const self = { model: model ?? cachedModel, cached: !model && Boolean(cachedModel) };   // cachedModel: 지난번에 고른 모델 (목록 조회 생략)
+  const self = { model: model ?? cachedModel, cached: !model && Boolean(cachedModel), auto: !model };   // cachedModel: 지난번에 고른 모델 (목록 조회 생략)
+  let ranked = null;                                                    // flash 계열 모델 목록 (버전 높은 순)
 
   async function call(url, init) {
     let r;
@@ -37,7 +38,8 @@ export function geminiProvider({ apiKey, model, cachedModel, fetchFn = globalThi
     if (self.model) return;
     const data = await call(`${API}/models?pageSize=200`, { headers });
     const names = (data.models ?? []).filter((m) => m.supportedGenerationMethods?.includes('generateContent')).map((m) => m.name.split('/').pop());
-    self.model = rankFlashModels(names)[0];
+    ranked = rankFlashModels(names);
+    self.model = ranked[0];
     if (!self.model) throw new LlmError('사용할 수 있는 Gemini 모델이 없어요', { code: 'NO_MODEL' });
   };
 
@@ -54,11 +56,24 @@ export function geminiProvider({ apiKey, model, cachedModel, fetchFn = globalThi
     try {
       data = await call(`${API}/models/${self.model}:generateContent`, { method: 'POST', headers, body: JSON.stringify(body) });
     } catch (e) {
-      // 저장해 둔 모델이 없어졌으면(404) 목록에서 다시 골라 한 번 더
-      if (e.code !== 404 || !self.cached) throw e;
-      self.model = undefined; self.cached = false;
-      await self.init();
-      data = await call(`${API}/models/${self.model}:generateContent`, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (e.code === 404 && self.cached) {
+        // 저장해 둔 모델이 없어졌으면(404) 목록에서 다시 골라 한 번 더
+        self.model = undefined; self.cached = false;
+        await self.init();
+        data = await call(`${API}/models/${self.model}:generateContent`, { method: 'POST', headers, body: JSON.stringify(body) });
+      } else if (self.auto && [500, 502, 503, 504].includes(e.code)) {
+        // 서버 혼잡(5xx)은 모델별로 나는 경우가 많아, 다음 flash 모델로 한 번 더 (429 사용량 한도에는 쓰지 않음)
+        if (!ranked) {
+          try {
+            const list = await call(`${API}/models?pageSize=200`, { headers });
+            ranked = rankFlashModels((list.models ?? []).filter((m) => m.supportedGenerationMethods?.includes('generateContent')).map((m) => m.name.split('/').pop()));
+          } catch { throw e; }
+        }
+        const alt = ranked.find((m) => m !== self.model);
+        if (!alt) throw e;
+        data = await call(`${API}/models/${alt}:generateContent`, { method: 'POST', headers, body: JSON.stringify(body) });
+        self.lastFallback = alt;
+      } else throw e;
     }
     const cand = data.candidates?.[0];
     const text = (cand?.content?.parts ?? []).map((p) => p.text ?? '').join('');
