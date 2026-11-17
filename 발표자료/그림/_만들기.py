@@ -87,7 +87,8 @@ FIGS['04_실행사례'] = """
 <tr><th style="width:24%">요청 (쇼핑몰)</th><th style="width:26%">상황</th><th style="width:30%">에이전트 동작</th><th>결과</th></tr>
 <tr><td>남자 와이셔츠, 키 175 70kg (타오바오)</td><td>옵션 이름에 키·몸무게가 적혀 있음</td><td>사이즈표·LLM 없이 옵션으로 바로 판정</td><td><b>175/92A 적합</b>, 17.1초</td></tr>
 <tr><td>남자 와이셔츠, 키 179 75kg (티몰)</td><td>표에 키 179에 맞는 칸이 없음</td><td>키 이상인 가장 가까운 사이즈를 고르고, 표에 없는 사이즈는 옵션에서 찾아 보탬</td><td><b>180/100A 적합</b>, 54.2초</td></tr>
-<tr><td>남자 패딩, 키 179 (티몰)</td><td>상품을 읽는 중 무료 LLM 사용량 한도 초과</td><td>실행을 멈추지 않고 남은 후보에서 다시 고르게 함</td><td>실행 유지</td></tr>
+<tr><td>남자 자켓, 키 175 70kg (타오바오)</td><td>LLM 응답 없음 + 사용량 한도(429)</td><td>멈추지 않고 페이지의 글자 표를 코드로 읽어 판정</td><td>경계 (실측 치수 제시)</td></tr>
+<tr><td>남아 내복, 키 110 (타오바오)</td><td>사전에 없는 품목, 성별 없음</td><td>LLM으로 요청 분석, 성별을 되물은 뒤 옵션으로 판정</td><td><b>120 적합</b></td></tr>
 <tr><td>여아 원피스 110 사이즈 (타오바오)</td><td>"110"을 키로 잘못 읽는 문제 발견</td><td>"110 사이즈"는 아동복 사이즈로 인식하도록 수정</td><td>표의 110 추천</td></tr>
 </table>
 """
@@ -194,6 +195,17 @@ FIGS['12_정확도와테스트'] = """
 <div class="note">틀린 18개는 모두 측정 기준(단면/둘레, 소매 시작점) 표시이고 숫자는 모두 맞음 · 사람이 고른 사이즈표 이미지 기준</div>
 """
 
+# 슬라이드 11 오른쪽에 작게 넣는 실제 실행 장면 (세로로 긴 그림)
+FIGS['11_실패처리캡처'] = f"""
+<div id="g" style="width:880px;padding:30px;background:#fff">
+<h1 style="font-size:34px;margin-bottom:12px">실제 장면: LLM이 응답하지 않아도 결과를 냄</h1>
+<div class="sub" style="margin:0 0 16px;font-size:22px">남자 자켓 · 키 175 70kg (타오바오)</div>
+<img src="{img64('발표자료/캡처/20261118_자켓_LLM한도_로그.png', (592, None))}" style="width:100%;border:2px solid #CBD5E1;border-radius:12px">
+<div class="box b-gray" style="margin:16px 0;font-size:23px;padding:16px 20px">LLM 응답 없음 → 다시 시도 → 사용량 한도(429)<br>→ 멈추지 않고 <b>페이지의 글자 표를 코드로 읽어</b> 판정</div>
+<img src="{img64('발표자료/캡처/20261118_자켓_LLM한도_결과.png', (0, 350))}" style="width:100%;border:2px solid #CBD5E1;border-radius:12px">
+</div>
+"""
+
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch()
@@ -201,10 +213,9 @@ async def main():
         for name, body in FIGS.items():
             await pg.set_content(f"<html><head><meta charset='utf-8'><style>{CSS}</style></head><body><div class='fig' id='f'>{body}</div></body></html>")
             await pg.wait_for_timeout(150)
-            await (await pg.query_selector('#f')).screenshot(path=str(OUT / f'{name}.png'))
+            await (await pg.query_selector('#g') or await pg.query_selector('#f')).screenshot(path=str(OUT / f'{name}.png'))
             print('저장', name)
         await b.close()
     shutil.copy(ROOT / '에이전트/에이전트_그래프.png', OUT / '06_에이전트그래프.png')
-    shutil.copy(ROOT / '발표자료/캡처/20261116_패딩_LLM실패처리.png', OUT / '11_실패처리캡처.png')
 
 asyncio.run(main())
