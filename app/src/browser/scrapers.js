@@ -29,21 +29,27 @@ export function scrapeTaobao() {
   };
   const out = [], seen = new Set();
   for (const card of cards()) {
-    // 상품 id는 링크 주소의 id= 를 우선 (광고 카드의 data-spm-act-id는 상품 id가 아니라 같은 상품이 두 번 잡힘)
-    const link = card.matches('a') ? card : card.querySelector('a[href*="item.taobao.com"], a[href*="detail.tmall.com"], a[href*="item.htm?id="]');
-    let id = (link?.href.match(/[?&]id=(\d+)/) || [])[1] || card.getAttribute('data-spm-act-id') || (card.id.match(/item_id_(\d+)/) || [])[1] || card.querySelector('a[data-spm-act-id]')?.getAttribute('data-spm-act-id') || '';
-    if (!id) id = card.getAttribute('data-nid') || '';
+    // 상품 주소: 카드 링크가 상품 페이지(item.taobao.com·detail.tmall.com, id=…)면 그 id로 정리한 주소를 쓴다.
+    // 광고 카드는 링크가 클릭 추적 주소(click.simba 등)라 id가 없다. 이때 data-spm-act-id는 상품 id가 아닐 수 있어
+    // (다른 상품이 열림) 주소로 만들지 않고 카드의 실제 링크로 연다. data-spm-act-id는 중복 판별에만 쓴다.
+    const ITEM_LINK = 'a[href*="item.taobao.com"], a[href*="detail.tmall.com"], a[href*="item.htm?id="]';
+    const link = card.matches('a') ? card : (card.querySelector(ITEM_LINK) || card.querySelector('a[href]'));
+    const href = link?.href || '';
+    const direct = /item\.taobao\.com|detail\.tmall\.com|item\.htm/.test(href) && /[?&]id=\d+/.test(href);
+    const id = direct ? href.match(/[?&]id=(\d+)/)[1] : '';
+    const altId = card.getAttribute('data-spm-act-id') || (card.id.match(/item_id_(\d+)/) || [])[1] || card.querySelector('a[data-spm-act-id]')?.getAttribute('data-spm-act-id') || card.getAttribute('data-nid') || '';
     const title = (card.querySelector('[class*="title"], [class*="Title"], h3, h2')?.innerText || '').trim().slice(0, 150);
-    if (!title || seen.has(id || title)) continue;
-    seen.add(id || title);
+    const key = id || altId || title;
+    if (!title || seen.has(key)) continue;
+    seen.add(key);
     const sales = (card.querySelector('[class*="sale"], [class*="deal"], [class*="realSales"], [class*="Trade"]')?.innerText || '').trim();
-    const isTmall = /tmall/.test(link?.href || '');
+    const isTmall = /tmall/.test(href);
     out.push({
-      id: id ? `tb${id}` : `tb-${out.length}`, platform: 'taobao', titleZh: title,
+      id: id ? `tb${id}` : altId ? `tbad${altId}` : `tb-${out.length}`, platform: 'taobao', titleZh: title, ad: !direct,
       priceCny: parsePrice(card.querySelector('[class*="price"], [class*="Price"]')),
       sales, salesNum: parseCount(sales), image: image(card),
       shop: (card.querySelector('[class*="shop"], [class*="nick"], [class*="Store"]')?.innerText || '').trim(),
-      url: id ? (isTmall ? `https://detail.tmall.com/item.htm?id=${id}` : `https://item.taobao.com/item.htm?id=${id}`) : (link?.href || ''),
+      url: id ? (isTmall ? `https://detail.tmall.com/item.htm?id=${id}` : `https://item.taobao.com/item.htm?id=${id}`) : href,
     });
   }
   return out;

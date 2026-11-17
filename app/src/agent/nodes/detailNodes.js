@@ -50,10 +50,14 @@ export function makeDetailNodes({ llm, browser }) {
       // 옵션 이름만으로 판정할 수 있으면(키·몸무게 범위나 호형이 적혀 있음) 사이즈표 추출(LLM)을 건너뛴다
       const skuSpec = specFromSkus(d.skus);
       const usable = skuSpec && skuSpec.variants[0].sizes.filter((r) => r.heightCm || r.weightKg).length >= 2 ? skuSpec : null;
+      // 열린 페이지가 고른 상품인지 확인 (상품 id 비교). 광고 카드는 주소에 id가 없어 열린 페이지의 id를 기록만 한다
+      const idOf = (u) => (String(u || '').match(/[?&]id=(\d+)/) || [])[1] ?? null;
+      const wantId = idOf(c.url), pageId = idOf(d.url);
+      const pageMismatch = Boolean(wantId && pageId && wantId !== pageId);
       return {
         analyzed: [id],
-        current: { productId: id, url: c.url, title: c.title, images: d.images, imageUrls: d.images.map((x) => x.url), skus: d.skus, sizeTableText: d.sizeTableText || '', extractAttempts: 0, errors: [], status: usable ? 'from_sku' : null, spec: usable, specSource: usable ? 'sku' : null },
-        log: [{ node: 'fetchDetail', images: d.images.length, skus: d.skus.length, sizeTable: Boolean(d.sizeTableText), sizeButton: d.sizeButton }],
+        current: { productId: id, url: c.url, pageUrl: d.url ?? null, pageTitle: (d.title || '').slice(0, 60), pageMismatch, title: c.title, images: d.images, imageUrls: d.images.map((x) => x.url), skus: d.skus, sizeTableText: d.sizeTableText || '', extractAttempts: 0, errors: [], status: usable ? 'from_sku' : null, spec: usable, specSource: usable ? 'sku' : null },
+        log: [{ node: 'fetchDetail', wantId, pageId, pageMismatch, images: d.images.length, skus: d.skus.length, sizeTable: Boolean(d.sizeTableText), sizeButton: d.sizeButton }],
       };
     },
 
