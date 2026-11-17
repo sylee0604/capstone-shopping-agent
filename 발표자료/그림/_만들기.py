@@ -137,7 +137,7 @@ FIGS['08_사이즈정보_찾는순서'] = """
  <div class="row" style="align-items:center"><div class="box b-llm" style="flex:1;margin-left:180px"><div class="t">3. 상세 설명 이미지</div>최대 12장을 코드로 검사 → 표처럼 보이는 이미지만 최대 3장 보냄</div><span class="pill" style="border-color:#7C3AED">LLM 1회</span></div>
  <div class="row" style="align-items:center"><div class="box b-gray" style="flex:1;margin-left:270px"><div class="t">4. 어디에도 없음</div>옵션이 S/M/L뿐이고 표 이미지도 없음 → '사이즈표 없음' 알리고 다른 후보 선택</div><span class="pill" style="border-color:#059669">LLM 0회</span></div>
 </div>
-<div class="note">표처럼 보이는지 판별: 흰 배경 비율·글자 밀도·격자선을 계산 (LLM 없이) → 사이즈표 25장 중 23장을 '표'로 판별</div>
+<div class="note">표처럼 보이는지 판별: 흰 배경 비율·글자 밀도·격자선을 계산 (LLM 없이) → 사이즈표 25장 중 24장을 '표'로 판별</div>
 """
 
 FIGS['09_판정규칙'] = """

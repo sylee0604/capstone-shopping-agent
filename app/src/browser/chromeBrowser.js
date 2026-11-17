@@ -9,6 +9,9 @@ export function looksLikeChart(bmp, W = 120) {
   const H = Math.max(1, Math.round(bmp.height * (W / bmp.width)));
   const c = new OffscreenCanvas(W, H);
   const ctx = c.getContext('2d');
+  // 고품질 축소: 기본 축소는 거칠어서 표 칸 사이의 흰 틈이 사라진다 (선 없이 칸 색으로 나눈 표를 놓침)
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(bmp, 0, 0, W, H);
   const px = ctx.getImageData(0, 0, W, H).data;
   return bandsLookLikeChart(px, W, H);
@@ -166,7 +169,7 @@ export function makeChromeBrowser({ chrome = globalThis.chrome, fetchFn = global
     /**
      * 사이즈표처럼 보이는지 빠르게 판별 (LLM 없이 이 컴퓨터에서 계산).
      * 폭 120px로 줄여 정사각형 띠로 나누고, 채도가 낮고(흰·회색·검정 배경) 글자·선 같은 경계가 고르게 퍼진 띠를 찾는다.
-     * 반환: { url: 2(표) | 1(표일 수도) | 0(아님) }. 사이즈표 25장 기준 1 이상 25장, 2는 24장. 옷 사진은 0.
+     * 반환: { url: 2(표) | 1(표일 수도) | 0(아님) }. 사이즈표 25장 기준 1 이상 25장, 2는 24장 (고품질 축소). 일반 사진은 0, 글자 많은 홍보 이미지 일부는 2.
      */
     async chartLike(urls) {
       const out = {};
