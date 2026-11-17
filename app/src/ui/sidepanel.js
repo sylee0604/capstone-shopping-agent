@@ -158,13 +158,19 @@ function showResult(v, run) {
   if (r?.type === 'recommend') {
     const c = seen[r.productId];
     // 값이 있는 칸만 보여 준다 (권장 키·몸무게, 실측: 총장·가슴·허리·어깨·소매)
-    const girth = (g) => (g == null ? '-' : `${[].concat(g.value).join('~')}${g.basis === '단면' ? ' (단면)' : ''}`);
+    // 둘레/단면 이름: 모든 행이 둘레면 '가슴둘레', 모두 단면이면 '가슴 단면', 섞이거나 표에 기준이 없으면 '가슴' + 칸마다 표시
+    const gName = (name, k) => {
+      const bs = new Set((r.table ?? []).map((t) => t[k]?.basis).filter(Boolean));
+      return bs.size === 1 && bs.has('둘레') ? `${name}둘레` : bs.size === 1 && bs.has('단면') ? `${name} 단면` : name;
+    };
+    const girth = (g, head) => (g == null ? '-' : `${[].concat(g.value).join('~')}${head.endsWith('둘레') || head.endsWith('단면') ? '' : g.basis === '단면' ? ' (단면)' : g.basis === '둘레' ? ' (둘레)' : ''}`);
+    const chestH = gName('가슴', 'chest'), waistH = gName('허리', 'waist');
     const COLS = [
       ['권장 키', (t) => rng(t.heightCm, 'cm'), (t) => t.heightCm], ['권장 몸무게', (t) => rng(t.weightKg, 'kg'), (t) => t.weightKg],
-      ['총장', (t) => t.length ?? '-', (t) => t.length], ['가슴', (t) => girth(t.chest), (t) => t.chest], ['허리', (t) => girth(t.waist), (t) => t.waist],
-      ['어깨', (t) => t.shoulder ?? '-', (t) => t.shoulder], ['소매', (t) => t.sleeve ?? '-', (t) => t.sleeve],
+      ['총장', (t) => t.length ?? '-', (t) => t.length], [chestH, (t) => girth(t.chest, chestH), (t) => t.chest], [waistH, (t) => girth(t.waist, waistH), (t) => t.waist],
+      ['어깨너비', (t) => t.shoulder ?? '-', (t) => t.shoulder], ['소매길이', (t) => t.sleeve ?? '-', (t) => t.sleeve],
     ].filter(([, , has]) => r.table?.some((t) => has(t) != null));
-    const tbl = r.table?.length ? `<table class="spec"><tr><th>사이즈</th>${COLS.map(([h]) => `<th>${h}</th>`).join('')}</tr>${r.table.map((t) => `<tr${t.label === r.size ? ' class="hit"' : ''}><td>${esc(t.label)}${t.fromSku ? ' (옵션)' : ''}</td>${COLS.map(([, f]) => `<td>${esc(f(t))}</td>`).join('')}</tr>`).join('')}</table>${COLS.some(([h]) => ['총장', '가슴', '허리', '어깨', '소매'].includes(h)) ? '<p class="sub">실측 단위 cm (단면 = 옷을 펼쳐 잰 한쪽 폭)</p>' : ''}` : '';
+    const tbl = r.table?.length ? `<table class="spec"><tr><th>사이즈</th>${COLS.map(([h]) => `<th>${h}</th>`).join('')}</tr>${r.table.map((t) => `<tr${t.label === r.size ? ' class="hit"' : ''}><td>${esc(t.label)}${t.fromSku ? ' (옵션)' : ''}</td>${COLS.map(([, f]) => `<td>${esc(f(t))}</td>`).join('')}</tr>`).join('')}</table>${COLS.length > COLS.filter(([h]) => h.startsWith('권장')).length ? `<p class="sub">실측 단위 cm${[chestH, waistH].some((h) => !h.endsWith('둘레')) ? ' · 단면 = 옷을 펼쳐 잰 한쪽 폭 (둘레의 약 절반)' : ''}</p>` : ''}` : '';
     head = `<h3>추천: ${esc(title(r.productId))}</h3><p class="big">${r.size ? `${esc(r.size)} 사이즈 · ` : ''}${esc(r.verdict)}</p><p>${esc(r.rationale)}</p>${r.specStatus === 'from_sku' ? '<p class="warn">옵션의 사이즈 정보(키·몸무게)로 판정했어요. 총장·가슴 같은 실측 치수는 상품 페이지에서 확인해 주세요.</p>' : r.specStatus !== 'ok' ? '<p class="warn">사이즈표를 확실히 읽지 못했어요. 원문을 확인해 주세요.</p>' : ''}${tbl}${c?.url ? `<p><a href="${safeUrl(c.url)}" target="_blank" rel="noopener">상품 페이지 열기</a></p>` : ''}`;
   } else if (r?.type === 'fallback') head = '<h3>맞는 상품을 찾지 못했어요</h3><p>조건을 바꾸거나 다른 검색어로 시도해 보세요.</p>';
   else if (v.analyzed.length) head = '<h3>시간 초과</h3><p>에이전트 작업 시간이 90초를 넘었어요. 다시 시도해 주세요.</p>';

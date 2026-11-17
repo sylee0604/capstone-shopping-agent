@@ -346,3 +346,10 @@ test('D30 글자 표가 실측 치수뿐이면 이미지에서 키·몸무게 �
   assert.match(llm.calls[0].prompt, /권장 키·몸무게는 이미지의 표를 읽어/);
   assert.equal(v.recommendation.size, '120');
 });
+
+test('D31 근거 문장: 가슴·허리는 측정 기준을 이름에 붙임 (胸围 → 가슴둘레, 胸宽 → 가슴 단면)', () => {
+  const r = (chest, waist) => ({ verdict: '적합', size: 'L', reason: [], row: { label: 'L', length: 70, chest, waist } });
+  assert.match(rationaleText(r({ value: 116, basis: '둘레' }, { value: 80, basis: '둘레' })), /가슴둘레 116cm, 허리둘레 80cm/);
+  assert.match(rationaleText(r({ value: 58, basis: '단면' }, null)), /가슴 단면 58cm\(둘레 약 116cm\)/);
+  assert.match(rationaleText(r({ value: 116, basis: '불명' }, null)), /가슴 116cm/);
+});

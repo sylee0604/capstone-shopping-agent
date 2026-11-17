@@ -175,8 +175,10 @@ export function rationaleText(r, spec) {
   } else if (r.row) {
     const d = [];
     if (r.row.length) d.push(`총장 ${r.row.length}cm`);
-    if (r.row.chest) d.push(`가슴 ${r.row.chest.basis === '단면' ? `단면 ${r.row.chest.value}cm(둘레 약 ${[].concat(r.row.chest.value)[0] * 2}cm)` : `${r.row.chest.value}cm`}`);
-    if (r.row.waist) d.push(`허리 ${r.row.waist.basis === '단면' ? `단면 ${r.row.waist.value}cm` : `${r.row.waist.value}cm`}`);
+    // 측정 기준을 이름에 붙인다: 둘레(胸围) → 가슴둘레, 단면(胸宽) → 가슴 단면(둘레 약 2배), 표에 기준이 없으면 그냥 가슴
+    const g = (name, x) => (x.basis === '단면' ? `${name} 단면 ${x.value}cm(둘레 약 ${[].concat(x.value)[0] * 2}cm)` : x.basis === '둘레' ? `${name}둘레 ${x.value}cm` : `${name} ${x.value}cm`);
+    if (r.row.chest) d.push(g('가슴', r.row.chest));
+    if (r.row.waist) d.push(g('허리', r.row.waist));
     if (d.length) lines.push(`${r.size} 실측: ${d.join(', ')}`);
   }
   if (r.stock === true) lines.push(`${r.size} 사이즈 재고 있음`);
