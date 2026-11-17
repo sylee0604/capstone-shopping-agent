@@ -33,8 +33,34 @@ function rowsOf(block) {
   return block.split('\n').map((l) => l.split(' | ').map((c) => c.replace(/\s+/g, ' ').trim())).filter((r) => r.length >= 2);
 }
 
-/** @returns 스펙(SpecSchema) 또는 null */
+/** 권장 키·몸무게(또는 매트릭스)가 있는 스펙인지 */
+export const hasFit = (spec) => Boolean(spec?.fitMatrix || spec?.variants?.some((v) => v.fitHeightCm || v.sizes.some((x) => x.heightCm || x.weightKg)));
+
+/**
+ * 표가 여러 개면 모두 읽고, 권장 키·몸무게가 있는 표를 기준으로 다른 표의 실측 치수(같은 사이즈 이름)를 합친다.
+ * @returns 스펙(SpecSchema) 또는 null
+ */
 export function parseTableText(text) {
+  const all = parseBlocks(text);
+  if (!all.length) return null;
+  const base = all.find(hasFit) ?? all[0];
+  const others = all.filter((x) => x !== base);
+  const norm = (l) => String(l).replace(/\s+/g, '').toUpperCase();
+  const sizes = base.variants[0].sizes.map((row) => {
+    const out = { ...row };
+    for (const o of others) {
+      const m = o.variants[0].sizes.find((x) => norm(x.label) === norm(row.label));
+      if (!m) continue;
+      for (const k of ['heightCm', 'weightKg', 'length', 'chest', 'waist', 'hip', 'shoulder', 'sleeve']) if (out[k] == null && m[k] != null) out[k] = m[k];
+    }
+    return out;
+  });
+  const unit = base.weightUnit !== '없음' ? base.weightUnit : others.find((o) => o.weightUnit !== '없음')?.weightUnit ?? '없음';
+  return { ...base, weightUnit: unit, variants: [{ ...base.variants[0], sizes }] };
+}
+
+function parseBlocks(text) {
+  const found = [];
   for (const block of String(text ?? '').split(/\n\s*\n/)) {
     let rows = rowsOf(block);
     if (rows.length < 3) continue;
@@ -83,7 +109,7 @@ export function parseTableText(text) {
     }
     const category = has('length') && /裤长/.test(head[cols.indexOf('length')]) ? '하의' : /裙长/.test(head.join('')) ? '원피스' : '상의';
     const out = SpecSchema.safeParse({ category, weightUnit: unit, variants: [{ name: null, fitHeightCm: null, sizes }], fitMatrix: null });
-    if (out.success) return out.data;
+    if (out.success) found.push(out.data);
   }
-  return null;
+  return found;
 }

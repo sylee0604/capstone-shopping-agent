@@ -1,7 +1,7 @@
 // 상세 분석 단계 실제 노드: fetchDetail · selectSizeImages · extractSpec · validateSpec · judgeFit · writeRationale · analyzeFailure · finish
 // API 절약: LLM은 extractSpec 한 곳에서만, 상품당 1회(검증 실패 시 +1회). 이미지 선별·판정·근거 문장은 코드로 한다.
 import { ExtractSchema, EXTRACT_PROMPT, validateSpec } from '../spec.js';
-import { parseTableText } from '../tableText.js';
+import { parseTableText, hasFit } from '../tableText.js';
 import { specStatus } from '../routes.js';
 import { judgeFit, rationaleText, specFromSkus, judgeWanted } from '../judge.js';
 import { NeedsLoginError } from './searchNodes.js';
@@ -69,8 +69,12 @@ export function makeDetailNodes({ llm, browser }) {
     },
 
     async selectSizeImages(s) {
-      // 페이지에서 사이즈표를 글자로 읽었으면 이미지는 보내지 않는다 (더 정확하고 토큰도 적음)
-      if (s.current.sizeTableText) return { current: { ...s.current, sizeImages: [] } };
+      // 페이지의 글자 표에 권장 키·몸무게가 있으면 이미지는 보지 않는다. 실측 치수만 있으면 이미지에서 키·몸무게 표를 더 찾는다
+      // (코드로 못 읽는 모양의 글자 표는 LLM이 글자만 읽는다)
+      if (s.current.sizeTableText) {
+        const ts = parseTableText(s.current.sizeTableText);
+        if (!ts || hasFit(ts)) return { current: { ...s.current, sizeImages: [] } };
+      }
       // 후보를 넉넉히 고른 뒤 표처럼 보이는지 LLM 없이 확인 (2 = 표, 1 = 표일 수도).
       // 옵션이 S/M/L뿐인 상품은 사이즈표가 없는 경우가 많아 '표일 수도'(글자 많은 홍보 이미지 등)는 보내지 않는다 → LLM 호출 없이 바로 '사이즈표 없음'
       // 판별은 LLM 없이 이 컴퓨터에서 하므로 상세 이미지를 거의 다(최대 40장) 검사한다 (사이즈표가 페이지 앞쪽에 있어도 놓치지 않게)
@@ -96,13 +100,16 @@ export function makeDetailNodes({ llm, browser }) {
     async extractSpec(s) {
       const c = s.current;
       // 페이지의 사이즈표가 글자 표면 먼저 코드로 읽는다 (LLM 없음). 못 읽거나 검증에서 문제가 나면 LLM으로
-      if (c.sizeTableText && !c.errors?.length && c.specSource !== 'table') {
-        const spec = parseTableText(c.sizeTableText);
-        if (spec) return { current: { ...c, prevKey: null, spec, specSource: 'table', extractAttempts: c.extractAttempts + 1 } };
+      const tableSpec = c.sizeTableText ? parseTableText(c.sizeTableText) : null;
+      if (tableSpec && !c.errors?.length && c.specSource !== 'table' && (hasFit(tableSpec) || !c.sizeImages?.length)) {
+        return { current: { ...c, prevKey: null, spec: tableSpec, specSource: 'table', extractAttempts: c.extractAttempts + 1 } };
       }
       // 5장 이상이면 작게 줄여 보냄 (폭 800px·높이 2000px 안: 표 글자는 읽히고 응답은 덜 느려짐)
-      const images = c.sizeTableText ? [] : await browser.loadImages(c.sizeImages, c.sizeImages.length > MAX_SIZE_IMAGES ? { maxW: 800, maxH: 2000 } : undefined);
-      const tableNote = c.sizeTableText ? `\n\n[상품 페이지의 사이즈표를 글자로 옮긴 것 — 이미지 대신 이 표를 읽어라]\n${c.sizeTableText}` : '';
+      const imgs = c.sizeImages ?? [];
+      const images = imgs.length ? await browser.loadImages(imgs, imgs.length > MAX_SIZE_IMAGES ? { maxW: 800, maxH: 2000 } : undefined) : [];
+      const tableNote = !c.sizeTableText ? '' : images.length
+        ? `\n\n[상품 페이지의 사이즈표를 글자로 옮긴 것 — 실측 치수는 이 표를, 권장 키·몸무게는 이미지의 표를 읽어 같은 사이즈끼리 합쳐라]\n${c.sizeTableText}`
+        : `\n\n[상품 페이지의 사이즈표를 글자로 옮긴 것 — 이미지 대신 이 표를 읽어라]\n${c.sizeTableText}`;
       const feedback = c.errors?.length
         ? `\n\n[이전 답변에서 발견된 문제]\n- ${c.errors.join('\n- ')}\n이미지를 다시 확인해 고쳐서 전체 JSON을 다시 출력하라. 원본이 실제로 그렇다면 그대로 두어도 된다.`
         : '';
@@ -114,6 +121,8 @@ export function makeDetailNodes({ llm, browser }) {
         } catch (e) {
           // 혼잡(503·429)·시간 초과는 실행을 멈추지 않고 이 상품만 '읽기 실패'로 → 다른 후보를 고르게 한다. 키 오류·형식 오류(진단 표시)는 멈춤
           if (!e.retryable) throw e;
+          // LLM이 안 되면 글자 표에서 읽은 실측 치수라도 쓴다 (권장 키·몸무게가 없어 '경계'로 안내됨)
+          if (tableSpec) return { current: { ...c, prevKey: null, spec: tableSpec, specSource: 'table', llmNote: `${e.code ?? ''}`, extractAttempts: c.extractAttempts + 1 } };
           return { current: { ...c, spec: null, llmFailed: `${e.code ?? ''} ${e.message}`.trim().slice(0, 120), llmLimit: e.code === 429, extractAttempts: c.extractAttempts + 1 } };
         }
       }
@@ -154,7 +163,7 @@ export function makeDetailNodes({ llm, browser }) {
 
     async writeRationale(s) {
       const r = s.results.at(-1), c = s.current;
-      const table = c.spec?.variants?.[0]?.sizes?.map((x) => ({ label: x.label, heightCm: x.heightCm, weightKg: x.weightKg })) ?? [];
+      const table = c.spec?.variants?.[0]?.sizes?.map((x) => ({ label: x.label, heightCm: x.heightCm, weightKg: x.weightKg, length: x.length, chest: x.chest, waist: x.waist, shoulder: x.shoulder, sleeve: x.sleeve?.value ?? null })) ?? [];
       if (r.row?.fromSku && !table.some((t) => t.label === r.size)) table.push({ label: r.size, heightCm: r.row.heightCm, weightKg: null, fromSku: true });
       return { recommendation: { type: 'recommend', productId: r.productId, size: r.size, verdict: r.verdict, specStatus: r.specStatus, rationale: rationaleText(r, c.spec), table } };
     },

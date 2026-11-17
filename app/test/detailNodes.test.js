@@ -331,3 +331,18 @@ test('D29 글자 표 읽기: 가로·세로 표, 斤 단위, 호형 키, 단면(
   const tr = judgeFit(a, { heightCm: 172, weightKg: 66 });
   assert.deepEqual([tr.verdict, tr.size], ['적합', 'L']);
 });
+
+test('D30 글자 표가 실측 치수뿐이면 이미지에서 키·몸무게 표를 더 찾아 함께 LLM에, 표가 여러 개면 키·몸무게 표 기준으로 합침', async () => {
+  const { parseTableText } = await import('../src/agent/tableText.js');
+  const two = parseTableText('尺码 | 衣长 | 胸围 | 肩宽\nM | 68 | 112 | 46\nL | 70 | 116 | 47\n\n尺码 | 身高 | 体重\nM | 170-175 | 60-68kg\nL | 175-180 | 68-75kg');
+  assert.deepEqual([two.variants[0].sizes[1].label, two.variants[0].sizes[1].heightCm, two.variants[0].sizes[1].length, two.variants[0].sizes[1].chest.value], ['L', [175, 180], 70, 116]);
+  const llm = fakeLlm([KIDS]);
+  const browser = fakeBrowser({ products: [{ id: 'p1' }], detail: { p1: { images: ['a', 'size', 'b'] } } });
+  const detail = browser.detail;
+  browser.detail = async (a) => ({ ...(await detail(a)), sizeTableText: '尺码 | 衣长 | 胸围\n110 | 58 | 60\n120 | 63 | 64' });
+  const v = await runAll(llm, browser);
+  assert.equal(llm.calls.length, 1);
+  assert.ok(llm.calls[0].images.length >= 1);
+  assert.match(llm.calls[0].prompt, /권장 키·몸무게는 이미지의 표를 읽어/);
+  assert.equal(v.recommendation.size, '120');
+});
