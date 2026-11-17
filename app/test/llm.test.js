@@ -92,3 +92,11 @@ test('L8 자동 선택 모델이 서버 혼잡(503)이면 다음 flash 모델로
   await assert.rejects(llm2.json({ prompt: 'p', schema: Schema }), (e) => e.code === 429);
   assert.equal(g.calls.length, 1);
 });
+
+test('L9 응답 없음(시간 초과)은 한 번만 다시 시도 (한 번에 30초씩 걸리므로)', async () => {
+  const calls = [];
+  const fn = async (url) => { calls.push(url); throw new Error('signal timed out'); };
+  const llm = makeLlm({ apiKey: 'K', model: 'm', fetchFn: fn, sleep: noSleep });
+  await assert.rejects(llm.json({ prompt: 'p', schema: Schema }), (e) => e.code === 'NETWORK');
+  assert.equal(calls.length, 2);
+});

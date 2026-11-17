@@ -90,7 +90,8 @@ export function makeDetailNodes({ llm, browser }) {
       const letterOnly = letterSizesOnly(s.current.skus);
       const order = (u) => cands.indexOf(u);
       const pool = strict.length ? strict : letterOnly ? [] : maybe;
-      const max = pool.length > MAX_SIZE_IMAGES ? MAX_SIZE_IMAGES_MANY : MAX_SIZE_IMAGES;
+      // 글자 표가 이미 있으면(키·몸무게 표만 더 찾는 경우) 4장까지만 보내 응답을 가볍게
+      const max = pool.length > MAX_SIZE_IMAGES && !s.current.sizeTableText ? MAX_SIZE_IMAGES_MANY : MAX_SIZE_IMAGES;
       const sizeImages = pool.slice(0, max).sort((a, b) => order(a) - order(b));
       const all = (s.current.images ?? []).map((x) => x.url);
       const pickedIdx = sizeImages.map((u) => all.indexOf(u) + 1);

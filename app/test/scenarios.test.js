@@ -95,11 +95,17 @@ test('7-1. 새로 검색한 후보도 모두 부적합 → 재검색 상한(1회
   assert.equal(final.recommendation.type, 'fallback');
 });
 
-test('8. 에이전트 작업 시간 90초 초과 → 진행 중인 곳에서 종료', async () => {
-  const { final, trace } = await run({ searchResults: [['a']], advanceClockMs: 100_000 });
-  assert.ok(!trace.includes('judgeFit'));
+test('8. 에이전트 작업 시간 90초 초과 → 이미 읽은 사이즈표로 판정·근거까지만 하고 종료 (새 LLM 호출·새 상품 없음)', async () => {
+  const { final, trace } = await run({ searchResults: [['a', 'b']], advanceClockMs: 100_000 });
+  assert.equal(trace.filter((n) => n === 'extractSpec').length, 1);
+  assert.ok(trace.includes('judgeFit') && trace.includes('writeRationale'));
   assert.equal(trace.at(-1), 'finish');
-  assert.equal(final.recommendation.type, 'none');
+  assert.equal(final.recommendation.type, 'recommend');
+  // 부적합이면 남은 후보를 고르게 하지 않고 바로 종료
+  const r2 = await run({ searchResults: [['a', 'b']], advanceClockMs: 100_000, verdict: { a: out } });
+  assert.ok(!r2.trace.includes('awaitSelection') || r2.trace.filter((n) => n === 'awaitSelection').length === 1);
+  assert.equal(r2.trace.filter((n) => n === 'fetchDetail').length, 1);
+  assert.equal(r2.trace.at(-1), 'finish');
 });
 
 test('8-1. 사용자가 응답하는 데 걸린 시간은 90초에 넣지 않음', async () => {

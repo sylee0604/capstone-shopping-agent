@@ -176,12 +176,15 @@ export function makeChromeBrowser({ chrome = globalThis.chrome, fetchFn = global
      */
     async chartLike(urls) {
       const out = {};
-      for (const url of urls) {
+      const one = async (url) => {
         try {
           const bmp = await createImageBitmap(await (await fetchFn(url)).blob());
           out[url] = looksLikeChart(bmp);
         } catch { out[url] = 1; }             // 판별 실패 시에는 '표일 수도'로 (놓치지 않는 쪽)
-      }
+      };
+      // 6장씩 동시에 받아 검사 (하나씩 하면 40장에 15초 이상 걸림)
+      const queue = [...urls];
+      await Promise.all(Array.from({ length: Math.min(6, queue.length) }, async () => { while (queue.length) await one(queue.shift()); }));
       return out;
     },
 

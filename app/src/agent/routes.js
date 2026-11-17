@@ -22,15 +22,13 @@ export function makeRoutes({ limits = LIMITS, now = () => Date.now() } = {}) {
     // 사이즈표 후보 이미지 또는 페이지에서 읽은 사이즈표 글자가 있으면 추출
     afterImages: (s) => (late(s) ? 'finish' : s.current?.sizeImages?.length || s.current?.sizeTableText ? 'extractSpec' : 'judgeFit'),
 
-    afterValidate: (s) => {
-      if (late(s)) return 'finish';
-      return s.current?.status === 'retry' ? 'extractSpec' : 'judgeFit';
-    },
+    // 시간 상한은 오래 걸리는 일(LLM 재추출·새 상품 분석)만 막는다. 이미 읽은 사이즈표로 판정·근거 작성은 1초도 안 걸리므로 끝까지 한다
+    afterValidate: (s) => (s.current?.status === 'retry' && !late(s) ? 'extractSpec' : 'judgeFit'),
 
     afterJudge: (s) => {
-      if (late(s)) return 'finish';
       const r = s.results.at(-1);
       if (r?.verdict === '적합' || r?.verdict === '경계') return 'writeRationale';
+      if (late(s)) return 'finish';
       return remaining(s).length ? 'awaitSelection' : 'analyzeFailure';   // 남은 후보 중에서 사용자가 다시 고름
     },
 

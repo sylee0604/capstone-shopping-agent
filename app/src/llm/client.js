@@ -34,6 +34,7 @@ export function makeLlm({ provider = 'gemini', waits = [2000, 5000], sleep = (ms
         return r.text;
       } catch (e) {
         if (!(e instanceof LlmError) || !e.retryable || e.code === 429 || attempt >= waits.length) throw e;
+        if (e.code === 'NETWORK' && attempt >= 1) throw e;           // 응답 없음(시간 초과)은 한 번만 다시 시도 (한 번에 30초씩 걸림)
         usage.retries++;
         onRetry?.({ attempt: attempt + 1, code: e.code, waitMs: waits[attempt] });
         await sleep(waits[attempt]);
