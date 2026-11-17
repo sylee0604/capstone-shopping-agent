@@ -282,9 +282,11 @@ async function init() {
     const s = await loadSettings();
     const mode = $('mode').value;
     if (mode === 'real' && !s.apiKey) { $('settings').open = true; $('error').hidden = false; $('error').textContent = '설정에서 Gemini API 키를 먼저 저장해 주세요.'; return; }
+    const query = $('query').value.trim();
+    if (mode === 'real' && !query) { $('error').hidden = false; $('error').textContent = '요청을 입력해 주세요. 예: 남자 와이셔츠 키 179 75kg'; $('query').focus(); return; }
     const run = {
       threadId: `run-${Date.now()}`, mode, scenario: $('scenario').value, platform: s.platform ?? 'taobao',
-      query: $('query').value.trim() || '여아 봄 원피스', profile: { heightCm: s.heightCm, weightKg: s.weightKg },
+      query: query || '여아 봄 원피스', profile: { heightCm: s.heightCm, weightKg: s.weightKg },
     };
     await area.set({ activeRun: run });
     execute(run, false);
