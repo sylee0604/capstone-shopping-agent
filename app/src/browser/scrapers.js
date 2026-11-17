@@ -131,6 +131,16 @@ export async function scrapeDetail() {
     window.scrollTo(0, 0);
   };
 
+  // 상품명: 상품명 칸을 먼저 찾고(첫 h1은 '用户评价' 같은 다른 제목일 수 있음), 없으면 탭 제목에서 쇼핑몰 이름을 떼어 쓴다
+  const pageTitle = () => {
+    for (const sel of ['[class*="mainTitle"]', '[class*="ItemTitle"]', '.tb-main-title', '[class*="itemTitle"]']) {
+      const t = (document.querySelector(sel)?.innerText || '').trim();
+      if (t.length >= 4) return t.slice(0, 150);
+    }
+    const dt = (document.title || '').replace(/[-–_|]\s*(tmall\.com天猫|天猫\s*Tmall|淘宝网|淘宝|tmall\.com)\s*$/i, '').trim();
+    return (dt || document.querySelector('h1')?.innerText || '').trim().slice(0, 150);
+  };
+
   // 1) 옵션(SKU): 페이지 위쪽에 있어 스크롤 없이 읽는다. 티몰 새 페이지는 valueItem--xxxx, 예전 페이지는 J_TSaleProp li
   const skuEls = [...document.querySelectorAll('[class*="valueItem"], [class*="skuItem"], [class*="sku-item"], [data-vid], .J_TSaleProp li, [class*="prop-item"]')]
     .filter((el) => !el.querySelector('[class*="valueItem"], [data-vid]'));                     // 바깥 껍데기 말고 실제 선택지
@@ -161,7 +171,7 @@ export async function scrapeDetail() {
   const SKU_INFO = /\d{3}\s*\/\s*\d{2,3}|身高|体重|推荐|建议|\d\s*斤|\d\s*kg/i;
   const skuRich = skus.filter((x) => SKU_INFO.test(x.label)).length >= 2;
   if (skuRich) {
-    const title0 = (document.querySelector('h1, [class*="mainTitle"], [class*="ItemTitle"], .tb-main-title')?.innerText || document.title || '').trim().slice(0, 150);
+    const title0 = pageTitle();
     return { title: title0, images: [], skus, sizeTableText: '', sizeButton: false, skuRich: true, url: location.href };
   }
   let table = await findTable();
@@ -194,6 +204,6 @@ export async function scrapeDetail() {
     seen.add(url);
     images.push({ url, w: 0, h: 0, alt: el.alt || '', near: '', gallery: true, galleryLast: gi === gallery.length - 1 });
   });
-  const title = (document.querySelector('h1, [class*="mainTitle"], [class*="ItemTitle"], .tb-main-title')?.innerText || document.title || '').trim().slice(0, 150);
+  const title = pageTitle();
   return { title, images, skus, sizeTableText: table.text, sizeButton: table.button, url: location.href };
 }

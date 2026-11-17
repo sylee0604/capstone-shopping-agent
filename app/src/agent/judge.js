@@ -138,6 +138,9 @@ export function specFromSkus(skus = []) {
       ageYears: null, length: null, chest: null, waist: null, hip: null, shoulder: null, sleeve: null, extra: {},
     });
   }
+  // 키·몸무게가 적힌 옵션이 2개 이상이면, 정보 없는 숫자 옵션(색상 번호·다른 옵션 등)은 사이즈 목록에서 뺀다
+  const rich = rows.filter((r) => r.heightCm || r.weightKg);
+  if (rich.length >= 2) rows.splice(0, rows.length, ...rich);
   if (rows.length < 2) return null;
   rows.sort((a, b) => (a.heightCm?.[0] ?? +a.label) - (b.heightCm?.[0] ?? +b.label) || (a.weightKg?.[0] ?? 0) - (b.weightKg?.[0] ?? 0));
   return { category: '상의', weightUnit: rows.some((r) => r.weightKg) && skus.some((k) => /斤/.test(k.label)) ? '斤' : 'kg', variants: [{ name: null, fitHeightCm: null, sizes: rows }], fitMatrix: null, fromSku: true };

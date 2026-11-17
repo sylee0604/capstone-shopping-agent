@@ -266,3 +266,10 @@ test('D24 사용량 한도(429)면 재시도 없이 그 상품만 LLM_LIMIT → 
   assert.match(v.results[0].reason[0], /사용량 한도/);
   assert.equal(v.recommendation.productId, 'p2');
 });
+
+test('D25 옵션 사이즈 목록: 키·몸무게가 적힌 옵션이 있으면 정보 없는 숫자 옵션(60, 61 …)은 뺀다', async () => {
+  const { specFromSkus } = await import('../src/agent/judge.js');
+  const skus = ['60', '61', '88', '170/88A(建议63-68kg)', '175/92A(建议68-74kg)', '180/100A(建议80-86kg)'].map((label) => ({ label }));
+  const sp = specFromSkus(skus);
+  assert.deepEqual(sp.variants[0].sizes.map((r) => r.label), ['170/88A', '175/92A', '180/100A']);
+});

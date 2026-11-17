@@ -6,9 +6,16 @@ from playwright.async_api import async_playwright
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = pathlib.Path(__file__).resolve().parent
 
-def img64(rel):
+def img64(rel, crop=None):
     p = ROOT / rel
-    return f"data:image/webp;base64,{base64.b64encode(p.read_bytes()).decode()}"
+    if crop:  # (위, 아래) 픽셀: 캡처의 일부만 쓸 때
+        from PIL import Image
+        import io
+        im = Image.open(p); im = im.crop((0, crop[0], im.width, crop[1] or im.height))
+        buf = io.BytesIO(); im.save(buf, 'PNG'); data = buf.getvalue(); mime = 'image/png'
+    else:
+        data = p.read_bytes(); mime = 'image/png' if p.suffix == '.png' else 'image/webp'
+    return f"data:{mime};base64,{base64.b64encode(data).decode()}"
 
 CSS = """
 *{box-sizing:border-box;margin:0;padding:0}
@@ -62,18 +69,15 @@ FIGS['03_목표'] = """
 </div>
 """
 
-FIGS['04_시연흐름'] = """
-<h1>시연: "남자 와이셔츠" (키 179cm · 75kg, 티몰)</h1>
-<div class="row" style="gap:16px">
- <div class="box b-user" style="flex:1"><div class="t">① 요청</div>사이드패널에 "남자 와이셔츠" 입력</div>
- <div class="arrow" style="font-size:40px">→</div>
- <div class="box b-web" style="flex:1"><div class="t">② 검색</div>중국어로 바꿔 검색, 후보 3개 제시 → 1개 선택</div>
- <div class="arrow" style="font-size:40px">→</div>
- <div class="box b-llm" style="flex:1"><div class="t">③ 사이즈표 읽기</div>170/88A, 175/92A, 175/96A …</div>
- <div class="arrow" style="font-size:40px">→</div>
- <div class="box b-code" style="flex:1"><div class="t">④ 판정</div>179에 맞는 칸 없음 → 키 이상인 가장 가까운 사이즈 (180은 옵션에서 찾음)</div>
- <div class="arrow" style="font-size:40px">→</div>
- <div class="box b-web" style="flex:1"><div class="t">⑤ 결과</div><b>180/100A 적합</b><br>재고 있음<br>54.2초</div>
+FIGS['04_시연화면'] = f"""
+<h1>시연: "남자 와이셔츠 키175 70kg" (타오바오 검색)</h1>
+<div class="row" style="align-items:flex-start">
+ <div style="flex:1"><img src="{img64('발표자료/캡처/20261117_와이셔츠_실행로그.png', (78, None))}" style="width:100%;border:2px solid #CBD5E1;border-radius:12px"></div>
+ <div style="flex:1.05;display:flex;flex-direction:column;gap:22px">
+  <img src="{img64('발표자료/캡처/20261117_와이셔츠_결과.png', (0, 180))}" style="width:100%;border:2px solid #CBD5E1;border-radius:12px">
+  <div class="box b-web"><div class="t">결과: 175/92A 적합, 재고 있음</div>키 175cm → 권장 키 175cm 안<br>몸무게 70kg → 권장 68~74kg 안</div>
+  <div class="box b-gray"><div class="t">옵션 이름만으로 판정</div>옵션 26개에 키·몸무게가 적혀 있어<br>사이즈표 이미지를 읽지 않음 → <b>LLM 0회</b><br>에이전트 작업 <b>17.1초</b> (사용자 선택 대기 제외)</div>
+ </div>
 </div>
 """
 
@@ -81,6 +85,7 @@ FIGS['04_실행사례'] = """
 <h1>실제 상품으로 실행한 사례</h1>
 <table>
 <tr><th style="width:24%">요청 (쇼핑몰)</th><th style="width:26%">상황</th><th style="width:30%">에이전트 동작</th><th>결과</th></tr>
+<tr><td>남자 와이셔츠, 키 175 70kg (타오바오)</td><td>옵션 이름에 키·몸무게가 적혀 있음</td><td>사이즈표·LLM 없이 옵션으로 바로 판정</td><td><b>175/92A 적합</b>, 17.1초</td></tr>
 <tr><td>남자 와이셔츠, 키 179 75kg (티몰)</td><td>표에 키 179에 맞는 칸이 없음</td><td>키 이상인 가장 가까운 사이즈를 고르고, 표에 없는 사이즈는 옵션에서 찾아 보탬</td><td><b>180/100A 적합</b>, 54.2초</td></tr>
 <tr><td>남자 패딩, 키 179 (티몰)</td><td>상품을 읽는 중 무료 LLM 사용량 한도 초과</td><td>실행을 멈추지 않고 남은 후보에서 다시 고르게 함</td><td>실행 유지</td></tr>
 <tr><td>여아 원피스 110 사이즈 (타오바오)</td><td>"110"을 키로 잘못 읽는 문제 발견</td><td>"110 사이즈"는 아동복 사이즈로 인식하도록 수정</td><td>표의 110 추천</td></tr>
