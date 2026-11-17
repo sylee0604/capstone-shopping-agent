@@ -106,12 +106,15 @@ const TARGET = { 여성: ['성인', '여성'], 남성: ['성인', '남성'], 여
  * 숫자: "키 175", "175cm", "70kg", "3만원", "3만 5천원", "100위안", "7살", "110 사이즈", "XL"
  */
 export function quickParse(query) {
+  const item = findTerms(String(query), 'item')[0];
+  return item ? ruleParts(query, item) : null;
+}
+
+/** 품목을 뺀 나머지(대상·키·몸무게·예산·사이즈 등)를 규칙으로 읽는다. item이 없으면 품목은 비워 둔다 */
+function ruleParts(query, item = null) {
   const q = String(query);
-  const item = findTerms(q, 'item')[0];
-  if (!item) return null;
   const it = IntentSchema.parse({});
-  it.item = item.ko[0];
-  it.category = item.cat;
+  if (item) { it.item = item.ko[0]; it.category = item.cat; }
   const t = findTerms(q, 'target')[0];
   if (t) [it.ageGroup, it.gender] = TARGET[t.ko[0]] ?? [null, null];
   if (/아이|애기|아기|초등|유아|키즈|어린이/.test(q) && !it.ageGroup) it.ageGroup = '아동';
@@ -138,12 +141,34 @@ export function quickParse(query) {
 }
 
 /** 문장 → 의도. 규칙으로 품목을 찾으면 LLM을 부르지 않고, 못 찾을 때만 LLM 1회 */
-export async function parseIntent(llm, query, profile) {
+const STOP = /^(키|몸무게|사이즈|이하|이상|정도|쯤|사려고|사고|사고싶어|싶어요?|싶어|추천|추천해줘|찾아줘|원해|원해요|주세요|해줘|용|거|것|좀|하나|입을|입힐|찾고|있어요|있나요|아이|애기|아기|초등|유아|어린이)$/;
+/** 사전에 없는 품목 말: 대상·숫자·사전 용어·흔한 말을 뺀 나머지 (예: "아동 내복 키 100" → "내복") */
+export function leftoverItem(query) {
+  return String(query).split(/[\s,.!?]+/).map((w) => w.replace(/(을|를|이|가|은|는|으로|로|에|의|도)$/, ''))
+    .filter((w) => w && !/\d/.test(w) && !STOP.test(w) && !['target', 'season', 'color', 'material', 'style', 'item'].some((t) => findTerms(w, t).length))
+    .join(' ').trim();
+}
+
+/**
+ * 문장 → 의도. 규칙으로 품목을 찾으면 LLM을 부르지 않고, 못 찾을 때만 LLM 1회.
+ * LLM이 혼잡·시간 초과 등으로 실패하면 멈추지 않고: 규칙으로 읽은 조건 + 남은 말(품목)을 번역해 검색어로 쓴다.
+ */
+export async function parseIntent(llm, query, profile, { translate } = {}) {
   let raw = quickParse(query), by = 'rule';
   if (!raw) {
     const { system, prompt } = intentPrompt(query);
-    raw = await llm.json({ system, prompt, schema: IntentSchema });
-    by = 'llm';
+    try {
+      raw = await llm.json({ system, prompt, schema: IntentSchema });
+      by = 'llm';
+    } catch (e) {
+      const word = leftoverItem(query);
+      if (!word || !(e.retryable || e.code === 'BAD_FORMAT' || e.code === 'NETWORK')) throw e;
+      raw = ruleParts(query);
+      raw.item = word;
+      try { raw.itemZh = (await translate?.([word], 'ko', 'zh-CN'))?.[0] || null; } catch { raw.itemZh = null; }
+      if (!raw.itemZh || raw.itemZh === word) throw e;               // 번역도 안 되면 원래 오류로 멈춤
+      by = 'fallback';
+    }
   }
   const it = applyProfile(raw, profile);
   return { ...it, by, missing: findMissing(it), queriesZh: buildQueries(it) };

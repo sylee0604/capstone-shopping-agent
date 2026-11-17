@@ -38,7 +38,7 @@ ${fails.length ? `앞 후보들이 맞지 않은 이유: ${fails.join(', ')}` : 
 export function makeSearchNodes({ llm, browser, limits = LIMITS }) {
   return {
     async parseIntent(s) {
-      const intent = await parseIntent(llm, s.request.query, s.request.profile);
+      const intent = await parseIntent(llm, s.request.query, s.request.profile, { translate: browser.translate?.bind(browser) });
       return { intent, log: [{ node: 'parseIntent', intent }] };
     },
 

@@ -165,3 +165,17 @@ test('S12 같은 상품이 카드 두 개로 잡혀도 후보에는 하나만', 
   ];
   assert.deepEqual(rankProducts(pool, { query: '女童 连衣裙' }).map((p) => p.id), ['1', '2']);
 });
+
+test('S13 사전에 없는 품목인데 LLM이 혼잡·시간 초과면: 규칙으로 읽은 조건 + 남은 말을 번역해 검색어로 (멈추지 않음)', async () => {
+  const { parseIntent, leftoverItem } = await import('../src/agent/intent.js');
+  assert.equal(leftoverItem('아동 내복 키 100'), '내복');
+  assert.equal(leftoverItem('여아 겨울 잠옷 키 120 3만원 이하'), '잠옷');
+  const busy = { async json() { throw Object.assign(new Error('네트워크 오류: signal timed out'), { code: 'NETWORK', retryable: true }); } };
+  const it = await parseIntent(busy, '아동 내복 키 100', {}, { translate: async ([w]) => [w === '내복' ? '保暖内衣' : w] });
+  assert.equal(it.by, 'fallback');
+  assert.deepEqual([it.item, it.itemZh, it.ageGroup, it.heightCm], ['내복', '保暖内衣', '아동', 100]);
+  assert.equal(it.queriesZh.at(-1), '童装 保暖内衣');
+  // API 키 오류처럼 재시도해도 안 되는 오류는 그대로 멈춤
+  const bad = { async json() { throw Object.assign(new Error('API 키 오류'), { code: 'AUTH', retryable: false }); } };
+  await assert.rejects(parseIntent(bad, '아동 내복 키 100', {}, { translate: async (x) => x }), /API 키/);
+});

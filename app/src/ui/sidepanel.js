@@ -36,7 +36,7 @@ function describeIntent(it) {
 
 function describe(node, u) {
   switch (node) {
-    case 'parseIntent': return u.intent?.category || u.intent?.item ? `요청을 분석했어요${u.intent.by === 'rule' ? '(규칙)' : '(LLM)'} · ${describeIntent(u.intent)}${u.intent.queriesZh?.length ? ` → ${u.intent.queriesZh[0]}` : ''}` : '요청을 분석했어요';
+    case 'parseIntent': return u.intent?.category || u.intent?.item ? `요청을 분석했어요${u.intent.by === 'rule' ? '(규칙)' : u.intent.by === 'fallback' ? '(LLM 오류 → 규칙+번역)' : '(LLM)'} · ${describeIntent(u.intent)}${u.intent.queriesZh?.length ? ` → ${u.intent.queriesZh[0]}` : ''}` : '요청을 분석했어요';
     case 'askUser': return `답변을 반영했어요 · ${describeIntent(u.intent ?? {})}`;
     case 'search': return `상품을 검색했어요${u.usedQueries?.length ? ` "${u.usedQueries[0]}"` : ''} · ${u.candidates.length}건`;
     case 'reformulateQuery': return u.round ? '조건에 맞는 상품이 없어 새로 검색해요' : '결과가 없어 검색어를 바꿔요';
