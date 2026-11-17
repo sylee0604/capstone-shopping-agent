@@ -39,12 +39,12 @@ async def main():
         await pg.add_script_tag(content=fn + '\nwindow.check = async (mime, d) => { const blob = await (await fetch(`data:${mime};base64,${d}`)).blob(); return looksLikeChart(await createImageBitmap(blob)); };')
         lv = {0: 0, 1: 0, 2: 0}; res = {'사이즈표': {}, '음성': {}}
         for f in pos:
-            m, d = b64(f); r = await pg.evaluate('([m,d]) => check(m,d)', [m, d]); lv[r] += 1
+            m, d = b64(f); r = int(await pg.evaluate('([m,d]) => check(m,d)', [m, d])); lv[r] += 1
             res['사이즈표'][pathlib.Path(f).name] = r
             if r < 2: print('level', r, pathlib.Path(f).name)
         print('size charts levels:', lv, 'of', len(pos))
         for n, arr in negs.items():
-            m, d = b64(arr=arr if arr.ndim == 3 else np.stack([arr]*3, -1)); r = await pg.evaluate('([m,d]) => check(m,d)', [m, d])
+            m, d = b64(arr=arr if arr.ndim == 3 else np.stack([arr]*3, -1)); r = int(await pg.evaluate('([m,d]) => check(m,d)', [m, d]))
             res['음성'][n] = r; print('neg', n, r)
         await b.close()
         out = APP / 'eval' / '결과' / f"{datetime.date.today():%Y%m%d}_chart_detector.json"

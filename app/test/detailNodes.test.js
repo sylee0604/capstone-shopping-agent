@@ -216,7 +216,7 @@ test('D19 옵션은 S/M/L뿐이고 표처럼 보이는 이미지도 없으면 LL
   assert.equal(v.recommendation.productId, 'p2');
 });
 
-test('D20 옵션이 S/M/L뿐이면 "표일 수도"(글자 많은 홍보 이미지) 수준은 보내지 않고, 다른 상품에서는 보냄 (최대 3장)', async () => {
+test('D20 옵션이 S/M/L뿐이면 "표일 수도"(글자 많은 홍보 이미지) 수준은 보내지 않고, 다른 상품에서는 보냄 (최대 4장)', async () => {
   const llm = fakeLlm([KIDS]);
   const imgs = ['a', 'b', 'c', 'd', 'e'];
   const browser = fakeBrowser({ products: [{ id: 'p1', salesNum: 900 }, { id: 'p2', salesNum: 100 }], detail: { p1: { images: imgs, skus: ['S', 'M', 'L', 'XL', '黑色'].map((label) => ({ label, soldOut: false })) }, p2: { images: imgs } } });
@@ -224,7 +224,7 @@ test('D20 옵션이 S/M/L뿐이면 "표일 수도"(글자 많은 홍보 이미�
   const v = await runAll(llm, browser);
   assert.match(v.results[0].reason[0], /S\/M\/L/);
   assert.equal(llm.calls.length, 1);                        // p1은 호출 없음
-  assert.equal(llm.calls[0].images.length, 3);              // p2는 최대 3장만
+  assert.equal(llm.calls[0].images.length, 4);              // p2는 최대 4장만 (5장 중)
   assert.equal(v.recommendation.productId, 'p2');
 });
 
@@ -298,4 +298,14 @@ test('D27 페이지는 읽었는데 사이즈표·이미지가 없으면 "수집
   const v = await runAll(llm, browser);
   assert.equal(v.results[0].unfitReason, 'SPEC_UNKNOWN');
   assert.match(v.results[0].reason[0], /사이즈표나 설명 이미지를 찾지 못했어요/);
+});
+
+test('D28 표처럼 보이는 이미지가 많으면 표다운 순서로 4장을 골라 페이지 순서로 보냄 (앞쪽 이미지도 검사)', async () => {
+  const llm = fakeLlm([KIDS]);
+  const imgs = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+  const browser = fakeBrowser({ products: [{ id: 'p1' }], detail: { p1: { images: imgs, skus: ['S', 'M', 'L'].map((label) => ({ label, soldOut: false })) } } });
+  const sc = { a: 2.9, b: 2.05, c: 2.5, d: 2.1, e: 0, f: 2.7, g: 2.6 };
+  browser.chartLike = async (urls) => Object.fromEntries(urls.map((u) => [u, sc[u.split('_')[1][0]]]));
+  await runAll(llm, browser);
+  assert.deepEqual(browser.loaded[0].map((u) => u.split('_')[1][0]), ['a', 'c', 'f', 'g']);
 });

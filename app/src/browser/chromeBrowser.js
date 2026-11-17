@@ -22,7 +22,7 @@ export function looksLikeChart(bmp, W = 120) {
  */
 export function bandsLookLikeChart(px, W, H) {
   const at = (x, y) => (y * W + x) * 4;
-  let best = 0;
+  let best = 0, strength = 0;
   for (let y0 = 0; y0 < Math.max(1, H - W / 2); y0 += W) {
     const y1 = Math.min(H, y0 + W), bh = y1 - y0;
     if (bh < 20) continue;
@@ -54,10 +54,13 @@ export function bandsLookLikeChart(px, W, H) {
       if (p > 0.6) vgrid++;
       const on = p > 0.02; if (on && !prev) runs++; prev = on;
     }
-    if (grid >= 2 || vgrid >= 2 || runs >= 3) return 2;
-    best = 1;
+    if (grid >= 2 || vgrid >= 2 || runs >= 3) {
+      best = 2;
+      strength += runs + 3 * Math.min(grid, 5) + 3 * Math.min(vgrid, 5);   // 표 구조가 뚜렷하고 표가 길수록 큼
+    } else best = Math.max(best, 1);
   }
-  return best;
+  // 정수 부분 = 단계(2 표 / 1 표일 수도 / 0 아님), 소수 부분 = 표다움 점수 (여러 장 중 표다운 순서로 고를 때 사용)
+  return best === 2 ? 2 + Math.min(0.99, strength / 200) : best;
 }
 
 // 큰 이미지도 스택이 넘치지 않게 나눠서 base64로 변환

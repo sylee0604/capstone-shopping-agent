@@ -6,7 +6,7 @@ import { judgeFit, rationaleText, specFromSkus, judgeWanted } from '../judge.js'
 import { NeedsLoginError } from './searchNodes.js';
 
 const SIZE_WORDS = /尺码|尺寸|码数|尺碼|size|参考|身高|体重|胸围|衣长|裤长|裙长/i;
-export const MAX_SIZE_IMAGES = 3;          // LLM에 보내는 이미지 수 (적을수록 빠르고 혼잡 오류도 덜 남)
+export const MAX_SIZE_IMAGES = 4;          // LLM에 보내는 이미지 수 (적을수록 빠르고 혼잡 오류도 덜 남)
 
 /** 사이즈표일 가능성이 높은 이미지 고르기 (코드). 한 번의 LLM 호출에 함께 넣어 LLM이 그중 사이즈표를 읽게 한다. */
 export function pickSizeImages(images, max = MAX_SIZE_IMAGES) {
@@ -71,13 +71,20 @@ export function makeDetailNodes({ llm, browser }) {
       if (s.current.sizeTableText) return { current: { ...s.current, sizeImages: [] } };
       // 후보를 넉넉히 고른 뒤 표처럼 보이는지 LLM 없이 확인 (2 = 표, 1 = 표일 수도).
       // 옵션이 S/M/L뿐인 상품은 사이즈표가 없는 경우가 많아 '표일 수도'(글자 많은 홍보 이미지 등)는 보내지 않는다 → LLM 호출 없이 바로 '사이즈표 없음'
-      const cands = pickSizeImages(s.current.images ?? [], 12);
+      // 판별은 LLM 없이 이 컴퓨터에서 하므로 상세 이미지를 거의 다(최대 40장) 검사한다 (사이즈표가 페이지 앞쪽에 있어도 놓치지 않게)
+      const cands = pickSizeImages(s.current.images ?? [], 40);
       const look = browser.chartLike ? await browser.chartLike(cands) : Object.fromEntries(cands.map((u) => [u, 1]));
-      const level = (u) => (look[u] === true ? 1 : +look[u] || 0);
-      const strict = cands.filter((u) => level(u) >= 2), maybe = cands.filter((u) => level(u) === 1);
+      const score = (u) => (look[u] === true ? 1 : +look[u] || 0);
+      const level = (u) => Math.floor(score(u));
+      // '표'가 여러 장이면 표다운 순서로 최대 4장 → 페이지 순서로 되돌려 보냄 (이어진 표 대비)
+      const strict = cands.filter((u) => level(u) >= 2).sort((a, b) => score(b) - score(a));
+      const maybe = cands.filter((u) => level(u) === 1);
       const letterOnly = letterSizesOnly(s.current.skus);
-      const sizeImages = (strict.length ? strict : letterOnly ? [] : maybe).slice(0, MAX_SIZE_IMAGES);
-      return { current: { ...s.current, sizeImages, checkedImages: cands.length, letterOnly } };
+      const order = (u) => cands.indexOf(u);
+      const sizeImages = (strict.length ? strict : letterOnly ? [] : maybe).slice(0, MAX_SIZE_IMAGES).sort((a, b) => order(a) - order(b));
+      const all = (s.current.images ?? []).map((x) => x.url);
+      const pickedIdx = sizeImages.map((u) => all.indexOf(u) + 1);
+      return { current: { ...s.current, sizeImages, checkedImages: cands.length, strictCount: strict.length, pickedIdx, letterOnly } };
     },
 
     async extractSpec(s) {
