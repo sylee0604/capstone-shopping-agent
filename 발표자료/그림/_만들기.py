@@ -83,6 +83,12 @@ FIGS['04_시연화면'] = f"""
 
 FIGS['04_실행사례'] = """
 <h1>실제 상품으로 실행한 사례</h1>
+<div class="row" style="margin-bottom:24px">
+ <div class="box b-gray" style="flex:1;text-align:center"><div style="font-size:24px">실제 상품 실행 (상품 9개)</div><div class="big" style="font-size:64px;margin-top:8px">13회</div></div>
+ <div class="box b-web" style="flex:1;text-align:center"><div style="font-size:24px">추천이 맞음</div><div class="big" style="font-size:64px;margin-top:8px">12회 <span class="unit">(92%)</span></div></div>
+ <div class="box b-gray" style="flex:1;text-align:center"><div style="font-size:24px">평균 작업 시간</div><div class="big" style="font-size:64px;margin-top:8px">22.7<span class="unit">초</span></div></div>
+ <div class="box b-gray" style="flex:1;text-align:center"><div style="font-size:24px">LLM 없이 끝난 실행</div><div class="big" style="font-size:64px;margin-top:8px">9회</div></div>
+</div>
 <table>
 <tr><th style="width:24%">요청 (쇼핑몰)</th><th style="width:26%">상황</th><th style="width:30%">에이전트 동작</th><th>결과</th></tr>
 <tr><td>남자 와이셔츠, 키 175 70kg (타오바오)</td><td>옵션 이름에 키·몸무게가 적혀 있음</td><td>사이즈표·LLM 없이 옵션으로 바로 판정</td><td><b>175/92A 적합</b>, 17.1초</td></tr>
@@ -91,6 +97,7 @@ FIGS['04_실행사례'] = """
 <tr><td>남아 내복, 키 110 (타오바오)</td><td>사전에 없는 품목, 성별 없음</td><td>LLM으로 요청 분석, 성별을 되물은 뒤 옵션으로 판정</td><td><b>120 적합</b></td></tr>
 <tr><td>여아 원피스 110 사이즈 (타오바오)</td><td>"110"을 키로 잘못 읽는 문제 발견</td><td>"110 사이즈"는 아동복 사이즈로 인식하도록 수정</td><td>표의 110 추천</td></tr>
 </table>
+<div class="note">맞음/틀림은 상품 페이지의 사이즈표와 직접 비교해 판단 · 틀린 1회는 키·몸무게 표를 따로 읽기 전 버전의 자켓 실행 · 같은 상품 반복 실행 포함</div>
 """
 
 FIGS['05_시스템구조'] = """
