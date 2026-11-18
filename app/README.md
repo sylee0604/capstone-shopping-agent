@@ -24,7 +24,7 @@ src/ui/             사이드패널 화면, 가짜 시나리오 8개
 extension/          manifest.json, sidepanel.html/css, background.js, 아이콘
 eval/               의도 파악 평가셋(30문장), 측정 결과(eval/결과)
 scripts/            build.mjs(번들링), eval_intent.mjs(LLM 의도 파악 측정), eval_intent_rule.mjs(규칙 의도 파악 측정), check_chart_detector.py(표 이미지 판별 점검)
-test/               흐름·체크포인트·LLM 계층·검색·상세 분석 테스트 (58개)
+test/               흐름·체크포인트·LLM 계층·검색·상세 분석 테스트 (69개)
 ```
 
 ## 실행

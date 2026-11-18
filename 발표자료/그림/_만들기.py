@@ -190,7 +190,7 @@ FIGS['12_정확도와테스트'] = """
 <div class="row">
  <div class="box b-gray" style="flex:1;text-align:center"><div style="font-size:26px">필수 항목</div><div style="font-size:21px;color:#333">사이즈 이름·권장 키·몸무게</div><div class="big" style="margin:14px 0">100%</div><div style="font-size:24px">279/279 · 목표 80%</div></div>
  <div class="box b-gray" style="flex:1;text-align:center"><div style="font-size:26px">전체 항목</div><div style="font-size:21px;color:#333">치수·단위·측정 기준 등 모든 칸</div><div class="big" style="margin:14px 0">98.4%</div><div style="font-size:24px">1,111/1,129 · 목표 70%</div></div>
- <div class="box b-gray" style="flex:1.15"><div class="t">자동 테스트 58개 모두 통과</div>흐름 13 · 저장·복원 2<br>LLM 호출 7 · 검색 12<br>분석·판정 24</div>
+ <div class="box b-gray" style="flex:1.15"><div class="t">자동 테스트 69개 모두 통과</div>흐름 13 · 저장·복원 2<br>LLM 호출 9 · 검색 13<br>분석·판정 32</div>
 </div>
 <div class="note">틀린 18개는 모두 측정 기준(단면/둘레, 소매 시작점) 표시이고 숫자는 모두 맞음 · 사람이 고른 사이즈표 이미지 기준</div>
 """
